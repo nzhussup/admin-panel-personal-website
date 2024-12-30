@@ -1,0 +1,9 @@
+local-db/
+node_modules/
+.DS_Store
+.vite/
+/dist/
+*.log
+.env
+local_backend_setup.txt
+
