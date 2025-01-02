@@ -46,7 +46,7 @@ kind: Service
 metadata:
   name: panel-api-service
 spec:
-  type: NodePort
+  type: ClusterIP
   externalTrafficPolicy: Local
   ports:
     - port: 8010
