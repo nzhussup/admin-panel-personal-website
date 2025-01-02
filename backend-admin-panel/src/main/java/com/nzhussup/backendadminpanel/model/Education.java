@@ -1,32 +1,45 @@
 package com.nzhussup.backendadminpanel.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Entity
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "projects")
-public class Project implements Identifiable{
+@Table(name = "education")
+public class Education implements Identifiable{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String institution;
 
     @Column(nullable = false)
-    private String url;
+    private String location;
 
     @Column(nullable = false)
-    private String techStack;
+    private Date startDate;
+
+    @Column
+    private Date endDate;
+
+    @Column(nullable = false)
+    private String degree;
+
+    @Column
+    private String thesis;
+
+    @Column
+    private String description;
 
     @Column(nullable = false)
     private int displayOrder;
@@ -35,4 +48,5 @@ public class Project implements Identifiable{
     public Long getId() {
         return id;
     }
+
 }

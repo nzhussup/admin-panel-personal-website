@@ -34,7 +34,7 @@ const PopUp = ({ closePopup, title, children, onSubmit }) => {
       >
         <h5>{title}</h5>
         <form onSubmit={handleSubmit}>
-          {children} {/* This is where your form fields will be rendered */}
+          {children}
           <div className='d-flex justify-content-between'>
             <button className='btn btn-primary' type='submit'>
               Save

@@ -40,9 +40,12 @@ public class SecurityConfig {
                 .cors().configurationSource(corsConfigurationSource())
                 .and()
                 .authorizeHttpRequests(requests -> {
-                    requests.requestMatchers("/auth/v1/login").permitAll();
-                    requests.requestMatchers(HttpMethod.GET, "/api/v1/project").permitAll();
-                    requests.requestMatchers(HttpMethod.GET, "/api/v1/certificate").permitAll();
+                    requests.requestMatchers(AppConfig.baseAuthPath+"login").permitAll();
+                    requests.requestMatchers(HttpMethod.GET, AppConfig.baseApiPath+"project").permitAll();
+                    requests.requestMatchers(HttpMethod.GET, AppConfig.baseApiPath+"certificate").permitAll();
+                    requests.requestMatchers(HttpMethod.GET, AppConfig.baseApiPath+"work-experience").permitAll();
+                    requests.requestMatchers(HttpMethod.GET, AppConfig.baseApiPath+"education").permitAll();
+                    requests.requestMatchers(HttpMethod.GET, AppConfig.baseApiPath+"skill").permitAll();
                     requests.anyRequest().authenticated();
                 })
                 .httpBasic(Customizer.withDefaults())

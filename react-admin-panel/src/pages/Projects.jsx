@@ -1,62 +1,38 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Header from "../components/Header";
 import EditableCard from "../components/EditableCard";
-import { fetchData, saveData, deleteData } from "../utils/apiUtil";
+import { usePageData, usePopup } from "../utils/pageUtil";
 import AddButton from "../components/AddButton";
 import PopUp from "../components/PopUp";
 import FormInput from "../components/FormInput";
+import PageSubHeader from "../components/PageSubHeader";
 
 const Projects = () => {
-  const [projects, setProjects] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
-  const [formData, setFormData] = useState({
-    id: null,
-    name: "",
-    techStack: "",
-    url: "",
-  });
-  const [isEditMode, setIsEditMode] = useState(false);
-
-  const openPopup = (project = null) => {
-    setIsEditMode(!!project);
-    setFormData(
-      project || {
-        id: null,
-        name: "",
-        techStack: "",
-        url: "",
-      }
-    );
-    setShowPopup(true);
-  };
-
-  const closePopup = () => {
-    setShowPopup(false);
-  };
-
-  const fetchProjects = async () => {
-    await fetchData("project", setProjects);
-  };
+  const {
+    items: projects,
+    saveItem,
+    deleteItem,
+    toggleSort,
+  } = usePageData("project");
+  const {
+    showPopup,
+    formData,
+    isEditMode,
+    openPopup,
+    closePopup,
+    setFormData,
+  } = usePopup();
 
   const saveProject = async () => {
-    await saveData("project", formData, isEditMode);
-    fetchProjects();
+    await saveItem(formData, isEditMode);
     closePopup();
   };
-
-  const deleteProject = async (id) => {
-    await deleteData("project", id);
-    fetchProjects();
-  };
-
-  useEffect(() => {
-    fetchProjects();
-  }, []);
 
   return (
     <>
       <Header text={"Project Management"} />
       <div className='container my-5'>
+        <PageSubHeader toggleSort={toggleSort} />
         <div className='mt-4'>
           {/* Display fetched projects */}
           {projects.length > 0 ? (
@@ -65,9 +41,17 @@ const Projects = () => {
                 key={project.id}
                 title={project.name}
                 onEdit={() => openPopup(project)}
-                onDelete={() => deleteProject(project.id)}
+                onDelete={() => deleteItem(project.id)}
               >
-                <p>{project.techStack}</p>
+                <div>
+                  {project.techStack &&
+                    project.techStack.split(",").map((tech, index) => (
+                      <span key={index} className='badge bg-primary me-2'>
+                        {tech.trim()}{" "}
+                      </span>
+                    ))}
+                </div>
+
                 {project.url && (
                   <a
                     href={project.url}
@@ -78,6 +62,7 @@ const Projects = () => {
                     View Project
                   </a>
                 )}
+                <p>Order: {project.displayOrder}</p>
               </EditableCard>
             ))
           ) : (
@@ -114,6 +99,15 @@ const Projects = () => {
             label='URL'
             value={formData.url}
             onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+            required={true}
+          />
+          <FormInput
+            label='Order Display'
+            type='number'
+            value={formData.displayOrder}
+            onChange={(e) =>
+              setFormData({ ...formData, displayOrder: e.target.value })
+            }
             required={true}
           />
         </PopUp>

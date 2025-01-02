@@ -6,4 +6,7 @@ node_modules/
 *.log
 .env
 local_backend_setup.txt
+prod_env_variables.txt
 
+k8s/secrets.yml
+k8s/configmap.yml

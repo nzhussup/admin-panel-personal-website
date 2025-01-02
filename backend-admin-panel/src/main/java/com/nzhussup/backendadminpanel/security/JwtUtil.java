@@ -5,6 +5,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
+import com.nzhussup.backendadminpanel.config.AppConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,7 +16,7 @@ public class JwtUtil {
 
     @Value("security.jwt.secret-key")
     private String SECRET_KEY;
-    private static final long EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 1 day in milliseconds
+    private static final long EXPIRATION_TIME = AppConfig.EXPIRATION_TIME; // 1 day in milliseconds
 
     public String generateToken(String username) {
         return JWT.create()

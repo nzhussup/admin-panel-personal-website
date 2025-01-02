@@ -1,11 +1,11 @@
-import Login from "./pages/auth/Login";
-import Home from "./pages/Home";
-import CV from "./pages/CV";
-import Projects from "./pages/Projects";
-import Certs from "./pages/cv/Certs";
-import Edu from "./pages/cv/Edu";
-import WorkExp from "./pages/cv/WorkExp";
-import Skills from "./pages/cv/Skills";
+import Login from "../pages/auth/Login";
+import Home from "../pages/Home";
+import CV from "../pages/CV";
+import Projects from "../pages/Projects";
+import Certs from "../pages/cv/Certs";
+import Edu from "../pages/cv/Edu";
+import WorkExp from "../pages/cv/WorkExp";
+import Skills from "../pages/cv/Skills";
 
 const routes = [
   {

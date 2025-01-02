@@ -1,68 +1,179 @@
-/* :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+body.dark-mode {
+  background-color: #121212;
+  color: #e0e0e0;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+body.dark-mode header {
+  background-color: #1f1f1f; 
+  color: #e0e0e0;
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+.form-switch .form-check-input:checked {
+  background-color: #0d6efd;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.form-check-label {
+  color: #fff;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+body.dark-mode .form-check-label {
+  color: #e0e0e0; 
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-} */
+body.dark-mode header {
+  background-color: #1f1f1f;
+  color: #e0e0e0; 
+  border-bottom: 1px solid #333; 
+}
+
+body.dark-mode header .bi {
+  fill: #e0e0e0; 
+}
+
+
+body.dark-mode .btn {
+  background-color: #3a3a3a; 
+  color: #e0e0e0; 
+  border: 1px solid #555; 
+}
+
+body.dark-mode .btn:hover {
+  background-color: #505050;
+  border-color: #888;
+}
+
+body.dark-mode input,
+body.dark-mode textarea {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  border: 1px solid #444;
+}
+
+body.dark-mode input:focus,
+body.dark-mode textarea:focus {
+  border-color: #0d6efd;
+  outline: none;
+}
+
+body.dark-mode a {
+  color: #bb86fc; 
+  text-decoration: none;
+}
+
+body.dark-mode a:hover {
+  text-decoration: underline; /* Underline on hover */
+}
+
+/* Dropdowns in dark mode */
+body.dark-mode .dropdown-menu {
+  background-color: #1f1f1f; /* Dark background for dropdowns */
+  border: 1px solid #444; /* Lighter border for dropdowns */
+}
+
+body.dark-mode .dropdown-item {
+  color: #e0e0e0; /* Light text for dropdown items */
+}
+
+body.dark-mode .dropdown-item:hover {
+  background-color: #333; /* Dark background on hover */
+  color: #fff; /* White text on hover */
+}
+
+/* Toasts and notifications in dark mode */
+body.dark-mode .toast {
+  background-color: #333; /* Dark background for toast */
+  color: #e0e0e0; /* Light text for toast */
+  border: 1px solid #444; /* Dark border for toast */
+}
+
+/* Improve visibility of cards in dark mode */
+body.dark-mode .card {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  border: 1px solid #444;
+}
+
+body.dark-mode .card-header {
+  background-color: #3a3a3a;
+  border-bottom: 1px solid #444;
+}
+
+body.dark-mode .card-footer {
+  background-color: #3a3a3a;
+  border-top: 1px solid #444; 
+}
+
+/* Tables in dark mode */
+body.dark-mode table {
+  background-color: #1f1f1f;
+  color: #e0e0e0;
+}
+
+body.dark-mode th,
+body.dark-mode td {
+  border: 1px solid #444;
+}
+
+body.dark-mode th {
+  background-color: #333;
+}
+
+body.dark-mode tr:hover {
+  background-color: #333;
+}
+
+/* Dark mode: moon icon */
+body.dark-mode .bi-moon-stars {
+  color: #f8f9fa;  /* Light color for dark mode */
+}
+
+/* Light mode: brightness-high icon */
+body:not(.dark-mode) .bi-brightness-high {
+  color: #343a40;  /* Dark color for light mode */
+}
+
+/* Dark Mode Styles */
+body.dark-mode {
+  background-color: #121212; /* Dark background for the whole page */
+  color: #e0e0e0; /* Light text for readability */
+}
+
+body.dark-mode .bg-body-tertiary {
+  background-color: #1f1f1f; /* Dark background for the login container */
+}
+
+body.dark-mode .form-control {
+  background-color: #2a2a2a; /* Dark background for inputs */
+  color: #e0e0e0; /* Light text for inputs */
+  border: 1px solid #444; /* Dark border for inputs */
+}
+
+body.dark-mode .form-control:focus {
+  border-color: #0d6efd; /* Blue border on focus */
+  outline: none;
+}
+
+body.dark-mode .alert-danger {
+  background-color: #333; /* Dark background for error message */
+  color: #e0e0e0; /* Light text for error message */
+}
+
+body.dark-mode .btn-primary {
+  background-color: #3a3a3a; /* Dark button background */
+  color: #e0e0e0; /* Light text for the button */
+  border: 1px solid #555; /* Dark border for the button */
+}
+
+body.dark-mode .btn-primary:hover {
+  background-color: #505050; /* Hover effect for the button */
+  border-color: #888; /* Hover border */
+}
+
+body.dark-mode svg {
+  fill: #e0e0e0; /* Light color for the logo in dark mode */
+}
+
+body.dark-mode .text-body-secondary {
+  color: #888; /* Slightly lighter color for the footer text */
+}

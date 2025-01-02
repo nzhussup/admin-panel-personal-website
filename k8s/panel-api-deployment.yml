@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: panel-api-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: panel-api-deployment
+  template:
+    metadata:
+      labels:
+        app: panel-api-deployment
+    spec:
+      containers:
+        - name: panel-api
+          image: nzhussup/panel-api:latest
+          ports:
+            - containerPort: 8080
+          env:
+          - name: SPRING_DATASOURCE_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: admin-panel-config
+                key: DB_HOST
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: admin-panel-config
+                  key: DB_USERNAME
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: admin-panel-secrets
+                  key: DB_PASSWORD
+            - name: SECURITY_JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: admin-panel-secrets
+                  key: JWT_SECRET
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: panel-api-service
+spec:
+  type: NodePort
+  externalTrafficPolicy: Local
+  ports:
+    - port: 8010
+      targetPort: 8080
+  selector:
+    app: panel-api-deployment

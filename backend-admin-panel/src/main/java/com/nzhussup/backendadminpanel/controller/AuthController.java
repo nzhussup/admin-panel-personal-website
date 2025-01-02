@@ -1,11 +1,11 @@
 package com.nzhussup.backendadminpanel.controller;
 
 
+import com.nzhussup.backendadminpanel.config.AppConfig;
 import com.nzhussup.backendadminpanel.model.AuthRequest;
 import com.nzhussup.backendadminpanel.model.AuthResponse;
 import com.nzhussup.backendadminpanel.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/auth/v1")
+@RequestMapping(AppConfig.baseAuthPath)
 public class AuthController {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(12);

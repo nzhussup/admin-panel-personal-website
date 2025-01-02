@@ -1,32 +1,30 @@
 package com.nzhussup.backendadminpanel.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
+
 @Entity
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "projects")
-public class Project implements Identifiable{
+@Table(name = "skills")
+public class Skill implements Identifiable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String category;
 
     @Column(nullable = false)
-    private String url;
-
-    @Column(nullable = false)
-    private String techStack;
+    private String skillNames;
 
     @Column(nullable = false)
     private int displayOrder;

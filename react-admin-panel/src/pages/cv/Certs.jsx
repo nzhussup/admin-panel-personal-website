@@ -1,71 +1,48 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Header from "../../components/Header";
 import EditableCard from "../../components/EditableCard";
-import { fetchData, saveData, deleteData } from "../../utils/apiUtil";
 import AddButton from "../../components/AddButton";
 import PopUp from "../../components/PopUp";
 import FormInput from "../../components/FormInput";
+import PageSubHeader from "../../components/PageSubHeader";
+import { usePageData, usePopup } from "../../utils/pageUtil";
 
 const Certs = () => {
-  const [certificates, setCertificates] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
-  const [formData, setFormData] = useState({
-    id: null,
-    name: "",
-    url: "",
-  });
-  const [isEditMode, setIsEditMode] = useState(false);
+  const {
+    items: certificates,
+    saveItem,
+    deleteItem,
+    toggleSort,
+  } = usePageData("certificate");
 
-  const openPopup = (certificate = null) => {
-    setIsEditMode(!!certificate);
-    setFormData(
-      certificate || {
-        id: null,
-        name: "",
-        url: "",
-      }
-    );
-    setShowPopup(true);
-  };
-
-  const closePopup = () => {
-    setShowPopup(false);
-  };
-
-  const fetchCertificates = async () => {
-    await fetchData("certificate", setCertificates);
-  };
+  const {
+    showPopup,
+    formData,
+    isEditMode,
+    openPopup,
+    closePopup,
+    setFormData,
+  } = usePopup();
 
   const saveCertificate = async () => {
-    await saveData("certificate", formData, isEditMode);
-    fetchCertificates();
+    await saveItem(formData, isEditMode);
     closePopup();
   };
-
-  const deleteCertificate = async (id) => {
-    await deleteData("certificate", id);
-    fetchCertificates();
-  };
-
-  useEffect(() => {
-    fetchCertificates();
-  }, []);
 
   return (
     <>
       <Header text={"Certifications"} />
       <div className='container my-5'>
+        <PageSubHeader toggleSort={toggleSort} />
         <div className='mt-4'>
-          {/* Display fetched certificates */}
           {certificates.length > 0 ? (
             certificates.map((certificate) => (
               <EditableCard
                 key={certificate.id}
                 title={certificate.name}
                 onEdit={() => openPopup(certificate)}
-                onDelete={() => deleteCertificate(certificate.id)}
+                onDelete={() => deleteItem(certificate.id)}
               >
-                <p>{certificate.name}</p>
                 {certificate.url && (
                   <a
                     href={certificate.url}
@@ -76,6 +53,7 @@ const Certs = () => {
                     View Certificate
                   </a>
                 )}
+                <p>Order: {certificate.displayOrder}</p>
               </EditableCard>
             ))
           ) : (
@@ -86,7 +64,6 @@ const Certs = () => {
 
       <AddButton openPopup={openPopup} />
 
-      {/* Popup for Add/Edit */}
       {showPopup && (
         <PopUp
           closePopup={closePopup}
@@ -103,6 +80,15 @@ const Certs = () => {
             label='Certificate URL'
             value={formData.url}
             onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+            required={true}
+          />
+          <FormInput
+            label='Order Display'
+            type='number'
+            value={formData.displayOrder}
+            onChange={(e) =>
+              setFormData({ ...formData, displayOrder: e.target.value })
+            }
             required={true}
           />
         </PopUp>
