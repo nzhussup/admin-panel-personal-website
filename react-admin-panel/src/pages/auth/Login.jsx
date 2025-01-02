@@ -16,7 +16,7 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await axios.post(config.authUrl, {
+      const response = await axios.post(config.authUrl + "/login", {
         username,
         password,
       });
