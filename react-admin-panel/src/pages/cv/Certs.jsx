@@ -43,17 +43,19 @@ const Certs = () => {
                 onEdit={() => openPopup(certificate)}
                 onDelete={() => deleteItem(certificate.id)}
               >
-                {certificate.url && (
-                  <a
-                    href={certificate.url}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='btn btn-link'
-                  >
-                    View Certificate
-                  </a>
-                )}
-                <p>Order: {certificate.displayOrder}</p>
+                <div className='mb-3'>
+                  {certificate.url && (
+                    <a
+                      href={certificate.url}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='btn btn-link'
+                    >
+                      View Certificate
+                    </a>
+                  )}
+                  <p>Order: {certificate.displayOrder}</p>
+                </div>
               </EditableCard>
             ))
           ) : (

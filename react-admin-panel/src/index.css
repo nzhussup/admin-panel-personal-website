@@ -177,3 +177,18 @@ body.dark-mode svg {
 body.dark-mode .text-body-secondary {
   color: #888; /* Slightly lighter color for the footer text */
 }
+
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 1.25rem; /* Smaller title for mobile */
+  }
+
+  .btn-outline-primary {
+    font-size: 0.875rem; /* Smaller logout button text */
+  }
+
+  svg {
+    width: 28px;
+    height: 28px; /* Adjust logo size for mobile */
+  }
+}

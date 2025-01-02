@@ -43,26 +43,27 @@ const Projects = () => {
                 onEdit={() => openPopup(project)}
                 onDelete={() => deleteItem(project.id)}
               >
-                <div>
-                  {project.techStack &&
-                    project.techStack.split(",").map((tech, index) => (
-                      <span key={index} className='badge bg-primary me-2'>
-                        {tech.trim()}{" "}
-                      </span>
-                    ))}
+                <div className='mt-4'>
+                  <div>
+                    {project.techStack &&
+                      project.techStack.split(",").map((tech, index) => (
+                        <span key={index} className='badge bg-primary me-2'>
+                          {tech.trim()}{" "}
+                        </span>
+                      ))}
+                  </div>
+                  {project.url && (
+                    <a
+                      href={project.url}
+                      target='_blank'
+                      rel='noopener noreferrer'
+                      className='btn btn-link'
+                    >
+                      View Project
+                    </a>
+                  )}
+                  <p>Order: {project.displayOrder}</p>
                 </div>
-
-                {project.url && (
-                  <a
-                    href={project.url}
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    className='btn btn-link'
-                  >
-                    View Project
-                  </a>
-                )}
-                <p>Order: {project.displayOrder}</p>
               </EditableCard>
             ))
           ) : (

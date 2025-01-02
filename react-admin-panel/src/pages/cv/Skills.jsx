@@ -43,7 +43,7 @@ const Skills = () => {
                 onEdit={() => openPopup(skill)}
                 onDelete={() => deleteItem(skill.id)}
               >
-                <div className='mb-3'>
+                <div className='mt-4'>
                   {skill.skillNames.split(", ").map((skillName, index) => (
                     <span
                       key={index}
@@ -53,8 +53,8 @@ const Skills = () => {
                       {skillName}
                     </span>
                   ))}
+                  <p>Order: {skill.displayOrder}</p>
                 </div>
-                <p>Order: {skill.displayOrder}</p>
               </EditableCard>
             ))
           ) : (

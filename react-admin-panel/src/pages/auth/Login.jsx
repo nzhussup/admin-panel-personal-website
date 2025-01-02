@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import axios from "axios";
 import config from "../../config/ConfigVariables";
+import { useDarkMode } from "../../context/DarkModeContext";
+import DarkModeToggle from "../../components/DarkModeToggle";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -10,6 +12,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { isDarkMode } = useDarkMode();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -40,42 +43,50 @@ const Login = () => {
   };
 
   return (
-    <div className='d-flex align-items-center py-4 bg-body-tertiary vh-100'>
+    <div
+      className={`d-flex align-items-center py-4 vh-100 ${
+        isDarkMode ? "dark-mode" : ""
+      }`}
+      style={{
+        backgroundColor: isDarkMode
+          ? "#121212 !important"
+          : "#f8f9fa !important",
+      }}
+    >
       <div className='container'>
         <div className='row justify-content-center'>
           <div className='col-md-4'>
             <main className='form-signin w-100 m-auto'>
               <form onSubmit={handleSubmit}>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  width='57'
-                  height='57'
-                  fill='currentColor'
-                  className='bi bi-box-arrow-in-right'
-                  viewBox='0 0 16 16'
-                >
-                  <path
-                    fillRule='evenodd'
-                    d='M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0z'
-                  />
-                  <path
-                    fillRule='evenodd'
-                    d='M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z'
-                  />
-                </svg>
-                <h1 className='h3 mb-3 fw-normal'>Please sign in</h1>
+                <div className='d-flex justify-content-between align-items-center mb-4'>
+                  <h1
+                    className='h3 mb-3 fw-normal'
+                    style={{
+                      color: isDarkMode ? "#e0e0e0" : "#000",
+                    }}
+                  >
+                    Please sign in
+                  </h1>
+                  <DarkModeToggle />
+                </div>
 
                 {error && <div className='alert alert-danger'>{error}</div>}
 
                 <div className='form-floating mb-3'>
                   <input
                     type='text'
-                    className='form-control'
+                    className={`form-control ${
+                      isDarkMode ? "bg-dark text-light" : ""
+                    }`}
                     id='floatingInput'
                     placeholder='Username'
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
+                    style={{
+                      backgroundColor: isDarkMode ? "#2a2a2a" : "#fff",
+                      color: isDarkMode ? "#e0e0e0" : "#000",
+                    }}
                   />
                   <label htmlFor='floatingInput'>Username</label>
                 </div>
@@ -83,20 +94,40 @@ const Login = () => {
                 <div className='form-floating mb-3'>
                   <input
                     type='password'
-                    className='form-control'
+                    className={`form-control ${
+                      isDarkMode ? "bg-dark text-light" : ""
+                    }`}
                     id='floatingPassword'
                     placeholder='Password'
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
+                    style={{
+                      backgroundColor: isDarkMode ? "#2a2a2a" : "#fff",
+                      color: isDarkMode ? "#e0e0e0" : "#000",
+                    }}
                   />
                   <label htmlFor='floatingPassword'>Password</label>
                 </div>
 
-                <button className='btn btn-primary w-100 py-2' type='submit'>
+                <button
+                  className={`btn w-100 py-2 ${
+                    isDarkMode ? "btn-secondary" : "btn-primary"
+                  }`}
+                  type='submit'
+                  style={{
+                    backgroundColor: isDarkMode ? "#505050" : "#007bff",
+                    color: isDarkMode ? "#e0e0e0" : "#fff",
+                  }}
+                >
                   Sign in
                 </button>
-                <p className='mt-5 mb-3 text-body-secondary'>
+                <p
+                  className='mt-5 mb-3'
+                  style={{
+                    color: isDarkMode ? "#b0b0b0" : "#666",
+                  }}
+                >
                   © by nzhussup. All rights reserved!
                 </p>
               </form>

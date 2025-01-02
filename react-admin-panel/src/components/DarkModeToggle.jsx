@@ -1,5 +1,5 @@
 import React from "react";
-import { useDarkMode } from "../contexts/DarkModeContext";
+import { useDarkMode } from "../context/DarkModeContext";
 
 const DarkModeToggle = () => {
   const { isDarkMode, toggleDarkMode } = useDarkMode();
@@ -13,9 +13,7 @@ const DarkModeToggle = () => {
         checked={isDarkMode}
         onChange={toggleDarkMode}
       />
-      <label className='form-check-label' htmlFor='darkModeSwitch'>
-        {isDarkMode ? "Light Mode" : "Dark Mode"}
-      </label>
+      <label className='form-check-label' htmlFor='darkModeSwitch'></label>
     </div>
   );
 };
