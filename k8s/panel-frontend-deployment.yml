@@ -33,4 +33,3 @@ spec:
       port: 8020
       targetPort: 8000
   type: ClusterIP
-  externalTrafficPolicy: Local

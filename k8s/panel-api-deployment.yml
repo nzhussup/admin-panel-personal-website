@@ -18,11 +18,11 @@ spec:
           ports:
             - containerPort: 8080
           env:
-          - name: SPRING_DATASOURCE_HOST
-            valueFrom:
-              configMapKeyRef:
-                name: admin-panel-config
-                key: DB_HOST
+            - name: SPRING_DATASOURCE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: admin-panel-config
+                  key: DB_HOST
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 configMapKeyRef:
@@ -40,14 +40,12 @@ spec:
                   key: JWT_SECRET
 
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
   name: panel-api-service
 spec:
   type: ClusterIP
-  externalTrafficPolicy: Local
   ports:
     - port: 8010
       targetPort: 8080
