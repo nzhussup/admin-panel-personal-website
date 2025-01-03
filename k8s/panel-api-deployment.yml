@@ -38,6 +38,16 @@ spec:
                 secretKeyRef:
                   name: admin-panel-secrets
                   key: JWT_SECRET
+            - name: SPRING_REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: admin-panel-config
+                  key: REDIS_HOST
+            - name: SPRING_REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: admin-panel-config
+                  key: REDIS_PORT
 
 ---
 apiVersion: v1
