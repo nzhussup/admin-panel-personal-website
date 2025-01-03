@@ -6,12 +6,16 @@ import AddButton from "../components/AddButton";
 import PopUp from "../components/PopUp";
 import FormInput from "../components/FormInput";
 import PageSubHeader from "../components/PageSubHeader";
+import DeleteConfirmation from "../components/DeleteConfirmation";
 
 const Projects = () => {
   const {
     items: projects,
     saveItem,
-    deleteItem,
+    confirmDelete,
+    handleDelete,
+    isDeleteModalOpen,
+    setDeleteModalOpen,
     toggleSort,
   } = usePageData("project");
   const {
@@ -41,7 +45,7 @@ const Projects = () => {
                 key={project.id}
                 title={project.name}
                 onEdit={() => openPopup(project)}
-                onDelete={() => deleteItem(project.id)}
+                onDelete={() => confirmDelete(project.id)}
               >
                 <div className='mt-4'>
                   <div>
@@ -71,6 +75,12 @@ const Projects = () => {
           )}
         </div>
       </div>
+
+      <DeleteConfirmation
+        isOpen={isDeleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+      />
 
       <AddButton openPopup={openPopup} />
 

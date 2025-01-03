@@ -6,12 +6,16 @@ import PopUp from "../../components/PopUp";
 import FormInput from "../../components/FormInput";
 import { usePageData, usePopup } from "../../utils/pageUtil";
 import PageSubHeader from "../../components/PageSubHeader";
+import DeleteConfirmation from "../../components/DeleteConfirmation";
 
 const WorkExp = () => {
   const {
     items: workExperience,
     saveItem,
-    deleteItem,
+    confirmDelete,
+    handleDelete,
+    isDeleteModalOpen,
+    setDeleteModalOpen,
     toggleSort,
   } = usePageData("work-experience");
 
@@ -41,7 +45,7 @@ const WorkExp = () => {
                 key={experience.id}
                 title={experience.position}
                 onEdit={() => openPopup(experience)}
-                onDelete={() => deleteItem(experience.id)}
+                onDelete={() => confirmDelete(experience.id)}
               >
                 <div className='mb-3'>
                   <h5>Company: {experience.company}</h5>
@@ -60,6 +64,11 @@ const WorkExp = () => {
           )}
         </div>
       </div>
+      <DeleteConfirmation
+        isOpen={isDeleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+      />
 
       <AddButton openPopup={openPopup} />
 

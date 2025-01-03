@@ -6,12 +6,16 @@ import PopUp from "../../components/PopUp";
 import FormInput from "../../components/FormInput";
 import { usePageData, usePopup } from "../../utils/pageUtil";
 import PageSubHeader from "../../components/PageSubHeader";
+import DeleteConfirmation from "../../components/DeleteConfirmation";
 
 const Skills = () => {
   const {
     items: skills,
     saveItem,
-    deleteItem,
+    confirmDelete,
+    handleDelete,
+    isDeleteModalOpen,
+    setDeleteModalOpen,
     toggleSort,
   } = usePageData("skill");
 
@@ -41,7 +45,7 @@ const Skills = () => {
                 key={skill.id}
                 title={skill.category}
                 onEdit={() => openPopup(skill)}
-                onDelete={() => deleteItem(skill.id)}
+                onDelete={() => confirmDelete(skill.id)}
               >
                 <div className='mt-4'>
                   {skill.skillNames.split(", ").map((skillName, index) => (
@@ -62,6 +66,12 @@ const Skills = () => {
           )}
         </div>
       </div>
+
+      <DeleteConfirmation
+        isOpen={isDeleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+      />
 
       <AddButton openPopup={openPopup} />
 

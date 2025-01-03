@@ -6,6 +6,7 @@ import PopUp from "../../components/PopUp";
 import FormInput from "../../components/FormInput";
 import PageSubHeader from "../../components/PageSubHeader";
 import { usePageData, usePopup } from "../../utils/pageUtil";
+import DeleteConfirmation from "../../components/DeleteConfirmation";
 
 const formatDateForInput = (dateString) => {
   if (!dateString) return "";
@@ -17,7 +18,10 @@ const Edu = () => {
   const {
     items: education,
     saveItem,
-    deleteItem,
+    confirmDelete,
+    handleDelete,
+    isDeleteModalOpen,
+    setDeleteModalOpen,
     toggleSort,
   } = usePageData("education");
 
@@ -47,7 +51,7 @@ const Edu = () => {
                 key={edu.id}
                 title={edu.degree}
                 onEdit={() => openPopup(edu)}
-                onDelete={() => deleteItem(edu.id)}
+                onDelete={() => confirmDelete(edu.id)}
               >
                 <p>{edu.institution}</p>
                 <p>{edu.location}</p>
@@ -67,6 +71,11 @@ const Edu = () => {
           )}
         </div>
       </div>
+      <DeleteConfirmation
+        isOpen={isDeleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+      />
 
       <AddButton openPopup={openPopup} />
 

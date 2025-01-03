@@ -4,6 +4,8 @@ import { fetchData, saveData, deleteData } from "./apiUtil";
 export const usePageData = (endpoint, sortBy = "displayOrder") => {
   const [items, setItems] = useState([]);
   const [isAscending, setIsAscending] = useState(false);
+  const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [selectedItemId, setSelectedItemId] = useState(null);
 
   const fetchItems = async () => {
     await fetchData(endpoint, (fetchedItems) => {
@@ -19,9 +21,18 @@ export const usePageData = (endpoint, sortBy = "displayOrder") => {
     fetchItems();
   };
 
-  const deleteItem = async (id) => {
-    await deleteData(endpoint, id);
-    fetchItems();
+  const confirmDelete = (itemId) => {
+    setSelectedItemId(itemId);
+    setDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (selectedItemId) {
+      await deleteData(endpoint, selectedItemId);
+      setSelectedItemId(null);
+      setDeleteModalOpen(false);
+      fetchItems();
+    }
   };
 
   const toggleSort = () => {
@@ -32,7 +43,15 @@ export const usePageData = (endpoint, sortBy = "displayOrder") => {
     fetchItems();
   }, [isAscending]);
 
-  return { items, saveItem, deleteItem, toggleSort };
+  return {
+    items,
+    saveItem,
+    confirmDelete,
+    handleDelete,
+    isDeleteModalOpen,
+    setDeleteModalOpen,
+    toggleSort,
+  };
 };
 
 export const usePopup = () => {

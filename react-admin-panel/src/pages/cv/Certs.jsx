@@ -6,12 +6,16 @@ import PopUp from "../../components/PopUp";
 import FormInput from "../../components/FormInput";
 import PageSubHeader from "../../components/PageSubHeader";
 import { usePageData, usePopup } from "../../utils/pageUtil";
+import DeleteConfirmation from "../../components/DeleteConfirmation";
 
 const Certs = () => {
   const {
     items: certificates,
     saveItem,
-    deleteItem,
+    confirmDelete,
+    handleDelete,
+    isDeleteModalOpen,
+    setDeleteModalOpen,
     toggleSort,
   } = usePageData("certificate");
 
@@ -41,7 +45,7 @@ const Certs = () => {
                 key={certificate.id}
                 title={certificate.name}
                 onEdit={() => openPopup(certificate)}
-                onDelete={() => deleteItem(certificate.id)}
+                onDelete={() => confirmDelete(certificate.id)}
               >
                 <div className='mb-3'>
                   {certificate.url && (
@@ -63,6 +67,12 @@ const Certs = () => {
           )}
         </div>
       </div>
+
+      <DeleteConfirmation
+        isOpen={isDeleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+      />
 
       <AddButton openPopup={openPopup} />
 
