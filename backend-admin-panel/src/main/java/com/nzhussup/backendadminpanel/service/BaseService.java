@@ -1,5 +1,7 @@
 package com.nzhussup.backendadminpanel.service;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -12,6 +14,7 @@ public abstract class BaseService<T> {
         this.repository = repository;
     }
 
+    @Cacheable(value = "#root.targetClass.simpleName", key = "#root.targetClass.simpleName + '_all'")
     public List<T> findAll() {
         return repository.findAll();
     }
@@ -20,14 +23,17 @@ public abstract class BaseService<T> {
         return repository.findById(id).orElse(null);
     }
 
+    @CacheEvict(value = "#root.targetClass.simpleName", key = "#root.targetClass.simpleName + '_all'")
     public T save(T entity) {
         return repository.save(entity);
     }
 
+    @CacheEvict(value = "#root.targetClass.simpleName", key = "#root.targetClass.simpleName + '_all'")
     public void delete(Long id) {
         repository.deleteById(id);
     }
 
+    @CacheEvict(value = "#root.targetClass.simpleName", key = "#root.targetClass.simpleName + '_all'")
     public T update(T entity) {
         return repository.save(entity);
     }

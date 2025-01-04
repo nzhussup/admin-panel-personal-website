@@ -53,4 +53,23 @@ const deleteData = async (endpoint, id) => {
   }
 };
 
-export { fetchData, saveData, deleteData };
+const clearCache = async () => {
+  const token = localStorage.getItem("token");
+
+  try {
+    await axios.post(
+      `${config.apiUrl}/cache/clearGlobalCache`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    console.log("Cache cleared successfully.");
+  } catch (error) {
+    console.error("Error clearing cache:", error);
+  }
+};
+
+export { fetchData, saveData, deleteData, clearCache };

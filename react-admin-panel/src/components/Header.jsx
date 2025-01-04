@@ -1,12 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useDarkMode } from "../context/DarkModeContext";
+import ClearCacheButton from "./ClearCacheButton";
+import GlobalAlert from "./GlobalAlert"; // Import GlobalAlert component
 
 const Header = ({ text }) => {
   const { logout } = useAuth();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const navigate = useNavigate();
+
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
 
   const handleLogout = () => {
     logout();
@@ -16,6 +21,12 @@ const Header = ({ text }) => {
   const handleLogoClick = (e) => {
     e.preventDefault();
     navigate("/");
+  };
+
+  const handleClearCacheSuccess = () => {
+    setAlertMessage("Cache cleared successfully!");
+    setAlertVisible(true);
+    setTimeout(() => setAlertVisible(false), 3000); // Hide alert after 3 seconds
   };
 
   return (
@@ -47,51 +58,66 @@ const Header = ({ text }) => {
             <h1 className='h4'>{text}</h1>
           </div>
 
-          {/* Toggle and Logout on the right */}
+          {/* Buttons on the right */}
           <div className='col-12 col-md-4 d-flex justify-content-center justify-content-md-end align-items-center'>
-            <label className='form-check form-switch me-3'>
-              <input
-                className='form-check-input'
-                type='checkbox'
-                checked={isDarkMode}
-                onChange={toggleDarkMode}
-              />
-              <span className='form-check-label'>
-                {isDarkMode ? (
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width='16'
-                    height='16'
-                    fill='black'
-                    className='bi bi-moon-stars'
-                    viewBox='0 0 16 16'
-                  >
-                    <path d='...' />
-                  </svg>
-                ) : (
-                  <svg
-                    xmlns='http://www.w3.org/2000/svg'
-                    width='16'
-                    height='16'
-                    fill='currentColor'
-                    className='bi bi-brightness-high'
-                    viewBox='0 0 16 16'
-                  >
-                    <path d='...' />
-                  </svg>
-                )}
-              </span>
-            </label>
-            <button
-              type='button'
-              className='btn btn-outline-primary'
-              onClick={handleLogout}
-            >
-              Logout
-            </button>
+            {/* On mobile, stack components vertically */}
+            <div className='d-flex flex-column flex-md-row align-items-center w-100'>
+              {/* Dark Mode Toggle & Clear Cache Button */}
+              <div className='d-flex justify-content-center align-items-center mb-3 mb-md-0 me-md-3'>
+                <label className='form-check form-switch me-2'>
+                  <input
+                    className='form-check-input'
+                    type='checkbox'
+                    checked={isDarkMode}
+                    onChange={toggleDarkMode}
+                  />
+                  <span className='form-check-label'>
+                    {isDarkMode ? (
+                      <svg
+                        xmlns='http://www.w3.org/2000/svg'
+                        width='16'
+                        height='16'
+                        fill='black'
+                        className='bi bi-moon-stars'
+                        viewBox='0 0 16 16'
+                      >
+                        <path d='...' />
+                      </svg>
+                    ) : (
+                      <svg
+                        xmlns='http://www.w3.org/2000/svg'
+                        width='16'
+                        height='16'
+                        fill='currentColor'
+                        className='bi bi-brightness-high'
+                        viewBox='0 0 16 16'
+                      >
+                        <path d='...' />
+                      </svg>
+                    )}
+                  </span>
+                </label>
+                <ClearCacheButton onSuccess={handleClearCacheSuccess} />
+              </div>
+
+              <button
+                type='button'
+                className='btn btn-outline-primary'
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </header>
+
+      {/* Global Alert */}
+      <GlobalAlert
+        message={alertMessage}
+        show={alertVisible}
+        onClose={() => setAlertVisible(false)}
+      />
     </div>
   );
 };
