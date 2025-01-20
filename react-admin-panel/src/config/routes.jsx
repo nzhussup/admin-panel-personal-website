@@ -6,6 +6,7 @@ import Certs from "../pages/cv/Certs";
 import Edu from "../pages/cv/Edu";
 import WorkExp from "../pages/cv/WorkExp";
 import Skills from "../pages/cv/Skills";
+import NotFound from "../pages/misc/errors/NotFound";
 
 const routes = [
   {
@@ -47,6 +48,11 @@ const routes = [
     path: "/cv/education",
     element: <Edu />,
     isProtected: true,
+  },
+  {
+    path: "*",
+    element: <NotFound />,
+    isProtected: false,
   },
 ];
 

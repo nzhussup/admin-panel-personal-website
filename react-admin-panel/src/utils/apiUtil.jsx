@@ -12,7 +12,7 @@ const fetchData = async (endpoint, setData) => {
     });
     setData(response.data);
   } catch (error) {
-    console.error(`Error fetching data from ${endpoint}:`, error);
+    throw new Error(`Error fetching data from ${endpoint}: ${error}`);
   }
 };
 

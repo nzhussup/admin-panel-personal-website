@@ -1,19 +1,34 @@
 import { useState, useEffect } from "react";
 import { fetchData, saveData, deleteData } from "./apiUtil";
+import config from "../config/ConfigVariables";
 
 export const usePageData = (endpoint, sortBy = "displayOrder") => {
   const [items, setItems] = useState([]);
   const [isAscending, setIsAscending] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedItemId, setSelectedItemId] = useState(null);
+  const [showLoading, setShowLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const fetchItems = async () => {
-    await fetchData(endpoint, (fetchedItems) => {
-      const sortedItems = [...fetchedItems].sort((a, b) =>
-        isAscending ? a[sortBy] - b[sortBy] : b[sortBy] - a[sortBy]
-      );
-      setItems(sortedItems);
-    });
+    const loadingTimeout = setTimeout(() => {
+      setShowLoading(true);
+    }, config.showLoadingDelay);
+
+    setError(null);
+    try {
+      await fetchData(endpoint, (fetchedItems) => {
+        const sortedItems = [...fetchedItems].sort((a, b) =>
+          isAscending ? a[sortBy] - b[sortBy] : b[sortBy] - a[sortBy]
+        );
+        setItems(sortedItems);
+      });
+    } catch (error) {
+      setError(error);
+    } finally {
+      clearTimeout(loadingTimeout);
+      setShowLoading(false);
+    }
   };
 
   const saveItem = async (formData, isEditMode) => {
@@ -51,6 +66,8 @@ export const usePageData = (endpoint, sortBy = "displayOrder") => {
     isDeleteModalOpen,
     setDeleteModalOpen,
     toggleSort,
+    showLoading,
+    error,
   };
 };
 
@@ -77,4 +94,36 @@ export const usePopup = () => {
     closePopup,
     setFormData,
   };
+};
+
+export const useRenderPage = (
+  items,
+  showLoading,
+  error,
+  delay = config.showNoInfoDelay
+) => {
+  const [delayed, setDelayed] = useState(false);
+
+  useEffect(() => {
+    if (items.length <= 0) {
+      const timeout = setTimeout(() => setDelayed(true), delay);
+      return () => clearTimeout(timeout);
+    } else {
+      setDelayed(false);
+    }
+  }, [items, delay]);
+
+  const renderPage = (
+    ErrorElement,
+    LoadingElement,
+    NoInfoFoundElement,
+    itemPage
+  ) => {
+    if (showLoading) return <LoadingElement />;
+    if (error) return <ErrorElement description={error.toString()} />;
+    if (items.length <= 0 && delayed) return <NoInfoFoundElement />;
+    return itemPage;
+  };
+
+  return { renderPage };
 };

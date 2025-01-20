@@ -5,10 +5,13 @@ import axios from "axios";
 import config from "../../config/ConfigVariables";
 import { useDarkMode } from "../../context/DarkModeContext";
 import DarkModeToggle from "../../components/DarkModeToggle";
+import Loading from "../misc/Loading";
+import PageWrapper from "../../utils/SmoothPage";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -17,6 +20,8 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    setLoading(true);
 
     try {
       const response = await axios.post(config.authUrl + "/login", {
@@ -32,15 +37,70 @@ const Login = () => {
           console.log("Login successful!");
           navigate("/", { replace: true });
         } else {
+          setError("Invalid token or expiration data");
           throw new Error("Invalid token or expiration data");
         }
       } else {
+        setError("Login failed. Please try again.");
         throw new Error("Login failed. Please try again.");
       }
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
+
+  const loginForm = (
+    <PageWrapper>
+      <div className='form-floating mb-3'>
+        <input
+          type='text'
+          className={`form-control ${isDarkMode ? "bg-dark text-light" : ""}`}
+          id='floatingInput'
+          placeholder='Username'
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          style={{
+            backgroundColor: isDarkMode ? "#2a2a2a" : "#fff",
+            color: isDarkMode ? "#e0e0e0" : "#000",
+          }}
+        />
+        <label htmlFor='floatingInput'>Username</label>
+      </div>
+
+      <div className='form-floating mb-3'>
+        <input
+          type='password'
+          className={`form-control ${isDarkMode ? "bg-dark text-light" : ""}`}
+          id='floatingPassword'
+          placeholder='Password'
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          style={{
+            backgroundColor: isDarkMode ? "#2a2a2a" : "#fff",
+            color: isDarkMode ? "#e0e0e0" : "#000",
+          }}
+        />
+        <label htmlFor='floatingPassword'>Password</label>
+      </div>
+
+      <button
+        className={`btn w-100 py-2 ${
+          isDarkMode ? "btn-secondary" : "btn-primary"
+        }`}
+        type='submit'
+        style={{
+          backgroundColor: isDarkMode ? "#505050" : "#007bff",
+          color: isDarkMode ? "#e0e0e0" : "#fff",
+        }}
+      >
+        Sign in
+      </button>
+    </PageWrapper>
+  );
 
   return (
     <div
@@ -72,56 +132,7 @@ const Login = () => {
 
                 {error && <div className='alert alert-danger'>{error}</div>}
 
-                <div className='form-floating mb-3'>
-                  <input
-                    type='text'
-                    className={`form-control ${
-                      isDarkMode ? "bg-dark text-light" : ""
-                    }`}
-                    id='floatingInput'
-                    placeholder='Username'
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                    style={{
-                      backgroundColor: isDarkMode ? "#2a2a2a" : "#fff",
-                      color: isDarkMode ? "#e0e0e0" : "#000",
-                    }}
-                  />
-                  <label htmlFor='floatingInput'>Username</label>
-                </div>
-
-                <div className='form-floating mb-3'>
-                  <input
-                    type='password'
-                    className={`form-control ${
-                      isDarkMode ? "bg-dark text-light" : ""
-                    }`}
-                    id='floatingPassword'
-                    placeholder='Password'
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    style={{
-                      backgroundColor: isDarkMode ? "#2a2a2a" : "#fff",
-                      color: isDarkMode ? "#e0e0e0" : "#000",
-                    }}
-                  />
-                  <label htmlFor='floatingPassword'>Password</label>
-                </div>
-
-                <button
-                  className={`btn w-100 py-2 ${
-                    isDarkMode ? "btn-secondary" : "btn-primary"
-                  }`}
-                  type='submit'
-                  style={{
-                    backgroundColor: isDarkMode ? "#505050" : "#007bff",
-                    color: isDarkMode ? "#e0e0e0" : "#fff",
-                  }}
-                >
-                  Sign in
-                </button>
+                {loading ? <Loading /> : loginForm}
                 <p
                   className='mt-5 mb-3'
                   style={{
