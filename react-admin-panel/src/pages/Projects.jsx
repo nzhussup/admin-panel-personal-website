@@ -124,14 +124,12 @@ const Projects = () => {
       <Header text={"Project Management"} />
       <div className='container my-5'>
         <PageSubHeader toggleSort={toggleSort} />
-        <PageWrapper>
-          {renderPage(
-            ErrorElement,
-            LoadingElement,
-            NoInfoFoundElement,
-            projectPage
-          )}
-        </PageWrapper>
+        {renderPage(
+          ErrorElement,
+          LoadingElement,
+          NoInfoFoundElement,
+          projectPage
+        )}
       </div>
 
       <DeleteConfirmation

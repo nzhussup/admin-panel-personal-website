@@ -107,14 +107,7 @@ const Certs = () => {
       <Header text={"Certifications"} />
       <div className='container my-5'>
         <PageSubHeader toggleSort={toggleSort} />
-        <PageWrapper>
-          {renderPage(
-            ErrorElement,
-            LoadingElement,
-            NoInfoFoundElement,
-            certPage
-          )}
-        </PageWrapper>
+        {renderPage(ErrorElement, LoadingElement, NoInfoFoundElement, certPage)}
       </div>
 
       <DeleteConfirmation

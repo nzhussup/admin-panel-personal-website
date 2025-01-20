@@ -150,14 +150,7 @@ const Edu = () => {
       <Header text={"Education"} />
       <div className='container my-5'>
         <PageSubHeader toggleSort={toggleSort} />
-        <PageWrapper>
-          {renderPage(
-            ErrorElement,
-            LoadingElement,
-            NoInfoFoundElement,
-            eduPage
-          )}
-        </PageWrapper>
+        {renderPage(ErrorElement, LoadingElement, NoInfoFoundElement, eduPage)}
       </div>
       <DeleteConfirmation
         isOpen={isDeleteModalOpen}

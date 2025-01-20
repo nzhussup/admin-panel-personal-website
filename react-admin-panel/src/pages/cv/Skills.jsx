@@ -78,29 +78,31 @@ const Skills = () => {
   );
 
   const skillPage = (
-    <div className='mt-4'>
-      {skills.map((skill) => (
-        <EditableCard
-          key={skill.id}
-          title={skill.category}
-          onEdit={() => openPopup(skill)}
-          onDelete={() => confirmDelete(skill.id)}
-        >
-          <div className='mt-4'>
-            {skill.skillNames.split(", ").map((skillName, index) => (
-              <span
-                key={index}
-                className='badge bg-primary me-2 mb-2'
-                style={{ fontSize: "14px" }}
-              >
-                {skillName}
-              </span>
-            ))}
-            <p>Order: {skill.displayOrder}</p>
-          </div>
-        </EditableCard>
-      ))}
-    </div>
+    <PageWrapper>
+      <div className='mt-4'>
+        {skills.map((skill) => (
+          <EditableCard
+            key={skill.id}
+            title={skill.category}
+            onEdit={() => openPopup(skill)}
+            onDelete={() => confirmDelete(skill.id)}
+          >
+            <div className='mt-4'>
+              {skill.skillNames.split(", ").map((skillName, index) => (
+                <span
+                  key={index}
+                  className='badge bg-primary me-2 mb-2'
+                  style={{ fontSize: "14px" }}
+                >
+                  {skillName}
+                </span>
+              ))}
+              <p>Order: {skill.displayOrder}</p>
+            </div>
+          </EditableCard>
+        ))}
+      </div>
+    </PageWrapper>
   );
 
   return (
@@ -108,14 +110,12 @@ const Skills = () => {
       <Header text={"Skills"} />
       <div className='container my-5'>
         <PageSubHeader toggleSort={toggleSort} />
-        <PageWrapper>
-          {renderPage(
-            ErrorElement,
-            LoadingElement,
-            NoInfoFoundElement,
-            skillPage
-          )}
-        </PageWrapper>
+        {renderPage(
+          ErrorElement,
+          LoadingElement,
+          NoInfoFoundElement,
+          skillPage
+        )}
       </div>
 
       <DeleteConfirmation

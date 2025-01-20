@@ -142,14 +142,7 @@ const WorkExp = () => {
       <Header text={"Work Experience"} />
       <div className='container my-5'>
         <PageSubHeader toggleSort={toggleSort} />
-        <PageWrapper>
-          {renderPage(
-            ErrorElement,
-            LoadingElement,
-            NoInfoFoundElement,
-            wexPage
-          )}
-        </PageWrapper>
+        {renderPage(ErrorElement, LoadingElement, NoInfoFoundElement, wexPage)}
       </div>
       <DeleteConfirmation
         isOpen={isDeleteModalOpen}
