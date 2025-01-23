@@ -45,6 +45,9 @@ public class WorkExperience implements Identifiable, Serializable {
     @Column(name = "display_order", nullable = false)
     private int displayOrder;
 
+    @Column(name = "tech_stack")
+    private String techStack;
+
     @Override
     public Long getId() {
         return id;
