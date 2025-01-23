@@ -42,35 +42,33 @@ const Certs = () => {
   const { renderPage } = useRenderPage(certificates, showLoading, error);
 
   const certForm = (
-    <PageWrapper>
-      <PopUp
-        closePopup={closePopup}
-        title={isEditMode ? "Edit Certificate" : "Add Certificate"}
-        onSubmit={saveCertificate}
-      >
-        <FormInput
-          label='Certificate Name'
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required={true}
-        />
-        <FormInput
-          label='Certificate URL'
-          value={formData.url}
-          onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-          required={true}
-        />
-        <FormInput
-          label='Order Display'
-          type='number'
-          value={formData.displayOrder}
-          onChange={(e) =>
-            setFormData({ ...formData, displayOrder: e.target.value })
-          }
-          required={true}
-        />
-      </PopUp>
-    </PageWrapper>
+    <PopUp
+      closePopup={closePopup}
+      title={isEditMode ? "Edit Certificate" : "Add Certificate"}
+      onSubmit={saveCertificate}
+    >
+      <FormInput
+        label='Certificate Name'
+        value={formData.name}
+        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+        required={true}
+      />
+      <FormInput
+        label='Certificate URL'
+        value={formData.url}
+        onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+        required={true}
+      />
+      <FormInput
+        label='Order Display'
+        type='number'
+        value={formData.displayOrder}
+        onChange={(e) =>
+          setFormData({ ...formData, displayOrder: e.target.value })
+        }
+        required={true}
+      />
+    </PopUp>
   );
 
   const certPage = (
@@ -116,9 +114,8 @@ const Certs = () => {
         onConfirm={handleDelete}
       />
 
-      {!error && <AddButton openPopup={openPopup} />}
-
       {showPopup && certForm}
+      {!error && !showPopup && <AddButton openPopup={openPopup} />}
     </>
   );
 };

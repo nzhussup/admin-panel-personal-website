@@ -42,39 +42,35 @@ const Skills = () => {
   };
 
   const skillForm = (
-    <PageWrapper>
-      <PopUp
-        closePopup={closePopup}
-        title={isEditMode ? "Edit Skill" : "Add Skill"}
-        onSubmit={saveSkill}
-      >
-        <FormInput
-          label='Category'
-          value={formData.category}
-          onChange={(e) =>
-            setFormData({ ...formData, category: e.target.value })
-          }
-          required={true}
-        />
-        <FormInput
-          label='Skill Names (comma-separated)'
-          value={formData.skillNames}
-          onChange={(e) =>
-            setFormData({ ...formData, skillNames: e.target.value })
-          }
-          required={true}
-        />
-        <FormInput
-          label='Order Display'
-          type='number'
-          value={formData.displayOrder}
-          onChange={(e) =>
-            setFormData({ ...formData, displayOrder: e.target.value })
-          }
-          required={true}
-        />
-      </PopUp>
-    </PageWrapper>
+    <PopUp
+      closePopup={closePopup}
+      title={isEditMode ? "Edit Skill" : "Add Skill"}
+      onSubmit={saveSkill}
+    >
+      <FormInput
+        label='Category'
+        value={formData.category}
+        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+        required={true}
+      />
+      <FormInput
+        label='Skill Names (comma-separated)'
+        value={formData.skillNames}
+        onChange={(e) =>
+          setFormData({ ...formData, skillNames: e.target.value })
+        }
+        required={true}
+      />
+      <FormInput
+        label='Order Display'
+        type='number'
+        value={formData.displayOrder}
+        onChange={(e) =>
+          setFormData({ ...formData, displayOrder: e.target.value })
+        }
+        required={true}
+      />
+    </PopUp>
   );
 
   const skillPage = (
@@ -124,9 +120,8 @@ const Skills = () => {
         onConfirm={handleDelete}
       />
 
-      {!error && <AddButton openPopup={openPopup} />}
-
       {showPopup && skillForm}
+      {!error && !showPopup && <AddButton openPopup={openPopup} />}
     </>
   );
 };

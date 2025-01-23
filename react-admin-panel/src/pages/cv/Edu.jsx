@@ -48,74 +48,68 @@ const Edu = () => {
   const { renderPage } = useRenderPage(education, showLoading, error);
 
   const eduForm = (
-    <PageWrapper>
-      <PopUp
-        closePopup={closePopup}
-        title={isEditMode ? "Edit Education" : "Add Education"}
-        onSubmit={saveEducation}
-      >
-        <FormInput
-          label='Institution'
-          value={formData.institution}
-          onChange={(e) =>
-            setFormData({ ...formData, institution: e.target.value })
-          }
-          required={true}
-        />
-        <FormInput
-          label='Location'
-          value={formData.location}
-          onChange={(e) =>
-            setFormData({ ...formData, location: e.target.value })
-          }
-          required={true}
-        />
-        <FormInput
-          label='Start Date'
-          type='date'
-          value={formatDateForInput(formData.startDate)}
-          onChange={(e) =>
-            setFormData({ ...formData, startDate: e.target.value })
-          }
-          required={true}
-        />
-        <FormInput
-          label='End Date'
-          type='date'
-          value={formatDateForInput(formData.endDate)}
-          onChange={(e) =>
-            setFormData({ ...formData, endDate: e.target.value })
-          }
-        />
-        <FormInput
-          label='Degree'
-          value={formData.degree}
-          onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
-          required={true}
-        />
-        <FormInput
-          label='Thesis'
-          value={formData.thesis}
-          onChange={(e) => setFormData({ ...formData, thesis: e.target.value })}
-        />
-        <FormInput
-          label='Description'
-          value={formData.description}
-          onChange={(e) =>
-            setFormData({ ...formData, description: e.target.value })
-          }
-        />
-        <FormInput
-          label='Order Display'
-          type='number'
-          value={formData.displayOrder}
-          onChange={(e) =>
-            setFormData({ ...formData, displayOrder: e.target.value })
-          }
-          required={true}
-        />
-      </PopUp>
-    </PageWrapper>
+    <PopUp
+      closePopup={closePopup}
+      title={isEditMode ? "Edit Education" : "Add Education"}
+      onSubmit={saveEducation}
+    >
+      <FormInput
+        label='Institution'
+        value={formData.institution}
+        onChange={(e) =>
+          setFormData({ ...formData, institution: e.target.value })
+        }
+        required={true}
+      />
+      <FormInput
+        label='Location'
+        value={formData.location}
+        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+        required={true}
+      />
+      <FormInput
+        label='Start Date'
+        type='date'
+        value={formatDateForInput(formData.startDate)}
+        onChange={(e) =>
+          setFormData({ ...formData, startDate: e.target.value })
+        }
+        required={true}
+      />
+      <FormInput
+        label='End Date'
+        type='date'
+        value={formatDateForInput(formData.endDate)}
+        onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+      />
+      <FormInput
+        label='Degree'
+        value={formData.degree}
+        onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
+        required={true}
+      />
+      <FormInput
+        label='Thesis'
+        value={formData.thesis}
+        onChange={(e) => setFormData({ ...formData, thesis: e.target.value })}
+      />
+      <FormInput
+        label='Description'
+        value={formData.description}
+        onChange={(e) =>
+          setFormData({ ...formData, description: e.target.value })
+        }
+      />
+      <FormInput
+        label='Order Display'
+        type='number'
+        value={formData.displayOrder}
+        onChange={(e) =>
+          setFormData({ ...formData, displayOrder: e.target.value })
+        }
+        required={true}
+      />
+    </PopUp>
   );
 
   const eduPage = (
@@ -158,9 +152,8 @@ const Edu = () => {
         onConfirm={handleDelete}
       />
 
-      {!error && <AddButton openPopup={openPopup} />}
-
       {showPopup && eduForm}
+      {!error && !showPopup && <AddButton openPopup={openPopup} />}
     </>
   );
 };

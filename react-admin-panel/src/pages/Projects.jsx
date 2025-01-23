@@ -41,50 +41,47 @@ const Projects = () => {
   };
 
   const projectForm = (
-    <PageWrapper>
-      <PopUp
-        closePopup={closePopup}
-        title={isEditMode ? "Edit Project" : "Add Project"}
-        onSubmit={saveProject}
-      >
-        <FormInput
-          label='Project Name'
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required={true}
-        />
-        <FormInput
-          label='Tech Stack'
-          type='textarea'
-          value={formData.techStack}
-          onChange={(e) =>
-            setFormData({ ...formData, techStack: e.target.value })
-          }
-          required={true}
-        />
-        <FormInput
-          label='URL'
-          value={formData.url}
-          onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-          required={true}
-        />
-        <FormInput
-          label='Order Display'
-          type='number'
-          value={formData.displayOrder}
-          onChange={(e) =>
-            setFormData({ ...formData, displayOrder: e.target.value })
-          }
-          required={true}
-        />
-      </PopUp>
-    </PageWrapper>
+    <PopUp
+      closePopup={closePopup}
+      title={isEditMode ? "Edit Project" : "Add Project"}
+      onSubmit={saveProject}
+    >
+      <FormInput
+        label='Project Name'
+        value={formData.name}
+        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+        required={true}
+      />
+      <FormInput
+        label='Tech Stack'
+        type='textarea'
+        value={formData.techStack}
+        onChange={(e) =>
+          setFormData({ ...formData, techStack: e.target.value })
+        }
+        required={true}
+      />
+      <FormInput
+        label='URL'
+        value={formData.url}
+        onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+        required={true}
+      />
+      <FormInput
+        label='Order Display'
+        type='number'
+        value={formData.displayOrder}
+        onChange={(e) =>
+          setFormData({ ...formData, displayOrder: e.target.value })
+        }
+        required={true}
+      />
+    </PopUp>
   );
 
   const projectPage = (
     <PageWrapper>
       <div className='mt-4'>
-        {/* Display fetched projects */}
         {projects.map((project) => (
           <EditableCard
             key={project.id}
@@ -138,10 +135,8 @@ const Projects = () => {
         onConfirm={handleDelete}
       />
 
-      {!error && <AddButton openPopup={openPopup} />}
-
-      {/* Popup for Add/Edit */}
       {showPopup && projectForm}
+      {!error && !showPopup && <AddButton openPopup={openPopup} />}
     </>
   );
 };

@@ -42,73 +42,71 @@ const WorkExp = () => {
   };
 
   const wexForm = (
-    <PageWrapper>
-      <PopUp
-        closePopup={closePopup}
-        title={isEditMode ? "Edit Work Experience" : "Add Work Experience"}
-        onSubmit={saveWorkExperience}
-      >
-        <FormInput
-          label='Job Title'
-          value={formData.position}
-          onChange={(e) =>
-            setFormData({ ...formData, position: e.target.value })
-          }
-          required={true}
-        />
-        <FormInput
-          label='Company'
-          value={formData.company}
-          onChange={(e) =>
-            setFormData({ ...formData, company: e.target.value })
-          }
-          required={true}
-        />
-        <FormInput
-          label={"Location"}
-          value={formData.location}
-          onChange={(e) =>
-            setFormData({ ...formData, location: e.target.value })
-          }
-          required={true}
-        />
-        <FormInput
-          label='Start Date'
-          value={formData.startDate}
-          onChange={(e) =>
-            setFormData({ ...formData, startDate: e.target.value })
-          }
-          required={true}
-        />
-        <FormInput
-          label='End Date'
-          value={formData.endDate}
-          onChange={(e) =>
-            setFormData({ ...formData, endDate: e.target.value })
-          }
-          required={false}
-        />
-        <FormInput
-          label='Description'
-          type='textarea'
-          rows={10}
-          value={formData.description}
-          onChange={(e) =>
-            setFormData({ ...formData, description: e.target.value })
-          }
-          required={false}
-        />
-        <FormInput
-          label='Order Display'
-          type='number'
-          value={formData.displayOrder}
-          onChange={(e) =>
-            setFormData({ ...formData, displayOrder: e.target.value })
-          }
-          required={true}
-        />
-      </PopUp>
-    </PageWrapper>
+    <PopUp
+      closePopup={closePopup}
+      title={isEditMode ? "Edit Work Experience" : "Add Work Experience"}
+      onSubmit={saveWorkExperience}
+    >
+      <FormInput
+        label='Job Title'
+        value={formData.position}
+        onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+        required={true}
+      />
+      <FormInput
+        label='Company'
+        value={formData.company}
+        onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+        required={true}
+      />
+      <FormInput
+        label={"Location"}
+        value={formData.location}
+        onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+        required={true}
+      />
+      <FormInput
+        label='Start Date'
+        value={formData.startDate}
+        onChange={(e) =>
+          setFormData({ ...formData, startDate: e.target.value })
+        }
+        required={true}
+      />
+      <FormInput
+        label='End Date'
+        value={formData.endDate}
+        onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+        required={false}
+      />
+      <FormInput
+        label='Description'
+        type='textarea'
+        rows={10}
+        value={formData.description}
+        onChange={(e) =>
+          setFormData({ ...formData, description: e.target.value })
+        }
+        required={false}
+      />
+      <FormInput
+        label='Tech Stack (comma-separated)'
+        value={formData.techStack}
+        onChange={(e) =>
+          setFormData({ ...formData, techStack: e.target.value })
+        }
+        required={false}
+      />
+      <FormInput
+        label='Order Display'
+        type='number'
+        value={formData.displayOrder}
+        onChange={(e) =>
+          setFormData({ ...formData, displayOrder: e.target.value })
+        }
+        required={true}
+      />
+    </PopUp>
   );
 
   const wexPage = (
@@ -129,6 +127,19 @@ const WorkExp = () => {
                 {experience.endDate ? experience.endDate : "Present"}
               </p>
               <p>Description: {experience.description}</p>
+              <p>
+                Tech Stack:{" "}
+                {
+                  <div>
+                    {experience.techStack &&
+                      experience.techStack.split(",").map((tech, index) => (
+                        <span key={index} className='badge bg-primary me-2'>
+                          {tech.trim()}{" "}
+                        </span>
+                      ))}
+                  </div>
+                }
+              </p>
               <p>Order: {experience.displayOrder}</p>
             </div>
           </EditableCard>
@@ -149,10 +160,8 @@ const WorkExp = () => {
         onClose={() => setDeleteModalOpen(false)}
         onConfirm={handleDelete}
       />
-
-      {!error && <AddButton openPopup={openPopup} />}
-
       {showPopup && wexForm}
+      {!error && !showPopup && <AddButton openPopup={openPopup} />}
     </>
   );
 };
