@@ -1,9 +1,12 @@
 # Build Stage
-FROM node:18 AS build
+FROM --platform=$BUILDPLATFORM node:18 AS build
 
 WORKDIR /app
 
 COPY package*.json ./
+
+ARG NODE_OPTIONS=--max_old_space_size=4096
+ENV NODE_OPTIONS=$NODE_OPTIONS
 
 RUN npm install
 
@@ -12,7 +15,7 @@ COPY . .
 RUN npm run build
 
 # Nginx Stage
-FROM nginx:alpine
+FROM --platform=$TARGETPLATFORM nginx:alpine
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
