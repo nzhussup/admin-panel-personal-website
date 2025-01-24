@@ -1,5 +1,6 @@
 package com.nzhussup.baseservice.controller;
 
+import com.nzhussup.baseservice.config.AppConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.ResponseEntity;
@@ -8,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/cache")
+@RequestMapping(AppConfig.baseApiPath+"cache")
 public class CacheController {
 
     private final CacheManager cacheManager;

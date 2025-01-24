@@ -1,4 +1,4 @@
-name: Backend CI/CD for Build and Deploy
+name: Base Service CI/CD for Build and Deploy
 
 on:
   push:
