@@ -3,7 +3,7 @@ name: Frontend CI/CD for Build and Deploy
 on:
   push:
     paths:
-      - "react-admin-panel/**"
+      - "frontend/**"
 
 jobs:
   build:
@@ -34,7 +34,7 @@ jobs:
             --platform linux/amd64,linux/arm64 \
             -t ${{ secrets.DOCKERHUB_USERNAME }}/panel-frontend:latest \
             --push .
-        working-directory: react-admin-panel
+        working-directory: frontend
 
   deploy:
     name: Deploy to Kubernetes

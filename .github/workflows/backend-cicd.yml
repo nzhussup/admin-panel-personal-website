@@ -3,7 +3,7 @@ name: Backend CI/CD for Build and Deploy
 on:
   push:
     paths:
-      - "backend-admin-panel/**"
+      - "backend/base-service/**"
 
 jobs:
   build:
@@ -19,9 +19,6 @@ jobs:
         with:
           install: true
 
-      - name: Install QEMU
-        uses: docker/setup-qemu-action@v2
-
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -34,7 +31,7 @@ jobs:
             --platform linux/amd64,linux/arm64 \
             -t ${{ secrets.DOCKERHUB_USERNAME }}/panel-api:latest \
             --push .
-        working-directory: backend-admin-panel
+        working-directory: backend/base-service
 
   deploy:
     name: Deploy to Kubernetes
