@@ -11,8 +11,8 @@
     <groupId>com.nzhussup</groupId>
     <artifactId>base-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>backend-admin-panel</name>
-    <description>backend-admin-panel</description>
+    <name>base-service</name>
+    <description>base-service</description>
     <url/>
     <licenses>
         <license/>
