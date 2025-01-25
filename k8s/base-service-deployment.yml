@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: panel-api-deployment
+  name: base-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: panel-api-deployment
+      app: base-service
   template:
     metadata:
       labels:
-        app: panel-api-deployment
+        app: base-service
     spec:
       containers:
-        - name: panel-api
-          image: nzhussup/panel-api:latest
+        - name: base-service
+          image: nzhussup/base-service:latest
           ports:
-            - containerPort: 8080
+            - containerPort: 8010
           env:
             - name: SPRING_DATASOURCE_HOST
               valueFrom:
@@ -53,11 +53,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: panel-api-service
+  name: base-service
 spec:
   type: ClusterIP
   ports:
     - port: 8010
-      targetPort: 8080
+      targetPort: 8010
   selector:
-    app: panel-api-deployment
+    app: base-service
