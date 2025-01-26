@@ -65,6 +65,10 @@ public class UserService {
             }
         }
 
+        if (user.getRole().contains("ROLE_ADMIN") && isLastAdmin() && userDTO.getRole().equals("ROLE_USER")) {
+            throw new LastAdminException("Can't change role of last admin");
+        }
+
         if (userDTO.getRole() == null) {
             userDTO.setRole("ROLE_USER");
         }
@@ -91,14 +95,16 @@ public class UserService {
             }
         }
 
-        if (user.getRole().contains("ROLE_ADMIN")) {
-            List<User> admins = userRepository.findByRoleContaining("ROLE_ADMIN");
-            if (admins.size() <= 1) {
-                throw new LastAdminException("Can't delete last admin");
-            }
+        if (user.getRole().contains("ROLE_ADMIN") && isLastAdmin()) {
+            throw new LastAdminException("Can't delete last admin");
         }
 
         userRepository.delete(user);
+    }
+
+    public boolean isLastAdmin() {
+        List<User> admins = userRepository.findByRoleContaining("ROLE_ADMIN");
+        return admins.size() <= 1;
     }
 
 }
