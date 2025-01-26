@@ -10,3 +10,5 @@ prod_env_variables.txt
 
 k8s/secrets.yml
 k8s/configmap.yml
+backend-admin-panel/
+k8s/minikube_local/

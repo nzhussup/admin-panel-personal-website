@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: base-service
+  name: auth-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: base-service
+      app: auth-service
   template:
     metadata:
       labels:
-        app: base-service
+        app: auth-service
     spec:
       containers:
-        - name: base-service
-          image: nzhussup/base-service:latest
+        - name: auth-service
+          image: nzhussup/auth-service:latest
           ports:
-            - containerPort: 8010
+            - containerPort: 8083
           env:
             - name: SPRING_DATASOURCE_HOST
               valueFrom:
@@ -33,26 +33,21 @@ spec:
                 secretKeyRef:
                   name: admin-panel-secrets
                   key: DB_PASSWORD
-            - name: SPRING_REDIS_HOST
+            - name: SECURITY_JWT_SECRET_KEY
               valueFrom:
-                configMapKeyRef:
-                  name: admin-panel-config
-                  key: REDIS_HOST
-            - name: SPRING_REDIS_PORT
-              valueFrom:
-                configMapKeyRef:
-                  name: admin-panel-config
-                  key: REDIS_PORT
+                secretKeyRef:
+                  name: admin-panel-secrets
+                  key: JWT_SECRET
 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: base-service
+  name: auth-service
 spec:
   type: ClusterIP
   ports:
-    - port: 8010
-      targetPort: 8010
+    - port: 8083
+      targetPort: 8083
   selector:
-    app: base-service
+    app: auth-service

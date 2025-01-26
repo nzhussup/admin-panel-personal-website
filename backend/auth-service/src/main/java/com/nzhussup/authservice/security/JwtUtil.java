@@ -1,28 +1,36 @@
-package com.nzhussup.baseservice.security;
+package com.nzhussup.authservice.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
-import com.nzhussup.baseservice.config.AppConfig;
+import com.nzhussup.authservice.config.AppConfig;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import java.util.Collection;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtUtil {
 
     @Value("security.jwt.secret-key")
     private String SECRET_KEY;
-    private static final long EXPIRATION_TIME = AppConfig.EXPIRATION_TIME; // 1 day in milliseconds
 
-    public String generateToken(String username) {
+    public String generateToken(String username, Collection<? extends GrantedAuthority> roles) {
+
+        String rolesString = roles.stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
         return JWT.create()
                 .withSubject(username)
+                .withClaim("roles", rolesString)
                 .withIssuedAt(new Date())
-                .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .withExpiresAt(new Date(System.currentTimeMillis() + AppConfig.EXPIRATION_TIME))
                 .sign(Algorithm.HMAC256(SECRET_KEY));
     }
 
@@ -40,5 +48,3 @@ public class JwtUtil {
         return validateToken(token).getSubject();
     }
 }
-
-

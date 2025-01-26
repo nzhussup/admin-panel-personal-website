@@ -1,4 +1,4 @@
-package com.nzhussup.baseservice.model;
+package com.nzhussup.authservice.model;
 
 import lombok.*;
 

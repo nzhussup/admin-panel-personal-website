@@ -1,6 +1,5 @@
-package com.nzhussup.baseservice.model;
+package com.nzhussup.authservice.model;
 
-//import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 @NoArgsConstructor
@@ -10,8 +9,6 @@ import lombok.*;
 @Builder
 public class AuthRequest {
 
-//    @NotBlank
     private String username;
-
     private String password;
 }

@@ -1,4 +1,4 @@
-package com.nzhussup.baseservice.security;
+package com.nzhussup.authservice.security;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import jakarta.servlet.FilterChain;
@@ -50,4 +50,3 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
-

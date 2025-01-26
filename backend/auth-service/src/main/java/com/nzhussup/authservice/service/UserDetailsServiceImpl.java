@@ -1,8 +1,8 @@
-package com.nzhussup.baseservice.service;
+package com.nzhussup.authservice.service;
 
-import com.nzhussup.baseservice.model.User;
-import com.nzhussup.baseservice.model.UserPrincipal;
-import com.nzhussup.baseservice.repository.UserRepository;
+import com.nzhussup.authservice.model.User;
+import com.nzhussup.authservice.model.UserPrincipal;
+import com.nzhussup.authservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

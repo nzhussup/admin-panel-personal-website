@@ -1,4 +1,4 @@
-package com.nzhussup.baseservice.model;
+package com.nzhussup.authservice.model;
 
 import lombok.Builder;
 import org.springframework.security.core.GrantedAuthority;
@@ -7,18 +7,24 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Builder
 public class UserPrincipal implements UserDetails {
 
     private User user;
+
     public UserPrincipal(User user) {
         this.user = user;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singletonList(new SimpleGrantedAuthority(user.getRole()));
+        return List.of(user.getRole().split(",")).stream()
+                .map(String::trim)
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
     }
 
     @Override
