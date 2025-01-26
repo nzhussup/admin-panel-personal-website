@@ -23,7 +23,7 @@ const Certs = () => {
     toggleSort,
     showLoading,
     error,
-  } = usePageData("certificate");
+  } = usePageData("base/certificate");
 
   const {
     showPopup,

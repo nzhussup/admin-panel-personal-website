@@ -29,7 +29,7 @@ const Edu = () => {
     toggleSort,
     showLoading,
     error,
-  } = usePageData("education");
+  } = usePageData("base/education");
 
   const {
     showPopup,

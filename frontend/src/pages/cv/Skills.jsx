@@ -23,7 +23,7 @@ const Skills = () => {
     toggleSort,
     showLoading,
     error,
-  } = usePageData("skill");
+  } = usePageData("base/skill");
 
   const {
     showPopup,

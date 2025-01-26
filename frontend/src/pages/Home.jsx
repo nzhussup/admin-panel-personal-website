@@ -17,6 +17,16 @@ const Home = () => {
     navigate("/cv");
   };
 
+  const handleNavigateUsers = () => {
+    console.log("Navigating to users");
+    navigate("/users");
+  };
+
+  const handleNavigatePhotos = () => {
+    console.log("Navigating to photos");
+    navigate("/photos");
+  };
+
   return (
     <>
       <Header text={"Welcome to the Admin Panel"} />
@@ -40,6 +50,25 @@ const Home = () => {
                 desc='Here you can manage your CV, add new experiences, update and delete them.'
                 buttontxt='Manage CV'
                 handleFunc={handleNavigateCV}
+              />
+            </div>
+          </div>
+          <div className='row row-cols-1 row-cols-md-2 mt-1 g-4'>
+            <div className='col'>
+              <Card
+                title='Users'
+                desc='Here you can manage the users, add new users, update and delete them.'
+                buttontxt='Manage Users'
+                handleFunc={handleNavigateUsers}
+              />
+            </div>
+
+            <div className='col'>
+              <Card
+                title='Photos'
+                desc='Here you can manage your photos, add new photos, update and delete them.'
+                buttontxt='Manage Photos'
+                handleFunc={handleNavigatePhotos}
               />
             </div>
           </div>

@@ -7,6 +7,7 @@ import Edu from "../pages/cv/Edu";
 import WorkExp from "../pages/cv/WorkExp";
 import Skills from "../pages/cv/Skills";
 import NotFound from "../pages/misc/errors/NotFound";
+import Users from "../pages/Users";
 
 const routes = [
   {
@@ -47,6 +48,11 @@ const routes = [
   {
     path: "/cv/education",
     element: <Edu />,
+    isProtected: true,
+  },
+  {
+    path: "/users",
+    element: <Users />,
     isProtected: true,
   },
   {

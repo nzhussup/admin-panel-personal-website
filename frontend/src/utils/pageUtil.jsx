@@ -9,6 +9,7 @@ export const usePageData = (endpoint, sortBy = "displayOrder") => {
   const [selectedItemId, setSelectedItemId] = useState(null);
   const [showLoading, setShowLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [response, setResponse] = useState(null);
 
   const fetchItems = async () => {
     const loadingTimeout = setTimeout(() => {
@@ -32,8 +33,9 @@ export const usePageData = (endpoint, sortBy = "displayOrder") => {
   };
 
   const saveItem = async (formData, isEditMode) => {
-    await saveData(endpoint, formData, isEditMode);
+    const response = await saveData(endpoint, formData, isEditMode);
     fetchItems();
+    setResponse(response);
   };
 
   const confirmDelete = (itemId) => {
@@ -43,10 +45,16 @@ export const usePageData = (endpoint, sortBy = "displayOrder") => {
 
   const handleDelete = async () => {
     if (selectedItemId) {
-      await deleteData(endpoint, selectedItemId);
-      setSelectedItemId(null);
-      setDeleteModalOpen(false);
-      fetchItems();
+      try {
+        const response = await deleteData(endpoint, selectedItemId);
+        setSelectedItemId(null);
+        setDeleteModalOpen(false);
+        fetchItems();
+        setResponse(response);
+      } catch (error) {
+        console.error("Error in handleDelete:", error);
+        setError(error);
+      }
     }
   };
 
@@ -68,6 +76,8 @@ export const usePageData = (endpoint, sortBy = "displayOrder") => {
     toggleSort,
     showLoading,
     error,
+    response,
+    setResponse,
   };
 };
 

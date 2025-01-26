@@ -23,7 +23,7 @@ const Projects = () => {
     toggleSort,
     showLoading,
     error,
-  } = usePageData("project");
+  } = usePageData("base/project");
   const {
     showPopup,
     formData,

@@ -23,7 +23,7 @@ const WorkExp = () => {
     toggleSort,
     showLoading,
     error,
-  } = usePageData("work-experience");
+  } = usePageData("base/work-experience");
 
   const {
     showPopup,

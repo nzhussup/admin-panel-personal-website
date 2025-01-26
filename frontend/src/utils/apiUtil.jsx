@@ -20,21 +20,29 @@ const saveData = async (endpoint, formData, isEditMode) => {
   const token = localStorage.getItem("token");
 
   try {
+    let response;
     if (isEditMode) {
-      await axios.put(`${config.apiUrl}/${endpoint}`, formData, {
+      response = await axios.put(`${config.apiUrl}/${endpoint}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
     } else {
-      await axios.post(`${config.apiUrl}/${endpoint}`, formData, {
+      response = await axios.post(`${config.apiUrl}/${endpoint}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
     }
+    return response;
   } catch (error) {
-    console.error(`Error saving data to ${endpoint}:`, error);
+    if (error.response) {
+      console.error(`Error saving data to ${endpoint}:`, error.response);
+      return error.response;
+    } else {
+      console.error(`Unexpected error saving data to ${endpoint}:`, error);
+      throw new Error("An unexpected error occurred while saving data.");
+    }
   }
 };
 
@@ -42,14 +50,20 @@ const deleteData = async (endpoint, id) => {
   const token = localStorage.getItem("token");
 
   try {
-    await axios.delete(`${config.apiUrl}/${endpoint}`, {
+    const response = await axios.delete(`${config.apiUrl}/${endpoint}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
       data: { id },
     });
+    return response;
   } catch (error) {
-    console.error(`Error deleting data from ${endpoint}:`, error);
+    if (error.response) {
+      return error.response;
+    } else {
+      console.error(`Error deleting data from ${endpoint}:`, error);
+      throw new Error("An unexpected error occurred while deleting data.");
+    }
   }
 };
 

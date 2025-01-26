@@ -7,6 +7,7 @@ const FormInput = ({
   onChange,
   required = false,
   rows = 3,
+  options = [],
 }) => {
   return (
     <div className='mb-3'>
@@ -19,6 +20,22 @@ const FormInput = ({
           required={required}
           rows={rows}
         />
+      ) : type === "select" ? (
+        <select
+          className='form-control'
+          value={value}
+          onChange={onChange}
+          required={required}
+        >
+          <option value='' disabled>
+            Select a role
+          </option>
+          {options.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
       ) : (
         <input
           type={type}

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./GlobalAlert.css";
 
-const GlobalAlert = ({ message, show, onClose }) => {
+const GlobalAlert = ({ message, show, onClose, type = "alert-success" }) => {
   const [isDismissed, setIsDismissed] = useState(false);
 
   const handleDismiss = () => {
@@ -15,7 +15,7 @@ const GlobalAlert = ({ message, show, onClose }) => {
 
   return (
     <div
-      className={`alert alert-success alert-dismissible fade show custom-alert ${
+      className={`alert ${type} alert-dismissible fade show custom-alert ${
         isDismissed ? "dismissed" : ""
       }`}
       role='alert'
