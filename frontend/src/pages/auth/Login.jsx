@@ -32,12 +32,26 @@ const Login = () => {
       if (response.status === 200) {
         const { token, expiration } = response.data;
 
+        const validateResponse = await axios.post(
+          config.authUrl + "/validate",
+          { token }
+        );
+
+        if (validateResponse.status === 200) {
+          const { username, roles } = validateResponse.data;
+
+          if (!roles.includes("ROLE_ADMIN")) {
+            throw new Error("Only administrators can access this page.");
+          }
+        } else {
+          throw new Error("Token is not valid.");
+        }
+
         if (token && expiration) {
           login(token, expiration);
           console.log("Login successful!");
           navigate("/", { replace: true });
         } else {
-          setError("Invalid token or expiration data");
           throw new Error("Invalid token or expiration data");
         }
       } else {
