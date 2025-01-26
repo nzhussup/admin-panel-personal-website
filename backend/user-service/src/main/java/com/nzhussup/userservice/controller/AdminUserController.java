@@ -45,40 +45,41 @@ public class AdminUserController {
 
         } catch (UserAlreadyExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
     @PutMapping
-    public ResponseEntity<?> updateUser(@RequestBody AdminUserRegistryRequest adminUser, Authentication authentication) {
+    public ResponseEntity<?> updateUser(@RequestBody User user, Authentication authentication) {
         try {
             UserDTO userDTO = UserDTO.builder()
-                    .username(adminUser.getUsername())
-                    .password(adminUser.getPassword())
-                    .role(adminUser.getRole()).build();
+                    .username(user.getUsername())
+                    .password(user.getPassword())
+                    .role(user.getRole()).build();
 
-            User updatedUser = userService.update(authentication, userDTO);
+            User updatedUser = userService.update(authentication, user.getId(), userDTO);
             return ResponseEntity.ok(updatedUser);
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteUser(@RequestBody AdminUserRegistryRequest adminUser, Authentication authentication) {
+    public ResponseEntity<?> deleteUser(@RequestBody User user, Authentication authentication) {
         try {
-            UserDTO userDTO = UserDTO.builder()
-                    .username(adminUser.getUsername())
-                    .password(adminUser.getPassword())
-                    .role(adminUser.getRole()).build();
-
-            userService.delete(authentication, userDTO);
+            userService.delete(authentication, user.getId());
             return ResponseEntity.ok().body("User deleted successfully");
         } catch (AccessDeniedException | LastAdminException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 }

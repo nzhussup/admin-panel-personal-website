@@ -55,9 +55,11 @@ public class UserService {
         }
     }
 
-    public User update(Authentication authentication, UserDTO userDTO) {
+    public User update(Authentication authentication, Long id, UserDTO userDTO) {
 
-        if (!authentication.getName().equals(userDTO.getUsername())) {
+        User user = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        if (!authentication.getName().equals(user.getUsername())) {
             if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
                 throw new AccessDeniedException("Invalid request. User is not admin nor trying to manage it's own account");
             }
@@ -67,26 +69,27 @@ public class UserService {
             userDTO.setRole("ROLE_USER");
         }
 
-        try {
-            User user = findByUsername(userDTO.getUsername());
-            user.setUsername(userDTO.getUsername());
+        user.setUsername(userDTO.getUsername());
+        if (!user.getPassword().equals(userDTO.getPassword())) {
             user.setPassword(BcryptUtil.encryptPassword(userDTO.getPassword()));
-            user.setRole(userDTO.getRole());
-            return userRepository.save(user);
-        } catch (UserNotFoundException e) {
-            throw new UserNotFoundException("User not found");
         }
+        user.setRole(userDTO.getRole());
+        return userRepository.save(user);
+
     }
 
-    public void delete(Authentication authentication, UserDTO userDTO) {
+    public void delete(Authentication authentication, Long id) {
 
-        if (!authentication.getName().equals(userDTO.getUsername())) {
+        User user = findById(id);
+        if (user == null) {
+            throw new UserNotFoundException("User not found");
+        }
+
+        if (!authentication.getName().equals(user.getUsername())) {
             if (!authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
                 throw new AccessDeniedException("Invalid request. User is not admin nor trying to manage it's own account");
             }
         }
-
-        User user = findByUsername(userDTO.getUsername());
 
         if (user.getRole().contains("ROLE_ADMIN")) {
             List<User> admins = userRepository.findByRoleContaining("ROLE_ADMIN");
@@ -95,11 +98,7 @@ public class UserService {
             }
         }
 
-        try {
-            userRepository.deleteById(user.getId());
-        } catch (UserNotFoundException e) {
-            throw new UserNotFoundException("User not found");
-        }
+        userRepository.delete(user);
     }
 
 }
