@@ -39,7 +39,7 @@ public class WorkExperience implements Identifiable, Serializable {
     @Column(nullable = false)
     private String position;
 
-    @Column
+    @Column(nullable = false)
     private String description;
 
     @Column(name = "display_order", nullable = false)
