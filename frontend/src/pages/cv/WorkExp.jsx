@@ -87,7 +87,7 @@ const WorkExp = () => {
         onChange={(e) =>
           setFormData({ ...formData, description: e.target.value })
         }
-        required={false}
+        required={true}
       />
       <FormInput
         label='Tech Stack (comma-separated)'
