@@ -21,4 +21,5 @@ go.work.sum
 # env file
 .env
 
-var/images/
+var/images/*
+!var/images/.gitkeep
