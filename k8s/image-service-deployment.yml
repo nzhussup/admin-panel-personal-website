@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: image-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: image-service
+  template:
+    metadata:
+      labels:
+        app: image-service
+    spec:
+      containers:
+        - name: image-service
+          image: nzhussup/image-service:latest
+          ports:
+            - containerPort: 8085
+          volumeMounts:
+            - name: images-volume
+              mountPath: /app/var/images
+      volumes:
+        - name: images-volume
+          persistentVolumeClaim:
+            claimName: image-service-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: image-service
+spec:
+  selector:
+    app: image-service
+  ports:
+    - protocol: TCP
+      port: 8085
+      targetPort: 8085
+  type: ClusterIP
+
