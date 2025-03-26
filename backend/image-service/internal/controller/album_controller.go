@@ -30,6 +30,10 @@ func (ctrl *AlbumController) Get(c *gin.Context) {
 
 	}
 
+	if album.Images == nil {
+		album.Images = []*model.Image{}
+	}
+
 	c.JSON(http.StatusOK, album)
 }
 
@@ -39,6 +43,9 @@ func (ctrl *AlbumController) GetPreview(c *gin.Context) {
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
+	}
+	if album == nil {
+		album = []*model.AlbumPreview{}
 	}
 	c.JSON(200, album)
 }

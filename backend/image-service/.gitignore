@@ -23,3 +23,5 @@ go.work.sum
 
 var/images/*
 !var/images/.gitkeep
+
+deploy-from-local.sh

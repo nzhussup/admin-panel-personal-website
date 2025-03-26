@@ -63,41 +63,30 @@ func (client *EurekaClient) RegisterWithEureka() {
 	instance.VipAddress = client.AppName
 	instance.SecureVipAddress = client.AppName
 
-	for i := 0; i < 3; i++ {
+	for {
 		err := client.Client.RegisterInstance(client.AppName, instance)
 		if err == nil {
 			log.Println("✅ Registered with Eureka: ", client.AppName)
 			break
 		}
-		log.Printf("⚠️ Eureka registration failed (attempt %d): %v", i+1, err)
+		log.Printf("⚠️ Eureka registration failed, retrying...")
 		time.Sleep(5 * time.Second)
 	}
 
-	go client.KeepAliveWithEureka(instanceID)
+	go client.KeepAliveWithEureka(instance.App, instanceID)
 }
 
-func (client *EurekaClient) KeepAliveWithEureka(instanceID string) {
-	instanceID = fmt.Sprintf("%s:%s", client.AppName, instanceID)
+func (client *EurekaClient) KeepAliveWithEureka(app string, instanceID string) {
+	log.Println("💓 Sending heartbeats to Eureka")
 
 	for {
-		time.Sleep(25 * time.Second)
-
-		err := client.Client.SendHeartbeat(client.AppName, instanceID)
+		err := client.Client.SendHeartbeat(app, instanceID)
 		if err != nil {
 			log.Printf("⚠️ Eureka heartbeat failed: %v", err)
-
-			for retry := 1; retry <= 3; retry++ {
-				time.Sleep(5 * time.Second)
-				err := client.Client.SendHeartbeat(client.AppName, instanceID)
-				if err == nil {
-					log.Println("✅ Eureka heartbeat recovered")
-					break
-				}
-				log.Printf("⚠️ Heartbeat retry %d failed: %v", retry, err)
-			}
 		} else {
 			log.Println("💓 Eureka heartbeat sent successfully")
 		}
+		time.Sleep(25 * time.Second)
 	}
 }
 
