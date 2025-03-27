@@ -25,3 +25,4 @@ var/images/*
 !var/images/.gitkeep
 
 deploy-from-local.sh
+locally-deploy.sh
