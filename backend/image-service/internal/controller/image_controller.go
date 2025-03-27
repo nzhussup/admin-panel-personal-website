@@ -17,13 +17,19 @@ type ImageController struct {
 func (ctrl *ImageController) Upload(c *gin.Context) {
 	albumID := c.Param("id")
 
-	file, err := c.FormFile("file")
+	form, err := c.MultipartForm()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("Failed to get the file: %s", err.Error())})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to get multipart form"})
 		return
 	}
 
-	savedImage, err := ctrl.service.ImageService.UploadImage(albumID, file)
+	files := form.File["file"]
+	if len(files) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No files uploaded"})
+		return
+	}
+
+	savedImage, err := ctrl.service.ImageService.UploadImage(albumID, files)
 	if err != nil {
 		switch {
 		case errors.Is(err, custom_errors.ErrBadRequest):
@@ -35,6 +41,7 @@ func (ctrl *ImageController) Upload(c *gin.Context) {
 		default:
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
+		return
 	}
 	c.JSON(http.StatusCreated, gin.H{"message": "Image uploaded successfully",
 		"data": savedImage})

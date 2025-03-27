@@ -6,6 +6,7 @@ import (
 	"image-service/internal/utils"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type ImageRepository struct {
@@ -21,10 +22,7 @@ func (i *ImageRepository) Upload(albumID string, image *model.Image) (*model.Ima
 	// REPETETIVE ID GENERATION FOR UNIQUE ID
 	for {
 		imageID = utils.GenerateUUID()
-		extension := ".jpg"
-		if image.Type == model.PNG {
-			extension = ".png"
-		}
+		extension := "." + strings.Split(string(image.Type), "/")[1]
 		imagePath = filepath.Join(i.Path, albumID, imageID+extension)
 		if _, err := os.Stat(imagePath); os.IsNotExist(err) {
 			break
@@ -46,17 +44,7 @@ func (i *ImageRepository) Upload(albumID string, image *model.Image) (*model.Ima
 		return nil, custom_errors.NewInternalServerError("failed to save image data")
 	}
 
-	switch image.Type {
-	case model.JPEG:
-		image.ID = imageID + ".jpg"
-	case model.PNG:
-		image.ID = imageID + ".png"
-	case model.JPG:
-		image.ID = imageID + ".jpg"
-	default:
-		return nil, custom_errors.NewBadRequestError("invalid image type")
-	}
-
+	image.ID = strings.Split(imagePath, "/")[len(strings.Split(imagePath, "/"))-1]
 	image.Data = nil
 	image.URL = filepath.Join(i.ApiBasePath, albumID, image.ID)
 

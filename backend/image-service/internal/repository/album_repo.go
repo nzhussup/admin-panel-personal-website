@@ -19,10 +19,6 @@ func (a *AlbumRepository) Create(m *model.AlbumPreview) (*model.AlbumPreview, er
 	albumID := utils.GenerateUUID()
 	albumPath := filepath.Join(a.Path, albumID)
 
-	if m.Title == "" {
-		return nil, custom_errors.NewBadRequestError("title is required")
-	}
-
 	if _, err := os.Stat(albumPath); !os.IsNotExist(err) {
 		return nil, custom_errors.NewConflictError("album already exists")
 	}

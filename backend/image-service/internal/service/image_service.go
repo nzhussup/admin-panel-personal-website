@@ -1,44 +1,71 @@
 package service
 
 import (
+	"fmt"
 	custom_errors "image-service/internal/errors"
 	"image-service/internal/model"
 	"image-service/internal/repository"
+	"image-service/internal/utils"
 	"io"
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type ImageService struct {
 	storage *repository.Storage
 }
 
-func (s *ImageService) UploadImage(albumID string, file *multipart.FileHeader) (*model.Image, error) {
+func (s *ImageService) UploadImage(albumID string, files []*multipart.FileHeader) ([]*model.Image, error) {
 
-	fileData, err := file.Open()
-	if err != nil {
-		return nil, custom_errors.NewBadRequestError("failed to open the file")
-	}
-	defer fileData.Close()
+	var savedImages []*model.Image
 
-	image := &model.Image{
-		Type: model.ImageType(file.Header["Content-Type"][0]),
-	}
-	if image.Type != model.JPEG && image.Type != model.PNG && image.Type != model.JPG {
-		return nil, custom_errors.NewBadRequestError("invalid image type. only jpeg and png are allowed")
+	for _, file := range files {
+		contentType := file.Header["Content-Type"][0]
+		imageType := model.ImageType(contentType)
+		if _, ok := model.AllowedTypes[imageType]; !ok {
+			return nil, custom_errors.NewBadRequestError(fmt.Sprintf("invalid image type: %s. Only JPEG, PNG, and HEIC are allowed", contentType))
+		}
 	}
 
-	image.Data, err = io.ReadAll(fileData)
-	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to read image data")
+	for _, file := range files {
+		fileData, err := file.Open()
+		if err != nil {
+			return nil, custom_errors.NewBadRequestError("failed to open the file")
+		}
+		defer fileData.Close()
+
+		image := &model.Image{
+			Type: model.ImageType(file.Header["Content-Type"][0]),
+		}
+		if image.Type != model.JPEG && image.Type != model.PNG && image.Type != model.JPG && image.Type != model.HEIC {
+			return nil, custom_errors.NewBadRequestError("invalid image type. only jpeg, png and heic are allowed")
+		}
+
+		data, err := io.ReadAll(fileData)
+		if err != nil {
+			return nil, custom_errors.NewInternalServerError("failed to read image data")
+		}
+
+		extention := strings.Split(string(image.Type), "/")[1]
+		compressedData, err := utils.CompressImage(data, extention)
+		if err != nil {
+			return nil, err
+		}
+		if extention == "heic" {
+			image.Type = model.JPEG
+		}
+		image.Data = compressedData
+
+		savedImage, err := s.storage.Image.Upload(albumID, image)
+		if err != nil {
+			return nil, err
+		}
+		savedImages = append(savedImages, savedImage)
 	}
 
-	savedImage, err := s.storage.Image.Upload(albumID, image)
-	if err != nil {
-		return nil, err
-	}
-	return savedImage, nil
+	return savedImages, nil
 
 }
 

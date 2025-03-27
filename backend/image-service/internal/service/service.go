@@ -16,7 +16,7 @@ type Service struct {
 		DeleteAlbum(string) error
 	}
 	ImageService interface {
-		UploadImage(string, *multipart.FileHeader) (*model.Image, error)
+		UploadImage(string, []*multipart.FileHeader) ([]*model.Image, error)
 		DeleteImage(string, string) error
 		ServeImage(string, string) (string, error)
 	}

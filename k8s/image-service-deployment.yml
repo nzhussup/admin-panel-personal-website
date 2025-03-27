@@ -20,6 +20,15 @@ spec:
           volumeMounts:
             - name: images-volume
               mountPath: /app/var/images
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
       volumes:
         - name: images-volume
           persistentVolumeClaim:
