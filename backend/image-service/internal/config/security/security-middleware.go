@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -70,6 +71,12 @@ func AuthMiddleware(authServiceURL string, err error) gin.HandlerFunc {
 		body, _ := io.ReadAll(resp.Body)
 		var validationResponse ValidationResponse
 		json.Unmarshal(body, &validationResponse)
+
+		if !slices.Contains(validationResponse.Roles, "ROLE_ADMIN") {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
+			c.Abort()
+			return
+		}
 
 		c.Set("username", validationResponse.Username)
 		c.Set("roles", validationResponse.Roles)

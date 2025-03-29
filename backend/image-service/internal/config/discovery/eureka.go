@@ -106,7 +106,7 @@ func (client *EurekaClient) DeregisterWithEureka() {
 func (client *EurekaClient) GetServiceURL(serviceName string) (string, error) {
 	app, err := client.Client.GetApplication(serviceName)
 	if err != nil {
-		return "", fmt.Errorf("no instances found for service: %s", serviceName)
+		return "", err
 	}
 
 	// Don't wanna implement a load balancer, so we just pick a random instance :D
