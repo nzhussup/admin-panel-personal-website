@@ -24,9 +24,14 @@ type config struct {
 }
 
 type discoveryConfig struct {
-	eurekaURL   string
-	appName     string
-	refreshRate int
+	eurekaURL      string
+	appName        string
+	refreshRate    int
+	servicesConfig *servicesConfig
+}
+
+type servicesConfig struct {
+	authService string
 }
 
 func newApp(config config) *app {

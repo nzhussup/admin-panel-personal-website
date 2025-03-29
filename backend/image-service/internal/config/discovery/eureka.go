@@ -3,6 +3,7 @@ package discovery
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"time"
 
@@ -100,4 +101,16 @@ func (client *EurekaClient) DeregisterWithEureka() {
 	} else {
 		log.Println("✅ Deregistered from Eureka")
 	}
+}
+
+func (client *EurekaClient) GetServiceURL(serviceName string) (string, error) {
+	app, err := client.Client.GetApplication(serviceName)
+	if err != nil {
+		return "", fmt.Errorf("no instances found for service: %s", serviceName)
+	}
+
+	// Don't wanna implement a load balancer, so we just pick a random instance :D
+	instance := app.Instances[rand.Intn(len(app.Instances))]
+	url := fmt.Sprintf("http://%s:%d", instance.IpAddr, instance.Port.Port)
+	return url, nil
 }

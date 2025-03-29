@@ -1,6 +1,7 @@
 package main
 
 import (
+	"image-service/internal/config/security"
 	"image-service/internal/controller"
 
 	"github.com/gin-gonic/gin"
@@ -8,6 +9,7 @@ import (
 
 func (a *app) GetRouter() *gin.Engine {
 	r := gin.Default()
+	r.Use(security.AuthMiddleware(a.Discovery.GetServiceURL(a.config.discoveryConfig.servicesConfig.authService)))
 
 	v1 := r.Group(a.config.apiBasePath)
 	v1.GET("/health", controller.HealthCheckHandler)

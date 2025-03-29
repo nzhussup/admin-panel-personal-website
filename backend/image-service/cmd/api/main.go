@@ -12,6 +12,9 @@ func main() {
 		eurekaURL:   "http://discovery-server.default.svc.cluster.local:8761/eureka",
 		appName:     "image-service",
 		refreshRate: 30,
+		servicesConfig: &servicesConfig{
+			authService: "auth-service",
+		},
 	}
 
 	var port int = 8085
