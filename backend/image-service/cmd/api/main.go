@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,6 +26,12 @@ func main() {
 		storagePath:     "var/images",
 		apiBasePath:     "/api/v1/album",
 		discoveryConfig: discoveryConfig,
+		redisConfig: &redisConfig{
+			addr:     "redis-service.default.svc.cluster.local:6379",
+			password: "",
+			db:       0,
+			duration: 24 * time.Hour,
+		},
 	}
 
 	app := newApp(cfg)
@@ -33,5 +40,7 @@ func main() {
 		app.Discovery.RegisterWithEureka()
 		defer app.Discovery.DeregisterWithEureka()
 	}
+	app.Redis.CheckHealth()
+
 	app.run()
 }

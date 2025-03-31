@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"image-service/internal/config/cache"
 	custom_errors "image-service/internal/errors"
 	"image-service/internal/model"
 	"image-service/internal/repository"
@@ -15,6 +16,7 @@ import (
 
 type ImageService struct {
 	storage *repository.Storage
+	redis   *cache.RedisClient
 }
 
 func (s *ImageService) UploadImage(albumID string, files []*multipart.FileHeader) ([]*model.Image, error) {
@@ -63,6 +65,9 @@ func (s *ImageService) UploadImage(albumID string, files []*multipart.FileHeader
 			return nil, err
 		}
 		savedImages = append(savedImages, savedImage)
+
+		// CACHING
+		s.redis.Set(fmt.Sprintf("image:%s:%s", albumID, savedImage.ID), fmt.Sprintf("%s/%s/%s", s.storage.Path, albumID, savedImage.ID))
 	}
 
 	return savedImages, nil
@@ -74,13 +79,29 @@ func (s *ImageService) DeleteImage(albumID string, imageID string) error {
 	if err != nil {
 		return err
 	}
+
+	// CACHE EVICTION
+	cacheKey := fmt.Sprintf("image:%s:%s", albumID, imageID)
+	s.redis.Del(cacheKey)
+
 	return nil
 }
 
 func (s *ImageService) ServeImage(albumID string, imageID string) (string, error) {
+	// CACHE CHECK
+	cacheKey := fmt.Sprintf("image:%s:%s", albumID, imageID)
+	var cachedImagePath string
+	err := s.redis.Get(cacheKey, &cachedImagePath)
+	if err == nil {
+		return cachedImagePath, nil
+	}
+
 	imagePath := filepath.Join(s.storage.Path, albumID, imageID)
 	if _, err := os.Stat(imagePath); os.IsNotExist(err) {
 		return "", custom_errors.NewNotFoundError("image not found")
 	}
+
+	// CACHING
+	s.redis.Set(cacheKey, imagePath)
 	return imagePath, nil
 }

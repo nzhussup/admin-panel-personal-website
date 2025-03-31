@@ -1,10 +1,12 @@
 package main
 
 import (
+	"image-service/internal/config/cache"
 	"image-service/internal/config/discovery"
 	"image-service/internal/controller"
 	"image-service/internal/repository"
 	"image-service/internal/service"
+	"time"
 )
 
 type app struct {
@@ -13,6 +15,7 @@ type app struct {
 	Service    *service.Service
 	Storage    *repository.Storage
 	Discovery  *discovery.EurekaClient
+	Redis      *cache.RedisClient
 }
 
 type config struct {
@@ -21,6 +24,7 @@ type config struct {
 	storagePath     string
 	apiBasePath     string
 	discoveryConfig *discoveryConfig
+	redisConfig     *redisConfig
 }
 
 type discoveryConfig struct {
@@ -34,18 +38,37 @@ type servicesConfig struct {
 	authService string
 }
 
+type redisConfig struct {
+	addr     string
+	password string
+	db       int
+	duration time.Duration
+}
+
 func newApp(config config) *app {
+	redisClient := cache.NewRedisClient(
+		config.redisConfig.addr,
+		config.redisConfig.password,
+		config.redisConfig.db,
+		config.redisConfig.duration,
+	)
 	storage := repository.NewStorage(config.storagePath, config.apiBasePath)
-	service := service.NewService(storage)
+	service := service.NewService(storage, redisClient)
 	controller := controller.NewController(service)
-	eurekaClient := discovery.NewEurekaClient(config.discoveryConfig.eurekaURL, config.discoveryConfig.appName,
-		config.port, config.discoveryConfig.refreshRate)
+	eurekaClient := discovery.NewEurekaClient(
+		config.discoveryConfig.eurekaURL,
+		config.discoveryConfig.appName,
+		config.port,
+		config.discoveryConfig.refreshRate,
+	)
+
 	return &app{
 		config:     config,
 		Controller: controller,
 		Service:    service,
 		Storage:    storage,
 		Discovery:  eurekaClient,
+		Redis:      redisClient,
 	}
 }
 

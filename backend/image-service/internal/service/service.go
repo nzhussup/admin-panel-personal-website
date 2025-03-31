@@ -1,6 +1,7 @@
 package service
 
 import (
+	"image-service/internal/config/cache"
 	"image-service/internal/model"
 	"image-service/internal/repository"
 	"mime/multipart"
@@ -22,10 +23,10 @@ type Service struct {
 	}
 }
 
-func NewService(storage *repository.Storage) *Service {
+func NewService(storage *repository.Storage, redis *cache.RedisClient) *Service {
 	return &Service{
 		storage:      storage,
-		AlbumService: &AlbumService{storage: storage},
-		ImageService: &ImageService{storage: storage},
+		AlbumService: &AlbumService{storage: storage, redis: redis},
+		ImageService: &ImageService{storage: storage, redis: redis},
 	}
 }

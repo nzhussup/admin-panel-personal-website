@@ -30,7 +30,6 @@ func NewEurekaClient(url string, appName string, port int, refreshRate int) *Eur
 }
 
 func (client *EurekaClient) RegisterWithEureka() {
-
 	podName := os.Getenv("POD_NAME")
 	podIP := os.Getenv("POD_IP")
 
@@ -67,28 +66,55 @@ func (client *EurekaClient) RegisterWithEureka() {
 	for {
 		err := client.Client.RegisterInstance(client.AppName, instance)
 		if err == nil {
-			log.Println("✅ Registered with Eureka: ", client.AppName)
+			log.Println("✅ Successfully registered with Eureka:", client.AppName)
 			break
 		}
-		log.Printf("⚠️ Eureka registration failed, retrying...")
+		log.Printf("⚠️ Eureka registration failed, retrying in 5 seconds... Error: %v", err)
 		time.Sleep(5 * time.Second)
 	}
 
-	go client.KeepAliveWithEureka(instance.App, instanceID)
+	go client.KeepAliveWithEureka(instance.App, instanceID, instance)
 }
 
-func (client *EurekaClient) KeepAliveWithEureka(app string, instanceID string) {
+func (client *EurekaClient) KeepAliveWithEureka(app string, instanceID string, instance *eureka.InstanceInfo) {
 	log.Println("💓 Sending heartbeats to Eureka")
+
+	heartbeatFailed := false
 
 	for {
 		err := client.Client.SendHeartbeat(app, instanceID)
 		if err != nil {
 			log.Printf("⚠️ Eureka heartbeat failed: %v", err)
+
+			if !client.IsInstanceRegistered(app, instanceID) {
+				log.Println("🔄 Instance is no longer registered. Re-registering...")
+
+				err := client.Client.RegisterInstance(client.AppName, instance)
+				if err != nil {
+					log.Printf("❌ Failed to re-register instance: %v", err)
+				} else {
+					log.Println("✅ Instance successfully re-registered!")
+				}
+			}
+
+			heartbeatFailed = true
 		} else {
-			log.Println("💓 Eureka heartbeat sent successfully")
+			if heartbeatFailed {
+				log.Println("✅ Heartbeat restored!")
+				heartbeatFailed = false
+			}
 		}
+
 		time.Sleep(25 * time.Second)
 	}
+}
+
+func (client *EurekaClient) IsInstanceRegistered(app string, instanceID string) bool {
+	instance, err := client.Client.GetInstance(app, instanceID)
+	if err != nil || instance == nil {
+		return false
+	}
+	return true
 }
 
 func (client *EurekaClient) DeregisterWithEureka() {
