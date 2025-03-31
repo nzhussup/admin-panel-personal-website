@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image-service/internal/env"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -27,7 +28,10 @@ func main() {
 		apiBasePath:     "/api/v1/album",
 		discoveryConfig: discoveryConfig,
 		redisConfig: &redisConfig{
-			addr:     "redis-service.default.svc.cluster.local:6379",
+			addr: fmt.Sprintf(
+				"%s:%d",
+				env.GetString("REDIS_HOST", "redis-service.default.svc.cluster.local"),
+				env.GetInt("REDIS_PORT", 6379)),
 			password: "",
 			db:       0,
 			duration: 24 * time.Hour,

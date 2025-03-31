@@ -70,8 +70,9 @@ func (s *ImageService) UploadImage(albumID string, files []*multipart.FileHeader
 		s.redis.Set(fmt.Sprintf("image:%s:%s", albumID, savedImage.ID), fmt.Sprintf("%s/%s/%s", s.storage.Path, albumID, savedImage.ID))
 	}
 
-	return savedImages, nil
+	s.redis.Del(fmt.Sprintf("album_%s", albumID))
 
+	return savedImages, nil
 }
 
 func (s *ImageService) DeleteImage(albumID string, imageID string) error {
@@ -83,6 +84,7 @@ func (s *ImageService) DeleteImage(albumID string, imageID string) error {
 	// CACHE EVICTION
 	cacheKey := fmt.Sprintf("image:%s:%s", albumID, imageID)
 	s.redis.Del(cacheKey)
+	s.redis.Del(fmt.Sprintf("album_%s", albumID))
 
 	return nil
 }

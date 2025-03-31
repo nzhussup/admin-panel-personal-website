@@ -7,7 +7,6 @@ import (
 	"image-service/internal/model"
 	"image-service/internal/repository"
 	"strings"
-	"time"
 )
 
 type AlbumService struct {
@@ -21,8 +20,6 @@ func (s *AlbumService) GetAlbum(id string) (*model.Album, error) {
 	if err == nil {
 		return cachedAlbum, nil
 	}
-
-	time.Sleep(30 * time.Second)
 
 	album, err := s.storage.Album.Get(id)
 	if err != nil {
@@ -40,8 +37,6 @@ func (s *AlbumService) GetAlbumsPreview() ([]*model.AlbumPreview, error) {
 	if err == nil {
 		return cachedPreview, nil
 	}
-
-	time.Sleep(30 * time.Second)
 
 	albums, err := s.storage.Album.GetPreview()
 	if err != nil {

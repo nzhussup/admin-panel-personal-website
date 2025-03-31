@@ -29,6 +29,17 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: admin-panel-config
+                  key: REDIS_HOST
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: admin-panel-config
+                  key: REDIS_PORT
+                
       volumes:
         - name: images-volume
           persistentVolumeClaim:
