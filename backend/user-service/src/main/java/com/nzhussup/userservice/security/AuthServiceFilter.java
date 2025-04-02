@@ -32,8 +32,7 @@ public class AuthServiceFilter implements Filter {
     public void doFilter(
             jakarta.servlet.ServletRequest servletRequest,
             jakarta.servlet.ServletResponse servletResponse,
-            FilterChain filterChain
-    ) throws IOException, ServletException {
+            FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
@@ -56,15 +55,12 @@ public class AuthServiceFilter implements Filter {
                     .bodyToMono(ValidationResponse.class)
                     .block(); // Synchronous call for Jakarta Servlet compatibility
 
-
             assert validationResponse != null;
             SecurityContextHolder.getContext().setAuthentication(
                     new UsernamePasswordAuthenticationToken(
                             validationResponse.getUsername(),
                             null,
-                            validationResponse.getAuthorities()
-                    )
-            );
+                            validationResponse.getAuthorities()));
 
             filterChain.doFilter(request, response);
 

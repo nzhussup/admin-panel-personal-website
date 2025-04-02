@@ -1,4 +1,5 @@
 package com.nzhussup.baseservice.security;
+
 import com.nzhussup.baseservice.config.AppConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -27,11 +28,7 @@ public class SecurityConfig {
         http
                 .csrf(csfr -> csfr.disable())
                 .authorizeHttpRequests(requests -> {
-                    requests.requestMatchers(HttpMethod.GET, AppConfig.baseApiPath + "project").permitAll();
-                    requests.requestMatchers(HttpMethod.GET, AppConfig.baseApiPath + "certificate").permitAll();
-                    requests.requestMatchers(HttpMethod.GET, AppConfig.baseApiPath + "work-experience").permitAll();
-                    requests.requestMatchers(HttpMethod.GET, AppConfig.baseApiPath + "education").permitAll();
-                    requests.requestMatchers(HttpMethod.GET, AppConfig.baseApiPath + "skill").permitAll();
+                    requests.requestMatchers(HttpMethod.GET).permitAll();
                     requests.anyRequest().hasRole("ADMIN");
                 })
                 .httpBasic(Customizer.withDefaults())
@@ -44,7 +41,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 

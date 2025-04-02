@@ -27,7 +27,8 @@ public class SecurityConfig {
         http
                 .csrf(csfr -> csfr.disable())
                 .authorizeHttpRequests(requests -> {
-                    requests.requestMatchers(AppConfig.baseApiPath+"public").permitAll();
+                    requests.requestMatchers(AppConfig.baseApiPath + "public").permitAll();
+                    requests.requestMatchers("/v1/user/v3/api-docs/**", "/v1/user/swagger-ui/**").permitAll();
                     requests.anyRequest().hasRole("ADMIN");
                 })
                 .httpBasic(Customizer.withDefaults())
@@ -40,7 +41,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 

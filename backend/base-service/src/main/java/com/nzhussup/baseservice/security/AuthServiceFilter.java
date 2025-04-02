@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
+import org.springframework.http.HttpMethod;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,8 +33,8 @@ public class AuthServiceFilter implements Filter {
     public void doFilter(
             jakarta.servlet.ServletRequest servletRequest,
             jakarta.servlet.ServletResponse servletResponse,
-            FilterChain filterChain
-    ) throws IOException, ServletException {
+            FilterChain filterChain) throws IOException, ServletException {
+
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
@@ -56,15 +57,12 @@ public class AuthServiceFilter implements Filter {
                     .bodyToMono(ValidationResponse.class)
                     .block(); // Synchronous call for Jakarta Servlet compatibility
 
-
             assert validationResponse != null;
             SecurityContextHolder.getContext().setAuthentication(
                     new UsernamePasswordAuthenticationToken(
                             validationResponse.getUsername(),
                             null,
-                            validationResponse.getAuthorities()
-                    )
-            );
+                            validationResponse.getAuthorities()));
 
             filterChain.doFilter(request, response);
 
