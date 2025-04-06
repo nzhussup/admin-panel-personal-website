@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { clearCache } from "../utils/apiUtil";
+import { clearCache } from "../utils/base/apiUtil";
 
-const ClearCacheButton = ({ onSuccess }) => {
+const ClearCacheButton = ({ onSuccess, onError }) => {
   const [isClearing, setIsClearing] = useState(false);
 
   const handleClearCache = async () => {
@@ -10,6 +10,7 @@ const ClearCacheButton = ({ onSuccess }) => {
       await clearCache();
       if (onSuccess) onSuccess();
     } catch (error) {
+      if (onError) onError(error);
       console.error("Error clearing cache:", error);
     } finally {
       setIsClearing(false);

@@ -25,7 +25,7 @@ type ValidationResponse struct {
 // If the token is valid, it sets the username and roles in the context.
 // If the token is invalid or missing, it returns a 401 Unauthorized response.
 // It allows GET requests to pass through without validation.
-func AuthMiddleware(authServiceURL string, err error) gin.HandlerFunc {
+func AuthMiddleware(authServiceURL string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		if c.Request.Method == http.MethodGet {
@@ -33,11 +33,6 @@ func AuthMiddleware(authServiceURL string, err error) gin.HandlerFunc {
 			return
 		}
 
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not find auth service"})
-			c.Abort()
-			return
-		}
 		if authServiceURL == "" {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Auth service URL is not set"})
 			c.Abort()
@@ -56,7 +51,7 @@ func AuthMiddleware(authServiceURL string, err error) gin.HandlerFunc {
 		reqBody, _ := json.Marshal(ValidationRequest{Token: token})
 
 		var resp *http.Response
-		resp, err = http.Post(authServiceURL+"/auth/validate", "application/json", bytes.NewBuffer(reqBody))
+		resp, err := http.Post(authServiceURL+"/auth/validate", "application/json", bytes.NewBuffer(reqBody))
 		if err != nil || resp.StatusCode == http.StatusInternalServerError {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Auth service unavailable"})
 			c.Abort()

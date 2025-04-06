@@ -25,6 +25,7 @@ type config struct {
 	apiBasePath     string
 	discoveryConfig *discoveryConfig
 	redisConfig     *redisConfig
+	apiGatewayURL   string
 }
 
 type discoveryConfig struct {

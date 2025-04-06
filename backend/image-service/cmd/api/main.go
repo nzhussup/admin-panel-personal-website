@@ -36,6 +36,7 @@ func main() {
 			db:       0,
 			duration: 24 * time.Hour,
 		},
+		apiGatewayURL: "https://api.nzhussup.com",
 	}
 
 	app := newApp(cfg)

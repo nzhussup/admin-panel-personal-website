@@ -8,6 +8,8 @@ import WorkExp from "../pages/cv/WorkExp";
 import Skills from "../pages/cv/Skills";
 import NotFound from "../pages/misc/errors/NotFound";
 import Users from "../pages/Users";
+import AlbumsPreview from "../pages/albums/AlbumsPreview";
+import Album from "../pages/albums/Album";
 
 const routes = [
   {
@@ -53,6 +55,16 @@ const routes = [
   {
     path: "/users",
     element: <Users />,
+    isProtected: true,
+  },
+  {
+    path: "/albums",
+    element: <AlbumsPreview />,
+    isProtected: true,
+  },
+  {
+    path: "/albums/:id",
+    element: <Album />,
     isProtected: true,
   },
   {

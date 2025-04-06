@@ -12,6 +12,7 @@ const Header = ({ text }) => {
 
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("alert-success");
 
   const handleLogout = () => {
     logout();
@@ -26,7 +27,14 @@ const Header = ({ text }) => {
   const handleClearCacheSuccess = () => {
     setAlertMessage("Cache cleared successfully!");
     setAlertVisible(true);
-    setTimeout(() => setAlertVisible(false), 3000); // Hide alert after 3 seconds
+    setTimeout(() => setAlertVisible(false), 3000);
+  };
+
+  const handleClearCacheError = (error) => {
+    setAlertType("alert-danger");
+    setAlertMessage(error.message);
+    setAlertVisible(true);
+    setTimeout(() => setAlertVisible(false), 3000);
   };
 
   return (
@@ -97,7 +105,10 @@ const Header = ({ text }) => {
                     )}
                   </span>
                 </label>
-                <ClearCacheButton onSuccess={handleClearCacheSuccess} />
+                <ClearCacheButton
+                  onSuccess={handleClearCacheSuccess}
+                  onError={handleClearCacheError}
+                />
               </div>
 
               <button
@@ -117,6 +128,7 @@ const Header = ({ text }) => {
         message={alertMessage}
         show={alertVisible}
         onClose={() => setAlertVisible(false)}
+        type={alertType}
       />
     </div>
   );

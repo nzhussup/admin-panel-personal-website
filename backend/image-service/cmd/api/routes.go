@@ -9,10 +9,12 @@ import (
 
 func (a *app) GetRouter() *gin.Engine {
 	r := gin.Default()
-	r.Use(security.AuthMiddleware(a.Discovery.GetServiceURL(a.config.discoveryConfig.servicesConfig.authService)))
+	r.Use(security.AuthMiddleware(a.config.apiGatewayURL))
 
 	v1 := r.Group(a.config.apiBasePath)
 	v1.GET("/health", controller.HealthCheckHandler)
+	v1.DELETE("/cache", a.Controller.CacheController.ClearCache)
+
 	v1.GET("", a.Controller.AlbumController.GetPreview)
 	v1.GET("/:id", a.Controller.AlbumController.Get)
 	v1.POST("", a.Controller.AlbumController.Create)
@@ -22,5 +24,6 @@ func (a *app) GetRouter() *gin.Engine {
 	v1.POST("/:id/upload", a.Controller.ImageController.Upload)
 	v1.DELETE("/:id/:imageID", a.Controller.ImageController.Delete)
 	v1.GET("/:id/:imageID", a.Controller.ImageController.Serve)
+
 	return r
 }

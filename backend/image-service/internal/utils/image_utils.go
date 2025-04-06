@@ -6,10 +6,17 @@ import (
 	custom_errors "image-service/internal/errors"
 	"image/jpeg"
 	"image/png"
+	"os"
+	"strconv"
+	"strings"
+
+	"sync"
 
 	"github.com/adrium/goheif"
 	"github.com/nfnt/resize"
 )
+
+var MetadataMutex sync.Mutex
 
 func CompressImage(data []byte, extension string) ([]byte, error) {
 	if extension == "heic" {
@@ -59,4 +66,86 @@ func ConvertHEICToJPEG(data []byte) ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
+}
+
+func GetImageCount(metaDataPath string) (int, error) {
+	content, err := os.ReadFile(metaDataPath)
+	if err != nil {
+		return 0, custom_errors.NewInternalServerError("failed to read metadata file")
+	}
+	countString := strings.Split(strings.Split(string(content), "\n")[3], ": ")[1]
+	count, err := strconv.Atoi(countString)
+	if err != nil {
+		return 0, custom_errors.NewInternalServerError("failed to parse image count")
+	}
+	return count, nil
+}
+
+func IncrementImageCount(metaDataPath string, n int) error {
+	MetadataMutex.Lock()
+	defer MetadataMutex.Unlock()
+
+	content, err := os.ReadFile(metaDataPath)
+	if err != nil {
+		return custom_errors.NewInternalServerError("failed to read metadata file")
+	}
+
+	lines := strings.Split(string(content), "\n")
+
+	countLine := lines[3]
+	parts := strings.Split(countLine, ": ")
+	if len(parts) != 2 {
+		return custom_errors.NewInternalServerError("invalid count line format")
+	}
+
+	count, err := strconv.Atoi(parts[1])
+	if err != nil {
+		return custom_errors.NewInternalServerError("failed to parse image count")
+	}
+
+	count += n
+	lines[3] = parts[0] + ": " + strconv.Itoa(count)
+
+	err = os.WriteFile(metaDataPath, []byte(strings.Join(lines, "\n")), os.ModePerm)
+	if err != nil {
+		return custom_errors.NewInternalServerError("failed to write metadata file")
+	}
+
+	return nil
+}
+
+func DecrementImageCount(metaDataPath string, n int) error {
+	MetadataMutex.Lock()
+	defer MetadataMutex.Unlock()
+
+	content, err := os.ReadFile(metaDataPath)
+	if err != nil {
+		return custom_errors.NewInternalServerError("failed to read metadata file")
+	}
+
+	lines := strings.Split(string(content), "\n")
+
+	countLine := lines[3]
+	parts := strings.Split(countLine, ": ")
+	if len(parts) != 2 {
+		return custom_errors.NewInternalServerError("invalid count line format")
+	}
+
+	count, err := strconv.Atoi(parts[1])
+	if err != nil {
+		return custom_errors.NewInternalServerError("failed to parse image count")
+	}
+
+	count -= n
+	if count < 0 {
+		count = 0
+	}
+	lines[3] = parts[0] + ": " + strconv.Itoa(count)
+
+	err = os.WriteFile(metaDataPath, []byte(strings.Join(lines, "\n")), os.ModePerm)
+	if err != nil {
+		return custom_errors.NewInternalServerError("failed to write metadata file")
+	}
+
+	return nil
 }

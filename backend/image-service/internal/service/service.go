@@ -21,6 +21,9 @@ type Service struct {
 		DeleteImage(string, string) error
 		ServeImage(string, string) (string, error)
 	}
+	CacheService interface {
+		ClearCache() error
+	}
 }
 
 func NewService(storage *repository.Storage, redis *cache.RedisClient) *Service {
@@ -28,5 +31,6 @@ func NewService(storage *repository.Storage, redis *cache.RedisClient) *Service 
 		storage:      storage,
 		AlbumService: &AlbumService{storage: storage, redis: redis},
 		ImageService: &ImageService{storage: storage, redis: redis},
+		CacheService: &CacheService{redis: redis},
 	}
 }

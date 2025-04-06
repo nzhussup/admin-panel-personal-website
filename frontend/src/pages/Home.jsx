@@ -22,9 +22,9 @@ const Home = () => {
     navigate("/users");
   };
 
-  const handleNavigatePhotos = () => {
+  const handleNavigateAlbums = () => {
     console.log("Navigating to photos");
-    navigate("/photos");
+    navigate("/albums");
   };
 
   return (
@@ -65,10 +65,10 @@ const Home = () => {
 
             <div className='col'>
               <Card
-                title='Photos'
-                desc='Here you can manage your photos, add new photos, update and delete them.'
-                buttontxt='Manage Photos'
-                handleFunc={handleNavigatePhotos}
+                title='Albums'
+                desc='Here you can manage your albums, add new albums and images, update and delete them.'
+                buttontxt='Manage Albums'
+                handleFunc={handleNavigateAlbums}
               />
             </div>
           </div>

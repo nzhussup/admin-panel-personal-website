@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { fetchData, saveData, deleteData } from "./apiUtil";
-import config from "../config/ConfigVariables";
+import { fetchData, saveData, saveImageData, deleteData } from "./albumApiUtil";
+import config from "../../config/ConfigVariables";
 
-export const usePageData = (endpoint, sortBy = "displayOrder") => {
+export const usePageData = (endpoint, isSingle, sortBy = "date") => {
   const [items, setItems] = useState([]);
   const [isAscending, setIsAscending] = useState(false);
   const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -19,9 +19,13 @@ export const usePageData = (endpoint, sortBy = "displayOrder") => {
     setError(null);
     try {
       await fetchData(endpoint, (fetchedItems) => {
-        const sortedItems = [...fetchedItems].sort((a, b) =>
-          isAscending ? a[sortBy] - b[sortBy] : b[sortBy] - a[sortBy]
-        );
+        const sortedItems = [...fetchedItems].sort((a, b) => {
+          const dateA = new Date(a[sortBy]);
+          const dateB = new Date(b[sortBy]);
+
+          return isAscending ? dateA - dateB : dateB - dateA;
+        });
+
         setItems(sortedItems);
       });
     } catch (error) {
@@ -32,9 +36,47 @@ export const usePageData = (endpoint, sortBy = "displayOrder") => {
     }
   };
 
-  const saveItem = async (formData, isEditMode) => {
-    const response = await saveData(endpoint, formData, isEditMode);
-    fetchItems();
+  const fetchItem = async () => {
+    const loadingTimeout = setTimeout(() => {
+      setShowLoading(true);
+    }, config.showLoadingDelay);
+
+    setError(null);
+    try {
+      await fetchData(`${endpoint}`, (fetchedItem) => {
+        setItems([fetchedItem]);
+      });
+    } catch (error) {
+      setError(error);
+    } finally {
+      clearTimeout(loadingTimeout);
+      setShowLoading(false);
+    }
+  };
+
+  const saveItem = async (formData, isEditMode, isImage = false) => {
+    var response;
+    console.log("Saving item:", formData);
+    if (isImage) {
+      try {
+        response = await saveImageData(endpoint + "/upload", formData);
+      } catch (error) {
+        console.error("Error in saveImage:", error);
+        setError(error);
+      }
+    } else {
+      try {
+        response = await saveData(endpoint, formData, isEditMode);
+      } catch (error) {
+        console.error("Error in saveData:", error);
+        setError(error);
+      }
+    }
+    if (isSingle) {
+      fetchItem();
+    } else {
+      fetchItems();
+    }
     setResponse(response);
   };
 
@@ -49,7 +91,11 @@ export const usePageData = (endpoint, sortBy = "displayOrder") => {
         const response = await deleteData(endpoint, selectedItemId);
         setSelectedItemId(null);
         setDeleteModalOpen(false);
-        fetchItems();
+        if (isSingle) {
+          fetchItem();
+        } else {
+          fetchItems();
+        }
         setResponse(response);
       } catch (error) {
         console.error("Error in handleDelete:", error);
@@ -63,7 +109,11 @@ export const usePageData = (endpoint, sortBy = "displayOrder") => {
   };
 
   useEffect(() => {
-    fetchItems();
+    if (isSingle) {
+      fetchItem();
+    } else {
+      fetchItems();
+    }
   }, [isAscending]);
 
   return {
@@ -130,7 +180,7 @@ export const useRenderPage = (
     itemPage
   ) => {
     if (showLoading) return <LoadingElement />;
-    if (error) return <ErrorElement description={error.toString()} />;
+    if (error) return <ErrorElement {...error} />;
     if (items.length <= 0 && delayed) return <NoInfoFoundElement />;
     return itemPage;
   };

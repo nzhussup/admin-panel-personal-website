@@ -20,6 +20,9 @@ type Controller struct {
 		Delete(*gin.Context)
 		Serve(*gin.Context)
 	}
+	CacheController interface {
+		ClearCache(*gin.Context)
+	}
 }
 
 func NewController(service *service.Service) *Controller {
@@ -27,5 +30,6 @@ func NewController(service *service.Service) *Controller {
 		service:         service,
 		AlbumController: &AlbumController{service: service},
 		ImageController: &ImageController{service: service},
+		CacheController: &CacheController{service: service},
 	}
 }

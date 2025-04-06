@@ -3,7 +3,6 @@ package discovery
 import (
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"time"
 
@@ -129,14 +128,14 @@ func (client *EurekaClient) DeregisterWithEureka() {
 	}
 }
 
-func (client *EurekaClient) GetServiceURL(serviceName string) (string, error) {
-	app, err := client.Client.GetApplication(serviceName)
-	if err != nil {
-		return "", err
-	}
+// func (client *EurekaClient) GetServiceURL(serviceName string) (string, error) {
+// 	app, err := client.Client.GetApplication(serviceName)
+// 	if err != nil {
+// 		return "", err
+// 	}
 
-	// Don't wanna implement a load balancer, so we just pick a random instance :D
-	instance := app.Instances[rand.Intn(len(app.Instances))]
-	url := fmt.Sprintf("http://%s:%d", instance.IpAddr, instance.Port.Port)
-	return url, nil
-}
+// 	// Don't wanna implement a load balancer, so we just pick a random instance :D
+// 	instance := app.Instances[rand.Intn(len(app.Instances))]
+// 	url := fmt.Sprintf("http://%s:%d", instance.IpAddr, instance.Port.Port)
+// 	return url, nil
+// }

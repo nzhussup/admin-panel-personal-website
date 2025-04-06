@@ -44,6 +44,11 @@ func (i *ImageRepository) Upload(albumID string, image *model.Image) (*model.Ima
 		return nil, custom_errors.NewInternalServerError("failed to save image data")
 	}
 
+	err = utils.IncrementImageCount(filepath.Join(albumPath, "meta.txt"), 1)
+	if err != nil {
+		return nil, custom_errors.NewInternalServerError("failed to increment image count")
+	}
+
 	image.ID = strings.Split(imagePath, "/")[len(strings.Split(imagePath, "/"))-1]
 	image.Data = nil
 	image.URL = filepath.Join(i.ApiBasePath, albumID, image.ID)
@@ -59,6 +64,10 @@ func (i *ImageRepository) Delete(albumID string, imageID string) error {
 	err := os.Remove(imagePath)
 	if err != nil {
 		return custom_errors.NewInternalServerError("failed to delete image")
+	}
+	err = utils.DecrementImageCount(filepath.Join(i.Path, albumID, "meta.txt"), 1)
+	if err != nil {
+		return custom_errors.NewInternalServerError("failed to decrement image count")
 	}
 	return nil
 }

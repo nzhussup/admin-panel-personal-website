@@ -1,5 +1,5 @@
 import axios from "axios";
-import config from "../config/ConfigVariables";
+import config from "../../config/ConfigVariables";
 
 const fetchData = async (endpoint, setData) => {
   const token = localStorage.getItem("token");
@@ -12,7 +12,13 @@ const fetchData = async (endpoint, setData) => {
     });
     setData(response.data);
   } catch (error) {
-    throw new Error(`Error fetching data from ${endpoint}: ${error}`);
+    if (error.response) {
+      console.error(`Error fetching data from ${endpoint}:`, error.response);
+      throw error;
+    } else {
+      console.error(`Unexpected error fetching data from ${endpoint}:`, error);
+      throw new Error("An unexpected error occurred while fetching data.");
+    }
   }
 };
 
@@ -38,7 +44,7 @@ const saveData = async (endpoint, formData, isEditMode) => {
   } catch (error) {
     if (error.response) {
       console.error(`Error saving data to ${endpoint}:`, error.response);
-      return error.response;
+      throw error;
     } else {
       console.error(`Unexpected error saving data to ${endpoint}:`, error);
       throw new Error("An unexpected error occurred while saving data.");
@@ -59,7 +65,7 @@ const deleteData = async (endpoint, id) => {
     return response;
   } catch (error) {
     if (error.response) {
-      return error.response;
+      throw error;
     } else {
       console.error(`Error deleting data from ${endpoint}:`, error);
       throw new Error("An unexpected error occurred while deleting data.");
@@ -71,18 +77,15 @@ const clearCache = async () => {
   const token = localStorage.getItem("token");
 
   try {
-    await axios.post(
-      `${config.apiUrl}/cache/clearGlobalCache`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    await axios.delete(`${config.apiUrl}/album/cache`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     console.log("Cache cleared successfully.");
   } catch (error) {
     console.error("Error clearing cache:", error);
+    throw error;
   }
 };
 

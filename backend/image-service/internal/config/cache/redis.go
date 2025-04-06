@@ -88,3 +88,12 @@ func (r *RedisClient) Del(key string) {
 		}
 	}
 }
+
+func (r *RedisClient) FlushAll() error {
+	ctx := context.Background()
+	err := r.Client.FlushAll(ctx).Err()
+	if err != nil {
+		custom_errors.NewInternalServerError("Failed to flush all cache")
+	}
+	return nil
+}

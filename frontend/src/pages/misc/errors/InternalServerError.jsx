@@ -1,6 +1,5 @@
 import React from "react";
 import PageWrapper from "../../../utils/SmoothPage";
-import { desc } from "framer-motion/client";
 
 const InternalServerError = ({ description }) => {
   return (

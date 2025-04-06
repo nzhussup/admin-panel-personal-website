@@ -1,7 +1,7 @@
 import React from "react";
 import Header from "../components/Header";
 import EditableCard from "../components/EditableCard";
-import { usePageData, usePopup, useRenderPage } from "../utils/pageUtil";
+import { usePageData, usePopup, useRenderPage } from "../utils/base/pageUtil";
 import AddButton from "../components/AddButton";
 import PopUp from "../components/PopUp";
 import FormInput from "../components/FormInput";
@@ -9,7 +9,7 @@ import PageSubHeader from "../components/PageSubHeader";
 import DeleteConfirmation from "../components/DeleteConfirmation";
 import PageWrapper from "../utils/SmoothPage";
 import LoadingElement from "./misc/Loading";
-import ErrorElement from "./misc/errors/InternalServerError";
+import ErrorElement from "./misc/errors/Error";
 import NoInfoFoundElement from "./misc/errors/NoInfoFound";
 
 const Projects = () => {

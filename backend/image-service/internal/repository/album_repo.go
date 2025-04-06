@@ -7,6 +7,7 @@ import (
 	"image-service/internal/utils"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -35,7 +36,7 @@ func (a *AlbumRepository) Create(m *model.AlbumPreview) (*model.AlbumPreview, er
 	}
 	defer metaFile.Close()
 
-	_, err = metaFile.WriteString(fmt.Sprintf("Title: %s\nDescription: %s\n", m.Title, m.Desc))
+	_, err = metaFile.WriteString(fmt.Sprintf("Title: %s\nDescription: %s\nDate: %s\nImageCount: 0\n", m.Title, m.Desc, m.Date))
 	if err != nil {
 		return nil, custom_errors.NewInternalServerError("failed to write metadata file")
 	}
@@ -60,8 +61,9 @@ func (a *AlbumRepository) Get(id string) (*model.Album, error) {
 
 			album := &model.Album{
 				ID:    id,
-				Title: strings.Split(string(metaFileContent), "\n")[0],
-				Desc:  strings.Split(string(metaFileContent), "\n")[1],
+				Title: strings.Split(strings.Split(string(metaFileContent), "\n")[0], ": ")[1],
+				Desc:  strings.Split(strings.Split(string(metaFileContent), "\n")[1], ": ")[1],
+				Date:  strings.Split(strings.Split(string(metaFileContent), "\n")[2], ": ")[1],
 			}
 
 			albumPath := filepath.Join(a.Path, id)
@@ -108,13 +110,20 @@ func (a *AlbumRepository) GetPreview() ([]*model.AlbumPreview, error) {
 
 			metaFileContent, err := os.ReadFile(metaFilePath)
 			if err != nil {
-				continue
+				return nil, custom_errors.NewInternalServerError("failed to read metadata file")
+			}
+
+			imageCount, err := utils.GetImageCount(metaFilePath)
+			if err != nil {
+				return nil, custom_errors.NewInternalServerError("failed to get image count")
 			}
 
 			album := &model.AlbumPreview{
-				ID:    dir.Name(),
-				Title: strings.Split(string(metaFileContent), "\n")[0],
-				Desc:  strings.Split(string(metaFileContent), "\n")[1],
+				ID:         dir.Name(),
+				Title:      strings.Split(strings.Split(string(metaFileContent), "\n")[0], ": ")[1],
+				Desc:       strings.Split(strings.Split(string(metaFileContent), "\n")[1], ": ")[1],
+				Date:       strings.Split(strings.Split(string(metaFileContent), "\n")[2], ": ")[1],
+				ImageCount: imageCount,
 			}
 
 			albumPreviews = append(albumPreviews, album)
@@ -143,7 +152,16 @@ func (a *AlbumRepository) Update(id string, m *model.AlbumPreview) (*model.Album
 	}
 
 	metaFilePath := filepath.Join(albumPath, "meta.txt")
+	var imageCount int
 	if _, err := os.Stat(metaFilePath); os.IsExist(err) {
+		metaFileContent, err := os.ReadFile(metaFilePath)
+		if err != nil {
+			return nil, custom_errors.NewInternalServerError("failed to read metadata file")
+		}
+		imageCount, err = strconv.Atoi(strings.Split(strings.Split(string(metaFileContent), "\n")[3], ": ")[1])
+		if err != nil {
+			return nil, custom_errors.NewInternalServerError("failed to parse image count")
+		}
 		os.Remove(metaFilePath)
 	}
 	metaFile, err := os.Create(metaFilePath)
@@ -152,7 +170,7 @@ func (a *AlbumRepository) Update(id string, m *model.AlbumPreview) (*model.Album
 	}
 	defer metaFile.Close()
 
-	_, err = metaFile.WriteString(fmt.Sprintf("Title: %s\nDescription: %s\n", m.Title, m.Desc))
+	_, err = metaFile.WriteString(fmt.Sprintf("Title: %s\nDescription: %s\nDate: %s\nImageCount: %d\n", m.Title, m.Desc, m.Date, imageCount))
 	if err != nil {
 		return nil, custom_errors.NewInternalServerError("failed to write metadata file")
 	}
