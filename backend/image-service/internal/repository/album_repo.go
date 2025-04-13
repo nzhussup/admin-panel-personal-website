@@ -7,7 +7,6 @@ import (
 	"image-service/internal/utils"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 )
 
@@ -20,7 +19,7 @@ func (a *AlbumRepository) Create(m *model.AlbumPreview) (*model.AlbumPreview, er
 	albumID := utils.GenerateUUID()
 	albumPath := filepath.Join(a.Path, albumID)
 
-	if _, err := os.Stat(albumPath); !os.IsNotExist(err) {
+	if _, err := os.Stat(albumPath); err == nil {
 		return nil, custom_errors.NewConflictError("album already exists")
 	}
 
@@ -153,17 +152,14 @@ func (a *AlbumRepository) Update(id string, m *model.AlbumPreview) (*model.Album
 
 	metaFilePath := filepath.Join(albumPath, "meta.txt")
 	var imageCount int
-	if _, err := os.Stat(metaFilePath); os.IsExist(err) {
-		metaFileContent, err := os.ReadFile(metaFilePath)
+	if _, err := os.Stat(metaFilePath); err == nil {
+		imageCount, err = utils.GetImageCount(metaFilePath)
 		if err != nil {
-			return nil, custom_errors.NewInternalServerError("failed to read metadata file")
-		}
-		imageCount, err = strconv.Atoi(strings.Split(strings.Split(string(metaFileContent), "\n")[3], ": ")[1])
-		if err != nil {
-			return nil, custom_errors.NewInternalServerError("failed to parse image count")
+			return nil, custom_errors.NewInternalServerError("failed to get image count")
 		}
 		os.Remove(metaFilePath)
 	}
+
 	metaFile, err := os.Create(metaFilePath)
 	if err != nil {
 		return nil, custom_errors.NewInternalServerError("failed to create metadata file")
