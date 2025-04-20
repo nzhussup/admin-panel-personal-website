@@ -18,16 +18,20 @@ export const usePageData = (endpoint, isSingle, sortBy = "date") => {
 
     setError(null);
     try {
-      await fetchData(endpoint, (fetchedItems) => {
-        const sortedItems = [...fetchedItems].sort((a, b) => {
-          const dateA = new Date(a[sortBy]);
-          const dateB = new Date(b[sortBy]);
+      await fetchData(
+        endpoint,
+        (fetchedItems) => {
+          const sortedItems = [...fetchedItems].sort((a, b) => {
+            const dateA = new Date(a[sortBy]);
+            const dateB = new Date(b[sortBy]);
 
-          return isAscending ? dateA - dateB : dateB - dateA;
-        });
+            return isAscending ? dateA - dateB : dateB - dateA;
+          });
 
-        setItems(sortedItems);
-      });
+          setItems(sortedItems);
+        },
+        { type: "all" }
+      );
     } catch (error) {
       setError(error);
     } finally {

@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"fmt"
 	custom_errors "image-service/internal/errors"
 	"image-service/internal/model"
 	"image-service/internal/service"
@@ -14,15 +15,28 @@ type AlbumController struct {
 	service *service.Service
 }
 
+var validTypes = map[string]bool{
+	"private":     true,
+	"public":      true,
+	"semi-public": true,
+	"all":         true,
+}
+
 func (ctrl *AlbumController) Get(c *gin.Context) {
 	pathParam := c.Param("id")
-	album, err := ctrl.service.AlbumService.GetAlbum(pathParam)
+	album, err := ctrl.service.AlbumService.GetAlbum(c, pathParam)
 	if err != nil {
 		switch {
 		case errors.Is(err, custom_errors.ErrNotFound):
 			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		case errors.Is(err, custom_errors.ErrBadRequest):
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		case errors.Is(err, custom_errors.ErrUnauthorized):
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		case errors.Is(err, custom_errors.ErrForbidden):
+			c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		case errors.Is(err, custom_errors.ErrInternalServer):
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		default:
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
@@ -38,10 +52,26 @@ func (ctrl *AlbumController) Get(c *gin.Context) {
 }
 
 func (ctrl *AlbumController) GetPreview(c *gin.Context) {
-	album, err := ctrl.service.AlbumService.GetAlbumsPreview()
+	typeQuery := c.DefaultQuery("type", "public")
+
+	if !validTypes[typeQuery] {
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("invalid type. should be one of %v", validTypes)})
+		return
+	}
+
+	album, err := ctrl.service.AlbumService.GetAlbumsPreview(typeQuery)
 
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		switch {
+		case errors.Is(err, custom_errors.ErrBadRequest):
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		case errors.Is(err, custom_errors.ErrUnauthorized):
+			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		case errors.Is(err, custom_errors.ErrForbidden):
+			c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
+		default:
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		}
 		return
 	}
 	if album == nil {

@@ -3,6 +3,7 @@ package main
 import (
 	"image-service/internal/config/cache"
 	"image-service/internal/config/discovery"
+	"image-service/internal/config/security"
 	"image-service/internal/controller"
 	"image-service/internal/repository"
 	"image-service/internal/service"
@@ -10,12 +11,13 @@ import (
 )
 
 type app struct {
-	config     config
-	Controller *controller.Controller
-	Service    *service.Service
-	Storage    *repository.Storage
-	Discovery  *discovery.EurekaClient
-	Redis      *cache.RedisClient
+	config         config
+	securityConfig *security.AuthConfig
+	Controller     *controller.Controller
+	Service        *service.Service
+	Storage        *repository.Storage
+	Discovery      *discovery.EurekaClient
+	Redis          *cache.RedisClient
 }
 
 type config struct {
@@ -46,7 +48,7 @@ type redisConfig struct {
 	duration time.Duration
 }
 
-func newApp(config config) *app {
+func newApp(config config, securityConfig *security.AuthConfig) *app {
 	redisClient := cache.NewRedisClient(
 		config.redisConfig.addr,
 		config.redisConfig.password,
@@ -54,7 +56,7 @@ func newApp(config config) *app {
 		config.redisConfig.duration,
 	)
 	storage := repository.NewStorage(config.storagePath, config.apiBasePath)
-	service := service.NewService(storage, redisClient)
+	service := service.NewService(storage, redisClient, securityConfig)
 	controller := controller.NewController(service)
 	eurekaClient := discovery.NewEurekaClient(
 		config.discoveryConfig.eurekaURL,
@@ -64,12 +66,13 @@ func newApp(config config) *app {
 	)
 
 	return &app{
-		config:     config,
-		Controller: controller,
-		Service:    service,
-		Storage:    storage,
-		Discovery:  eurekaClient,
-		Redis:      redisClient,
+		config:         config,
+		securityConfig: securityConfig,
+		Controller:     controller,
+		Service:        service,
+		Storage:        storage,
+		Discovery:      eurekaClient,
+		Redis:          redisClient,
 	}
 }
 

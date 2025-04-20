@@ -3,21 +3,28 @@ package service
 import (
 	"fmt"
 	"image-service/internal/config/cache"
+	"image-service/internal/config/security"
 	custom_errors "image-service/internal/errors"
 	"image-service/internal/model"
 	"image-service/internal/repository"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 type AlbumService struct {
-	storage *repository.Storage
-	redis   *cache.RedisClient
+	storage        *repository.Storage
+	redis          *cache.RedisClient
+	securityConfig *security.AuthConfig
 }
 
-func (s *AlbumService) GetAlbum(id string) (*model.Album, error) {
+func (s *AlbumService) GetAlbum(c *gin.Context, id string) (*model.Album, error) {
 	var cachedAlbum *model.Album
 	err := s.redis.Get(fmt.Sprintf("album_%s", id), &cachedAlbum)
 	if err == nil {
+		if err = allowedToReturn(c, cachedAlbum, s.securityConfig); err != nil {
+			return nil, err
+		}
 		return cachedAlbum, nil
 	}
 
@@ -25,26 +32,37 @@ func (s *AlbumService) GetAlbum(id string) (*model.Album, error) {
 	if err != nil {
 		return nil, err
 	}
+	if err = allowedToReturn(c, album, s.securityConfig); err != nil {
+		return nil, err
+	}
 
 	s.redis.Set(fmt.Sprintf("album_%s", id), album)
 	return album, nil
 }
 
-func (s *AlbumService) GetAlbumsPreview() ([]*model.AlbumPreview, error) {
-
-	var cachedPreview []*model.AlbumPreview
-	err := s.redis.Get("albums_preview", &cachedPreview)
-	if err == nil {
-		return cachedPreview, nil
-	}
+func (s *AlbumService) GetAlbumsPreview(typeQuery string) ([]*model.AlbumPreview, error) {
 
 	albums, err := s.storage.Album.GetPreview()
 	if err != nil {
 		return nil, err
 	}
 
-	s.redis.Set("albums_preview", albums)
-
+	switch typeQuery {
+	case string(model.Private):
+		albums = filterAlbums(albums, func(a *model.AlbumPreview) bool {
+			return a.Type == model.Private
+		})
+	case string(model.SemiPublic):
+		albums = filterAlbums(albums, func(a *model.AlbumPreview) bool {
+			return a.Type == model.SemiPublic
+		})
+	case string(model.Public):
+		albums = filterAlbums(albums, func(a *model.AlbumPreview) bool {
+			return a.Type == model.Public
+		})
+	default:
+		break
+	}
 	return albums, nil
 }
 
@@ -55,12 +73,19 @@ func (s *AlbumService) CreateAlbum(album *model.AlbumPreview) (*model.AlbumPrevi
 	if album.Title == "" {
 		return nil, custom_errors.NewBadRequestError("title is required")
 	}
+
+	if album.Type == "" {
+		album.Type = model.Private
+	} else {
+		if !album.Type.IsValid() {
+			return nil, custom_errors.NewBadRequestError("invalid album type")
+		}
+	}
+
 	createdAlbum, err := s.storage.Album.Create(album)
 	if err != nil {
 		return nil, err
 	}
-
-	s.redis.Del("albums_preview")
 
 	return createdAlbum, nil
 }
@@ -68,7 +93,6 @@ func (s *AlbumService) CreateAlbum(album *model.AlbumPreview) (*model.AlbumPrevi
 func (s *AlbumService) DeleteAlbum(id string) error {
 
 	s.redis.Del(fmt.Sprintf("album_%s", id))
-	s.redis.Del("albums_preview")
 
 	err := s.storage.Album.Delete(id)
 	if err != nil {
@@ -85,13 +109,36 @@ func (s *AlbumService) UpdateAlbum(id string, album *model.AlbumPreview) (*model
 	if album.Title == "" {
 		return nil, custom_errors.NewBadRequestError("title is required")
 	}
+
+	if !album.Type.IsValid() {
+		return nil, custom_errors.NewBadRequestError("invalid album type")
+	}
+
 	updatedAlbum, err := s.storage.Album.Update(id, album)
 	if err != nil {
 		return nil, err
 	}
 
 	s.redis.Del(fmt.Sprintf("album_%s", id))
-	s.redis.Del("albums_preview")
 
 	return updatedAlbum, nil
+}
+
+func filterAlbums(albums []*model.AlbumPreview, predicate func(*model.AlbumPreview) bool) []*model.AlbumPreview {
+	var filtered []*model.AlbumPreview
+	for _, album := range albums {
+		if predicate(album) {
+			filtered = append(filtered, album)
+		}
+	}
+	return filtered
+}
+
+func allowedToReturn(c *gin.Context, album *model.Album, securityConfig *security.AuthConfig) error {
+	if album.Type == model.Private {
+		if err := security.CheckIsAdmin(c, securityConfig); err != nil {
+			return err
+		}
+	}
+	return nil
 }

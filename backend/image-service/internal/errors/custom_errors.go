@@ -7,6 +7,8 @@ var (
 	ErrInternalServer = errors.New("internal server error")
 	ErrBadRequest     = errors.New("bad request")
 	ErrConflict       = errors.New("conflict")
+	ErrUnauthorized   = errors.New("unauthorized")
+	ErrForbidden      = errors.New("forbidden")
 )
 
 func NewNotFoundError(message string) error {
@@ -23,4 +25,12 @@ func NewBadRequestError(message string) error {
 
 func NewConflictError(message string) error {
 	return errors.Join(ErrConflict, errors.New(message))
+}
+
+func NewUnauthorizedError(message string) error {
+	return errors.Join(ErrUnauthorized, errors.New(message))
+}
+
+func NewForbiddenError(message string) error {
+	return errors.Join(ErrForbidden, errors.New(message))
 }

@@ -9,7 +9,8 @@ import (
 
 func (a *app) GetRouter() *gin.Engine {
 	r := gin.Default()
-	r.Use(security.AuthMiddleware(a.config.apiGatewayURL))
+
+	r.Use(security.AuthMiddleware(a.securityConfig))
 
 	v1 := r.Group(a.config.apiBasePath)
 	v1.GET("/health", controller.HealthCheckHandler)

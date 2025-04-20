@@ -39,7 +39,9 @@ func main() {
 		apiGatewayURL: "https://api.nzhussup.com",
 	}
 
-	app := newApp(cfg)
+	secuirityCfg := GetSecurityConfig(&cfg)
+
+	app := newApp(cfg, secuirityCfg)
 	gin.SetMode(gin.ReleaseMode)
 	if gin.Mode() != gin.DebugMode {
 		app.Discovery.RegisterWithEureka()

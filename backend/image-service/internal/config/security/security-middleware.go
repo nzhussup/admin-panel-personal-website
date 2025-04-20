@@ -1,73 +1,63 @@
 package security
 
 import (
-	"bytes"
-	"encoding/json"
-	"io"
+	"errors"
+	custom_errors "image-service/internal/errors"
 	"net/http"
-	"slices"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
-
-type ValidationRequest struct {
-	Token string `json:"token"`
-}
-
-type ValidationResponse struct {
-	Username string   `json:"username"`
-	Roles    []string `json:"roles"`
-}
 
 // AuthMiddleware is a middleware function that checks the authorization token
 // in the request header and validates it with the auth service.
 // If the token is valid, it sets the username and roles in the context.
 // If the token is invalid or missing, it returns a 401 Unauthorized response.
 // It allows GET requests to pass through without validation.
-func AuthMiddleware(authServiceURL string) gin.HandlerFunc {
+func AuthMiddleware(config *AuthConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		if c.Request.Method == http.MethodGet {
+		if c.Request.Method == http.MethodGet && !shouldAuthenticate(c, config.Rules) {
 			c.Next()
 			return
 		}
 
-		if authServiceURL == "" {
+		if config.AuthServiceURL == "" {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Auth service URL is not set"})
 			c.Abort()
 			return
 		}
 
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+		token, err := GetToken(c)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+			c.Abort()
+			return
+		}
+		if token == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 			c.Abort()
 			return
 		}
 
-		token := strings.TrimPrefix(authHeader, "Bearer ")
-
-		reqBody, _ := json.Marshal(ValidationRequest{Token: token})
-
-		var resp *http.Response
-		resp, err := http.Post(authServiceURL+"/auth/validate", "application/json", bytes.NewBuffer(reqBody))
-		if err != nil || resp.StatusCode == http.StatusInternalServerError {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Auth service unavailable"})
-			c.Abort()
-			return
+		validationResponse, err := Validate(c, config, token)
+		if err != nil {
+			switch {
+			case errors.Is(err, custom_errors.ErrUnauthorized):
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+				c.Abort()
+				return
+			case errors.Is(err, custom_errors.ErrInternalServer):
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Auth service unavailable"})
+				c.Abort()
+				return
+			default:
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+				c.Abort()
+				return
+			}
 		}
-		if resp.StatusCode != http.StatusOK {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
-			c.Abort()
-			return
-		}
 
-		body, _ := io.ReadAll(resp.Body)
-		var validationResponse ValidationResponse
-		json.Unmarshal(body, &validationResponse)
-
-		if !slices.Contains(validationResponse.Roles, "ROLE_ADMIN") {
+		if !isAdmin(validationResponse.Roles) {
 			c.JSON(http.StatusForbidden, gin.H{"error": "Forbidden"})
 			c.Abort()
 			return

@@ -1,7 +1,7 @@
 import axios from "axios";
 import config from "../../config/ConfigVariables";
 
-const fetchData = async (endpoint, setData) => {
+const fetchData = async (endpoint, setData, queryParam) => {
   const token = localStorage.getItem("token");
 
   try {
@@ -9,6 +9,7 @@ const fetchData = async (endpoint, setData) => {
       headers: {
         Authorization: `Bearer ${token}`,
       },
+      params: queryParam || {},
     });
     setData(response.data);
   } catch (error) {

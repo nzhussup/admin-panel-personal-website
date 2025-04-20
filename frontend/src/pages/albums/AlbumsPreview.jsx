@@ -74,6 +74,14 @@ const AlbumsPreview = () => {
         onChange={(e) => setFormData({ ...formData, date: e.target.value })}
         required={false}
       />
+      <FormInput
+        label='Type'
+        type='select'
+        value={formData.type}
+        onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+        options={["private", "semi-public", "public"]}
+        required={false}
+      />
     </PopUp>
   );
 
@@ -84,7 +92,9 @@ const AlbumsPreview = () => {
           <div key={album.id} className='col'>
             {" "}
             <EditableCard
-              title={`${album.title} (${album.date})`}
+              title={`${album.title}${album.date ? ` (${album.date})` : ""} (${
+                album.type
+              })`}
               onEdit={() => openPopup(album)}
               onDelete={() => confirmDelete(album.id)}
             >
@@ -92,8 +102,9 @@ const AlbumsPreview = () => {
                 <a>{album.desc}</a>
                 <br />
                 <br />
-                <a>Image count: {album.image_count}</a>
+                <a>Album ID: {album.id}</a>
                 <br />
+                <a>Image count: {album.image_count}</a>
                 <br />
                 <a
                   onClick={() => navigate(`/albums/${album.id}`)}
