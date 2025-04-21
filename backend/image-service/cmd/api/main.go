@@ -25,7 +25,7 @@ func main() {
 		addr:            fmt.Sprintf(":%d", port),
 		port:            port,
 		storagePath:     "var/images",
-		apiBasePath:     "/api/v1/album",
+		apiBasePath:     "/v1/album",
 		discoveryConfig: discoveryConfig,
 		redisConfig: &redisConfig{
 			addr: fmt.Sprintf(
