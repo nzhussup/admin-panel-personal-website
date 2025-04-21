@@ -12,18 +12,10 @@ public class Router {
         public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
                 return builder.routes()
                                 // BASE SERVICE
-                                .route("base-service", r -> r.path("/api/v1/base/**")
-                                                .filters(f -> f.rewritePath("/api/v1/base/(?<segment>.*)",
-                                                                "/v1/base/${segment}"))
-                                                .uri("lb://base-service"))
                                 .route("base-service-swagger", r -> r.path("/v1/base/**")
                                                 .uri("lb://base-service"))
 
                                 // USER SERVICE
-                                .route("user-service", r -> r.path("/api/v1/user/**")
-                                                .filters(f -> f.rewritePath("/api/v1/user/(?<segment>.*)",
-                                                                "/v1/user/${segment}"))
-                                                .uri("lb://user-service"))
                                 .route("user-service", r -> r.path("/v1/user/**")
                                                 .uri("lb://user-service"))
 
