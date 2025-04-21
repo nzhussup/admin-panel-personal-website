@@ -14,6 +14,21 @@ type ImageController struct {
 	service *service.Service
 }
 
+// Upload godoc
+// @Summary Upload image(s) to an album
+// @Description Upload one or more image files to the specified album
+// @Tags Image
+// @Accept multipart/form-data
+// @Produce json
+// @Param id path string true "Album ID"
+// @Param file formData file true "Image file(s) to upload"
+// @Success 201 {object} map[string]interface{} "Image uploaded successfully"
+// @Failure 400 {object} map[string]string "Bad Request"
+// @Failure 404 {object} map[string]string "Album Not Found"
+// @Failure 409 {object} map[string]string "Conflict"
+// @Failure 500 {object} map[string]string "Internal Server Error"
+// @Router /v1/album/{id}/upload [post]
+// @Security ApiKeyAuth
 func (ctrl *ImageController) Upload(c *gin.Context) {
 	albumID := c.Param("id")
 
@@ -47,6 +62,19 @@ func (ctrl *ImageController) Upload(c *gin.Context) {
 		"data": savedImage})
 }
 
+// Delete godoc
+// @Summary Delete an image from an album
+// @Description Deletes an image by ID from the given album
+// @Tags Image
+// @Produce json
+// @Param id path string true "Album ID"
+// @Param imageID path string true "Image ID"
+// @Success 200 {object} map[string]string "Image deleted successfully"
+// @Failure 400 {object} map[string]string "Bad Request"
+// @Failure 404 {object} map[string]string "Image Not Found"
+// @Failure 500 {object} map[string]string "Internal Server Error"
+// @Router /v1/album/{id}/{imageID} [delete]
+// @Security ApiKeyAuth
 func (ctrl *ImageController) Delete(c *gin.Context) {
 	albumID := c.Param("id")
 	imageID := c.Param("imageID")
@@ -65,6 +93,17 @@ func (ctrl *ImageController) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Image deleted successfully"})
 }
 
+// Serve godoc
+// @Summary Serve an image file
+// @Description Returns the raw image file for preview or download
+// @Tags Image
+// @Produce octet-stream
+// @Param id path string true "Album ID"
+// @Param imageID path string true "Image ID"
+// @Success 200 {file} file "Image file"
+// @Failure 400 {object} map[string]string "Bad Request"
+// @Router /v1/album/{id}/{imageID} [get]
+// @Security ApiKeyAuth
 func (ctrl *ImageController) Serve(c *gin.Context) {
 	albumID := c.Param("id")
 	imageID := c.Param("imageID")

@@ -22,6 +22,20 @@ var validTypes = map[string]bool{
 	"all":         true,
 }
 
+// Get godoc
+// @Summary Get a specific album by ID
+// @Description Returns album metadata and images
+// @Tags Album
+// @Produce json
+// @Param id path string true "Album ID"
+// @Success 200 {object} model.Album
+// @Failure 400 {object} map[string]string "Bad Request"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 403 {object} map[string]string "Forbidden"
+// @Failure 404 {object} map[string]string "Not Found"
+// @Failure 500 {object} map[string]string "Internal Server Error"
+// @Router /v1/album/{id} [get]
+// @Security ApiKeyAuth
 func (ctrl *AlbumController) Get(c *gin.Context) {
 	pathParam := c.Param("id")
 	album, err := ctrl.service.AlbumService.GetAlbum(c, pathParam)
@@ -51,6 +65,19 @@ func (ctrl *AlbumController) Get(c *gin.Context) {
 	c.JSON(http.StatusOK, album)
 }
 
+// GetPreview godoc
+// @Summary Get album previews
+// @Description Returns a preview list of albums, filtered by type
+// @Tags Album
+// @Produce json
+// @Param type query string false "Album type (public, semi-public, private, all)" Enums(public, semi-public, private, all) default(public)
+// @Success 200 {array} model.AlbumPreview
+// @Failure 400 {object} map[string]string "Bad Request"
+// @Failure 401 {object} map[string]string "Unauthorized"
+// @Failure 403 {object} map[string]string "Forbidden"
+// @Failure 500 {object} map[string]string "Internal Server Error"
+// @Router /v1/album [get]
+// @Security ApiKeyAuth
 func (ctrl *AlbumController) GetPreview(c *gin.Context) {
 	typeQuery := c.DefaultQuery("type", "public")
 
@@ -80,6 +107,20 @@ func (ctrl *AlbumController) GetPreview(c *gin.Context) {
 	c.JSON(200, album)
 }
 
+// Create godoc
+// @Summary Create a new album
+// @Description Creates an album with basic metadata
+// @Tags Album
+// @Accept json
+// @Produce json
+// @Param album body model.AlbumPreview true "Album preview data"
+// @Success 201 {object} map[string]interface{} "Album created successfully"
+// @Failure 400 {object} map[string]string "Bad Request"
+// @Failure 404 {object} map[string]string "Not Found"
+// @Failure 409 {object} map[string]string "Conflict"
+// @Failure 500 {object} map[string]string "Internal Server Error"
+// @Router /v1/album [post]
+// @Security ApiKeyAuth
 func (ctrl *AlbumController) Create(c *gin.Context) {
 	var request model.AlbumPreview
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -105,6 +146,18 @@ func (ctrl *AlbumController) Create(c *gin.Context) {
 		"data": createdAlbum})
 }
 
+// Delete godoc
+// @Summary Delete an album
+// @Description Deletes the album and all associated data
+// @Tags Album
+// @Produce json
+// @Param id path string true "Album ID"
+// @Success 200 {object} map[string]string "Album deleted successfully"
+// @Failure 400 {object} map[string]string "Bad Request"
+// @Failure 404 {object} map[string]string "Not Found"
+// @Failure 500 {object} map[string]string "Internal Server Error"
+// @Router /v1/album/{id} [delete]
+// @Security ApiKeyAuth
 func (ctrl *AlbumController) Delete(c *gin.Context) {
 	pathParam := c.Param("id")
 	err := ctrl.service.AlbumService.DeleteAlbum(pathParam)
@@ -123,6 +176,20 @@ func (ctrl *AlbumController) Delete(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Album deleted successfully"})
 }
 
+// Update godoc
+// @Summary Update an album
+// @Description Updates album metadata
+// @Tags Album
+// @Accept json
+// @Produce json
+// @Param id path string true "Album ID"
+// @Param album body model.AlbumPreview true "Updated album preview data"
+// @Success 200 {object} map[string]interface{} "Album updated successfully"
+// @Failure 400 {object} map[string]string "Bad Request"
+// @Failure 404 {object} map[string]string "Not Found"
+// @Failure 500 {object} map[string]string "Internal Server Error"
+// @Router /v1/album/{id} [put]
+// @Security ApiKeyAuth
 func (ctrl *AlbumController) Update(c *gin.Context) {
 	var request model.AlbumPreview
 	if err := c.ShouldBindJSON(&request); err != nil {
