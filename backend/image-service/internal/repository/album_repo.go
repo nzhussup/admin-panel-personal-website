@@ -35,7 +35,8 @@ func (a *AlbumRepository) Create(m *model.AlbumPreview) (*model.AlbumPreview, er
 	}
 	defer metaFile.Close()
 
-	_, err = metaFile.WriteString(fmt.Sprintf("Title: %s\nDescription: %s\nDate: %s\nImageCount: 0\nType: %s\n", m.Title, m.Desc, m.Date, m.Type))
+	_, err = metaFile.WriteString(fmt.Sprintf("Title: %s\nDescription: %s\nDate: %s\nImageCount: 0\nType: %s\nPreviewImageURL: %s\n",
+		m.Title, m.Desc, m.Date, m.Type, m.PreviewImageURL))
 	if err != nil {
 		return nil, custom_errors.NewInternalServerError("failed to write metadata file")
 	}
@@ -119,12 +120,13 @@ func (a *AlbumRepository) GetPreview() ([]*model.AlbumPreview, error) {
 			}
 
 			album := &model.AlbumPreview{
-				ID:         dir.Name(),
-				Title:      strings.Split(strings.Split(string(metaFileContent), "\n")[0], ": ")[1],
-				Desc:       strings.Split(strings.Split(string(metaFileContent), "\n")[1], ": ")[1],
-				Date:       strings.Split(strings.Split(string(metaFileContent), "\n")[2], ": ")[1],
-				ImageCount: imageCount,
-				Type:       model.AlbumType(strings.Split(strings.Split(string(metaFileContent), "\n")[4], ": ")[1]),
+				ID:              dir.Name(),
+				Title:           strings.Split(strings.Split(string(metaFileContent), "\n")[0], ": ")[1],
+				Desc:            strings.Split(strings.Split(string(metaFileContent), "\n")[1], ": ")[1],
+				Date:            strings.Split(strings.Split(string(metaFileContent), "\n")[2], ": ")[1],
+				ImageCount:      imageCount,
+				Type:            model.AlbumType(strings.Split(strings.Split(string(metaFileContent), "\n")[4], ": ")[1]),
+				PreviewImageURL: strings.Split(strings.Split(string(metaFileContent), "\n")[5], ": ")[1],
 			}
 
 			albumPreviews = append(albumPreviews, album)
@@ -168,7 +170,8 @@ func (a *AlbumRepository) Update(id string, m *model.AlbumPreview) (*model.Album
 	}
 	defer metaFile.Close()
 
-	_, err = metaFile.WriteString(fmt.Sprintf("Title: %s\nDescription: %s\nDate: %s\nImageCount: %d\nType: %s\n", m.Title, m.Desc, m.Date, imageCount, m.Type))
+	_, err = metaFile.WriteString(fmt.Sprintf("Title: %s\nDescription: %s\nDate: %s\nImageCount: %d\nType: %s\nPreviewImageURL: %s\n",
+		m.Title, m.Desc, m.Date, imageCount, m.Type, m.PreviewImageURL))
 	if err != nil {
 		return nil, custom_errors.NewInternalServerError("failed to write metadata file")
 	}

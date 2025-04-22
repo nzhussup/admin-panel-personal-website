@@ -10,6 +10,7 @@ const FormInput = ({
   options = [],
 }) => {
   const isDate = type === "date";
+  const isClearableText = type === "clearable_text"; // Check if it's clearable_text
 
   return (
     <div className='mb-3 position-relative'>
@@ -48,7 +49,18 @@ const FormInput = ({
             onChange={onChange}
             required={required}
           />
-          {/* Show clear button only for date inputs with a value */}
+          {/* Show clear button only for clearable_text inputs with a value */}
+          {isClearableText && value && (
+            <button
+              type='button'
+              onClick={() => onChange({ target: { value: "" } })}
+              className='btn btn-sm btn-outline-secondary position-absolute top-50 end-0 translate-middle-y me-2'
+              style={{ zIndex: 10 }}
+            >
+              &times;
+            </button>
+          )}
+          {/* Show clear button for date inputs */}
           {isDate && value && (
             <button
               type='button'

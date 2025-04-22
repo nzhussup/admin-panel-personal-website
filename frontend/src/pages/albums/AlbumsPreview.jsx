@@ -84,10 +84,12 @@ const AlbumsPreview = () => {
       />
       <FormInput
         label='Image Preview URL'
-        type='text'
+        type='clearable_text'
         value={formData.preview_image}
-        onChange={(e) => setFormData({ ...formData, id: e.target.value })}
-        required={true}
+        onChange={(e) =>
+          setFormData({ ...formData, preview_image: e.target.value })
+        }
+        required={false}
       />
     </PopUp>
   );
