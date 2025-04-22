@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"fmt"
 	"image-service/internal/config/cache"
 	custom_errors "image-service/internal/errors"
@@ -49,9 +50,10 @@ func (s *ImageService) UploadImage(albumID string, files []*multipart.FileHeader
 		if err != nil {
 			return nil, custom_errors.NewInternalServerError("failed to read image data")
 		}
+		reader := bytes.NewReader(data)
 
 		extention := strings.Split(string(image.Type), "/")[1]
-		compressedData, err := utils.CompressImage(data, extention)
+		compressedData, err := utils.CompressImage(reader, extention)
 		if err != nil {
 			return nil, err
 		}

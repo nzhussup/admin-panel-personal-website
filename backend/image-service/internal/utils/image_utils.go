@@ -3,24 +3,27 @@ package utils
 import (
 	"bytes"
 	"image"
-	custom_errors "image-service/internal/errors"
 	"image/jpeg"
 	"image/png"
 	"os"
 	"strconv"
 	"strings"
-
 	"sync"
 
 	"github.com/adrium/goheif"
+	"github.com/disintegration/imaging"
+	"github.com/dsoprea/go-exif/v3"
 	"github.com/nfnt/resize"
+
+	custom_errors "image-service/internal/errors"
 )
 
 var MetadataMutex sync.Mutex
 
-func CompressImage(data []byte, extension string) ([]byte, error) {
+func CompressImage(reader *bytes.Reader, extension string) ([]byte, error) {
+	var data []byte
 	if extension == "heic" {
-		convertedData, err := ConvertHEICToJPEG(data)
+		convertedData, err := ConvertHEICToJPEG(reader)
 		if err != nil {
 			return nil, err
 		}
@@ -53,10 +56,27 @@ func CompressImage(data []byte, extension string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func ConvertHEICToJPEG(data []byte) ([]byte, error) {
-	img, err := goheif.Decode(bytes.NewReader(data))
+func ConvertHEICToJPEG(reader *bytes.Reader) ([]byte, error) {
+	img, err := goheif.Decode(reader)
 	if err != nil {
 		return nil, custom_errors.NewInternalServerError("failed to decode HEIC image")
+	}
+
+	exifBytes, err := goheif.ExtractExif(reader)
+	if err != nil {
+		return nil, custom_errors.NewInternalServerError("failed to extract EXIF data")
+	}
+	rawExif, _, err := exif.GetFlatExifData(exifBytes, nil)
+	if err != nil {
+		return nil, custom_errors.NewInternalServerError("failed to parse EXIF data")
+	}
+	for _, tag := range rawExif {
+		if tag.TagName == "Orientation" {
+			if val, ok := tag.Value.(uint16); ok {
+				img = applyOrientation(img, int(val))
+			}
+			break
+		}
 	}
 
 	var buf bytes.Buffer
@@ -66,6 +86,27 @@ func ConvertHEICToJPEG(data []byte) ([]byte, error) {
 	}
 
 	return buf.Bytes(), nil
+}
+
+func applyOrientation(img image.Image, orientation int) image.Image {
+	switch orientation {
+	case 2:
+		return imaging.FlipH(img)
+	case 3:
+		return imaging.Rotate180(img)
+	case 4:
+		return imaging.FlipV(img)
+	case 5:
+		return imaging.Transpose(img)
+	case 6:
+		return imaging.Rotate270(img) // 90 CW
+	case 7:
+		return imaging.Transverse(img)
+	case 8:
+		return imaging.Rotate90(img) // 270 CW
+	default:
+		return img
+	}
 }
 
 func GetImageCount(metaDataPath string) (int, error) {
