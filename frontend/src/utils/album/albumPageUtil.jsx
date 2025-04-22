@@ -22,10 +22,26 @@ export const usePageData = (endpoint, isSingle, sortBy = "date") => {
         endpoint,
         (fetchedItems) => {
           const sortedItems = [...fetchedItems].sort((a, b) => {
-            const dateA = new Date(a[sortBy]);
-            const dateB = new Date(b[sortBy]);
+            const sortA = a[sortBy] ? new Date(a[sortBy]) : null;
+            const sortB = b[sortBy] ? new Date(b[sortBy]) : null;
 
-            return isAscending ? dateA - dateB : dateB - dateA;
+            if (sortA && sortB) {
+              // Both have dates, sort by date (newest to oldest)
+              return sortB - sortA;
+            }
+
+            if (sortA) {
+              // Only a has a date, so a should come first
+              return -1;
+            }
+
+            if (sortB) {
+              // Only b has a date, so b should come first
+              return 1;
+            }
+
+            // Neither have dates, keep their order
+            return 0;
           });
 
           setItems(sortedItems);

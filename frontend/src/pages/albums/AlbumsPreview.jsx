@@ -1,5 +1,4 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
 import EditableAlbumCard from "../../components/EditableAlbumCard";
 import {
@@ -19,8 +18,6 @@ import ErrorElement from "../misc/errors/InternalServerError";
 import NoInfoFoundElement from "../misc/errors/NoInfoFound";
 
 const AlbumsPreview = () => {
-  const navigate = useNavigate();
-
   const {
     items: albums,
     saveItem,
