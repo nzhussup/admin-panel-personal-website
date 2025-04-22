@@ -3,16 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useDarkMode } from "../context/DarkModeContext";
 import ClearCacheButton from "./ClearCacheButton";
-import GlobalAlert from "./GlobalAlert"; // Import GlobalAlert component
+import { useGlobalAlert } from "../context/GlobalAlertContext";
 
 const Header = ({ text }) => {
   const { logout } = useAuth();
   const { isDarkMode, toggleDarkMode } = useDarkMode();
   const navigate = useNavigate();
-
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("alert-success");
+  const { triggerAlert } = useGlobalAlert();
 
   const handleLogout = () => {
     logout();
@@ -24,17 +21,12 @@ const Header = ({ text }) => {
     navigate("/");
   };
 
-  const handleClearCacheSuccess = () => {
-    setAlertMessage("Cache cleared successfully!");
-    setAlertVisible(true);
-    setTimeout(() => setAlertVisible(false), 3000);
-  };
-
-  const handleClearCacheError = (error) => {
-    setAlertType("alert-danger");
-    setAlertMessage(error.message);
-    setAlertVisible(true);
-    setTimeout(() => setAlertVisible(false), 3000);
+  const handleClearCache = async (error) => {
+    if (error) {
+      triggerAlert("Error clearing cache", "danger");
+    } else {
+      triggerAlert("Cache cleared successfully", "success");
+    }
   };
 
   return (
@@ -105,10 +97,7 @@ const Header = ({ text }) => {
                     )}
                   </span>
                 </label>
-                <ClearCacheButton
-                  onSuccess={handleClearCacheSuccess}
-                  onError={handleClearCacheError}
-                />
+                <ClearCacheButton triggerAlertHandler={handleClearCache} />
               </div>
 
               <button
@@ -122,14 +111,6 @@ const Header = ({ text }) => {
           </div>
         </div>
       </header>
-
-      {/* Global Alert */}
-      <GlobalAlert
-        message={alertMessage}
-        show={alertVisible}
-        onClose={() => setAlertVisible(false)}
-        type={alertType}
-      />
     </div>
   );
 };

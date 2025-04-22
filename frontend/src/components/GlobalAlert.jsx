@@ -1,32 +1,48 @@
-import React, { useState } from "react";
-import "./GlobalAlert.css";
+import React, { useEffect, useState, useRef } from "react";
+import { useGlobalAlert } from "../context/GlobalAlertContext";
 
-const GlobalAlert = ({ message, show, onClose, type = "alert-success" }) => {
-  const [isDismissed, setIsDismissed] = useState(false);
+const GlobalAlert = () => {
+  const { alert, closeAlert } = useGlobalAlert();
+  const [visible, setVisible] = useState(false);
+  const hideTimeoutRef = useRef(null);
 
-  const handleDismiss = () => {
-    setIsDismissed(true);
-    setTimeout(() => {
-      onClose();
-    }, 500);
-  };
+  useEffect(() => {
+    if (alert.show) {
+      setVisible(false);
 
-  if (!show && !isDismissed) return null;
+      requestAnimationFrame(() => {
+        setVisible(true);
+      });
+
+      clearTimeout(hideTimeoutRef.current);
+
+      hideTimeoutRef.current = setTimeout(() => {
+        setVisible(false);
+        hideTimeoutRef.current = setTimeout(() => {
+          closeAlert();
+        }, 500);
+      }, 3000);
+    }
+
+    return () => clearTimeout(hideTimeoutRef.current);
+  }, [alert.show, alert.message, closeAlert]);
+
+  if (!alert.show && !visible) return null;
 
   return (
     <div
-      className={`alert ${type} alert-dismissible fade show custom-alert ${
-        isDismissed ? "dismissed" : ""
-      }`}
+      className={`alert alert-${alert.type} position-fixed top-0 start-50 translate-middle-x mt-3 shadow`}
       role='alert'
+      style={{
+        zIndex: 1050,
+        minWidth: "300px",
+        maxWidth: "90vw",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translate(-50%, 0)" : "translate(-50%, -20px)",
+        transition: "opacity 0.5s ease, transform 0.5s ease",
+      }}
     >
-      {message}
-      <button
-        type='button'
-        className='btn-close'
-        aria-label='Close'
-        onClick={handleDismiss}
-      ></button>
+      {alert.message}
     </div>
   );
 };

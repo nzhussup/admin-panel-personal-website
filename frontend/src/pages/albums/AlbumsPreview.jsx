@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
-import EditableCard from "../../components/EditableCard";
+import EditableAlbumCard from "../../components/EditableAlbumCard";
 import {
   usePageData,
   usePopup,
@@ -82,6 +82,13 @@ const AlbumsPreview = () => {
         options={["private", "semi-public", "public"]}
         required={false}
       />
+      <FormInput
+        label='Image Preview URL'
+        type='text'
+        value={formData.preview_image}
+        onChange={(e) => setFormData({ ...formData, id: e.target.value })}
+        required={true}
+      />
     </PopUp>
   );
 
@@ -90,32 +97,11 @@ const AlbumsPreview = () => {
       <div className='row row-cols-1 row-cols-md-2 g-4'>
         {albums.map((album) => (
           <div key={album.id} className='col'>
-            {" "}
-            <EditableCard
-              title={`${album.title}${album.date ? ` (${album.date})` : ""} (${
-                album.type
-              })`}
+            <EditableAlbumCard
+              album={album}
               onEdit={() => openPopup(album)}
               onDelete={() => confirmDelete(album.id)}
-            >
-              <div className='mt-4'>
-                <a>{album.desc}</a>
-                <br />
-                <br />
-                <a>Album ID: {album.id}</a>
-                <br />
-                <a>Image count: {album.image_count}</a>
-                <br />
-                <a
-                  onClick={() => navigate(`/albums/${album.id}`)}
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  className='btn btn-link'
-                >
-                  View Album
-                </a>
-              </div>
-            </EditableCard>
+            />
           </div>
         ))}
       </div>

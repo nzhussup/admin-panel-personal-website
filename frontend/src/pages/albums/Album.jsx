@@ -1,7 +1,6 @@
 import { useParams } from "react-router-dom";
 import React from "react";
 import Header from "../../components/Header";
-import EditableCard from "../../components/EditableCard";
 import {
   usePageData,
   usePopup,
@@ -9,7 +8,6 @@ import {
 } from "../../utils/album/albumPageUtil";
 import AddButton from "../../components/AddButton";
 import PopUp from "../../components/PopUp";
-import FormInput from "../../components/FormInput";
 
 import PageSubHeader from "../../components/PageSubHeader";
 import DeleteConfirmation from "../../components/DeleteConfirmation";
@@ -68,7 +66,7 @@ const Album = () => {
 
   const albumImagesSection = (
     <PageWrapper>
-      <div className='row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4'>
+      <div className='row row-cols-2 row-cols-sm-2 row-cols-md-3 g-4'>
         {album?.images?.map((image) => (
           <div key={image.id} className='col'>
             <FramedImageCard

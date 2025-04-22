@@ -1,9 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useDarkMode } from "../context/DarkModeContext";
 
 const PopUp = ({ closePopup, title, children, onSubmit }) => {
   const { isDarkMode } = useDarkMode();
   const [isLoading, setIsLoading] = useState(false);
+
+  const contentRef = useRef(null);
+
+  const handleOverlayClick = (e) => {
+    if (contentRef.current && !contentRef.current.contains(e.target)) {
+      closePopup();
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,6 +29,7 @@ const PopUp = ({ closePopup, title, children, onSubmit }) => {
   return (
     <div
       className='popup-overlay'
+      onClick={handleOverlayClick}
       style={{
         position: "fixed",
         top: 0,
@@ -37,6 +46,7 @@ const PopUp = ({ closePopup, title, children, onSubmit }) => {
       }}
     >
       <div
+        ref={contentRef}
         className='popup-content'
         style={{
           background: isDarkMode ? "#2a2a2a" : "white",

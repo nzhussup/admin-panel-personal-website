@@ -12,8 +12,8 @@ import (
 
 	"github.com/adrium/goheif"
 	"github.com/disintegration/imaging"
-	"github.com/dsoprea/go-exif/v3"
 	"github.com/nfnt/resize"
+	"github.com/rwcarlsen/goexif/exif"
 
 	custom_errors "image-service/internal/errors"
 )
@@ -21,19 +21,20 @@ import (
 var MetadataMutex sync.Mutex
 
 func CompressImage(reader *bytes.Reader, extension string) ([]byte, error) {
-	var data []byte
+	var img image.Image
+	var err error
 	if extension == "heic" {
-		convertedData, err := ConvertHEICToJPEG(reader)
+		var err error
+		img, err = ProcessHEIC(reader)
 		if err != nil {
 			return nil, err
 		}
-		data = convertedData
 		extension = "jpeg"
-	}
-
-	img, _, err := image.Decode(bytes.NewReader(data))
-	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to decode image")
+	} else {
+		img, _, err = image.Decode(reader)
+		if err != nil {
+			return nil, custom_errors.NewInternalServerError("failed to decode image")
+		}
 	}
 
 	compressedImage := resize.Resize(800, 0, img, resize.Lanczos3)
@@ -56,7 +57,7 @@ func CompressImage(reader *bytes.Reader, extension string) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func ConvertHEICToJPEG(reader *bytes.Reader) ([]byte, error) {
+func ProcessHEIC(reader *bytes.Reader) (image.Image, error) {
 	img, err := goheif.Decode(reader)
 	if err != nil {
 		return nil, custom_errors.NewInternalServerError("failed to decode HEIC image")
@@ -64,28 +65,27 @@ func ConvertHEICToJPEG(reader *bytes.Reader) ([]byte, error) {
 
 	exifBytes, err := goheif.ExtractExif(reader)
 	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to extract EXIF data")
+		return nil, custom_errors.NewInternalServerError("failed to extract EXIF data from HEIC image")
 	}
-	rawExif, _, err := exif.GetFlatExifData(exifBytes, nil)
-	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to parse EXIF data")
-	}
-	for _, tag := range rawExif {
-		if tag.TagName == "Orientation" {
-			if val, ok := tag.Value.(uint16); ok {
-				img = applyOrientation(img, int(val))
-			}
-			break
-		}
+	if len(exifBytes) == 0 {
+		return img, nil
 	}
 
-	var buf bytes.Buffer
-	err = jpeg.Encode(&buf, img, &jpeg.Options{Quality: 100})
+	x, err := exif.Decode(bytes.NewReader(exifBytes))
 	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to encode image while converting HEIC to JPEG")
+		return nil, custom_errors.NewInternalServerError("failed to decode EXIF data")
 	}
 
-	return buf.Bytes(), nil
+	orientation, err := x.Get(exif.Orientation)
+	if err != nil {
+		return img, nil // No orientation tag found, fallback to unrotated image
+	}
+	orientationValue, err := orientation.Int(0)
+	if err != nil {
+		return img, nil // Fallback to unrotated image
+	}
+
+	return applyOrientation(img, orientationValue), nil
 }
 
 func applyOrientation(img image.Image, orientation int) image.Image {

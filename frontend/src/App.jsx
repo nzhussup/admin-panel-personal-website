@@ -3,11 +3,16 @@ import { Routes, Route } from "react-router-dom";
 import routes from "./config/routes";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
 import { DarkModeProvider, useDarkMode } from "./context/DarkModeContext";
+import { GlobalAlertProvider } from "./context/GlobalAlertContext";
+import GlobalAlert from "./components/GlobalAlert";
 
 function App() {
   return (
     <DarkModeProvider>
-      <MainApp />
+      <GlobalAlertProvider>
+        <GlobalAlert />
+        <MainApp />
+      </GlobalAlertProvider>
     </DarkModeProvider>
   );
 }
@@ -24,23 +29,25 @@ function MainApp() {
   }, [isDarkMode]);
 
   return (
-    <Routes>
-      {routes.map((route) => {
-        if (route.isProtected) {
-          return (
-            <Route
-              key={route.path}
-              path={route.path}
-              element={<ProtectedRoute>{route.element}</ProtectedRoute>}
-            />
-          );
-        }
+    <>
+      <Routes>
+        {routes.map((route) => {
+          if (route.isProtected) {
+            return (
+              <Route
+                key={route.path}
+                path={route.path}
+                element={<ProtectedRoute>{route.element}</ProtectedRoute>}
+              />
+            );
+          }
 
-        return (
-          <Route key={route.path} path={route.path} element={route.element} />
-        );
-      })}
-    </Routes>
+          return (
+            <Route key={route.path} path={route.path} element={route.element} />
+          );
+        })}
+      </Routes>
+    </>
   );
 }
 

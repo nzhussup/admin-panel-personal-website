@@ -73,7 +73,6 @@ func (s *ImageService) UploadImage(albumID string, files []*multipart.FileHeader
 	}
 
 	s.redis.Del(fmt.Sprintf("album_%s", albumID))
-	s.redis.Del("albums_preview")
 
 	return savedImages, nil
 }
@@ -88,7 +87,6 @@ func (s *ImageService) DeleteImage(albumID string, imageID string) error {
 	cacheKey := fmt.Sprintf("image:%s:%s", albumID, imageID)
 	s.redis.Del(cacheKey)
 	s.redis.Del(fmt.Sprintf("album_%s", albumID))
-	s.redis.Del("albums_preview")
 
 	return nil
 }

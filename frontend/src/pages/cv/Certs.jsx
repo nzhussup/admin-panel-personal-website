@@ -92,6 +92,7 @@ const Certs = () => {
                   target='_blank'
                   rel='noopener noreferrer'
                   className='btn btn-link'
+                  onClick={(e) => e.stopPropagation()}
                 >
                   View Certificate
                 </a>
