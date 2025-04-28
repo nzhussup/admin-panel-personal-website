@@ -1,13 +1,13 @@
 package repository
 
 import (
+	"encoding/json"
 	"fmt"
 	custom_errors "image-service/internal/errors"
 	"image-service/internal/model"
 	"image-service/internal/utils"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 type AlbumRepository struct {
@@ -23,25 +23,38 @@ func (a *AlbumRepository) Create(m *model.AlbumPreview) (*model.AlbumPreview, er
 		return nil, custom_errors.NewError(custom_errors.ErrConflict, "album already exists")
 	}
 
+	lock := getAlbumLock(albumID)
+	lock.Lock()
+	defer lock.Unlock()
+
 	err := os.MkdirAll(albumPath, os.ModePerm)
 	if err != nil {
 		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to create album")
 	}
 
-	metaFilePath := filepath.Join(albumPath, "meta.txt")
+	metaFilePath := filepath.Join(albumPath, "meta.json")
 	metaFile, err := os.Create(metaFilePath)
 	if err != nil {
 		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to create metadata file")
 	}
 	defer metaFile.Close()
 
-	_, err = metaFile.WriteString(fmt.Sprintf("Title: %s\nDescription: %s\nDate: %s\nImageCount: 0\nType: %s\nPreviewImageURL: %s\n",
-		m.Title, m.Desc, m.Date, m.Type, m.PreviewImageURL))
-	if err != nil {
-		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to write metadata file")
+	albumMetadata := map[string]any{
+		"Title":           m.Title,
+		"Description":     m.Desc,
+		"Date":            m.Date,
+		"ImageCount":      0,
+		"Type":            m.Type,
+		"PreviewImageURL": m.PreviewImageURL,
 	}
-	m.ID = albumID
 
+	encoder := json.NewEncoder(metaFile)
+	err = encoder.Encode(albumMetadata)
+	if err != nil {
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to write metadata to JSON")
+	}
+
+	m.ID = albumID
 	return m, nil
 }
 
@@ -53,18 +66,23 @@ func (a *AlbumRepository) Get(id string) (*model.Album, error) {
 
 	for _, dir := range dirs {
 		if dir.Name() == id {
-			metaFilePath := filepath.Join(a.Path, id, "meta.txt")
-			metaFileContent, err := os.ReadFile(metaFilePath)
+			lock := getAlbumLock(id)
+			lock.Lock()
+			defer lock.Unlock()
+
+			metaFilePath := filepath.Join(a.Path, id, "meta.json")
+
+			albumMetadata, err := utils.LoadMetaData(metaFilePath)
 			if err != nil {
-				return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to read metadata file")
+				return nil, err
 			}
 
 			album := &model.Album{
 				ID:    id,
-				Title: strings.Split(strings.Split(string(metaFileContent), "\n")[0], ": ")[1],
-				Desc:  strings.Split(strings.Split(string(metaFileContent), "\n")[1], ": ")[1],
-				Date:  strings.Split(strings.Split(string(metaFileContent), "\n")[2], ": ")[1],
-				Type:  model.AlbumType(strings.Split(strings.Split(string(metaFileContent), "\n")[4], ": ")[1]),
+				Title: albumMetadata["Title"].(string),
+				Desc:  albumMetadata["Description"].(string),
+				Date:  albumMetadata["Date"].(string),
+				Type:  model.AlbumType(albumMetadata["Type"].(string)),
 			}
 
 			albumPath := filepath.Join(a.Path, id)
@@ -107,26 +125,30 @@ func (a *AlbumRepository) GetPreview() ([]*model.AlbumPreview, error) {
 
 	for _, dir := range dirs {
 		if dir.IsDir() {
-			metaFilePath := filepath.Join(a.Path, dir.Name(), "meta.txt")
+			metaFilePath := filepath.Join(a.Path, dir.Name(), "meta.json")
 
-			metaFileContent, err := os.ReadFile(metaFilePath)
+			lock := getAlbumLock(dir.Name())
+			lock.Lock()
+			defer lock.Unlock()
+
+			albumMetadata, err := utils.LoadMetaData(metaFilePath)
 			if err != nil {
-				return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to read metadata file")
+				return nil, err
 			}
 
-			imageCount, err := utils.GetImageCount(metaFilePath)
+			imageCount, err := utils.GetImageCount(albumMetadata)
 			if err != nil {
-				return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to get image count")
+				return nil, err
 			}
 
 			album := &model.AlbumPreview{
 				ID:              dir.Name(),
-				Title:           strings.Split(strings.Split(string(metaFileContent), "\n")[0], ": ")[1],
-				Desc:            strings.Split(strings.Split(string(metaFileContent), "\n")[1], ": ")[1],
-				Date:            strings.Split(strings.Split(string(metaFileContent), "\n")[2], ": ")[1],
+				Title:           albumMetadata["Title"].(string),
+				Desc:            albumMetadata["Description"].(string),
+				Date:            albumMetadata["Date"].(string),
 				ImageCount:      imageCount,
-				Type:            model.AlbumType(strings.Split(strings.Split(string(metaFileContent), "\n")[4], ": ")[1]),
-				PreviewImageURL: strings.Split(strings.Split(string(metaFileContent), "\n")[5], ": ")[1],
+				Type:            model.AlbumType(albumMetadata["Type"].(string)),
+				PreviewImageURL: albumMetadata["PreviewImageURL"].(string),
 			}
 
 			albumPreviews = append(albumPreviews, album)
@@ -136,44 +158,61 @@ func (a *AlbumRepository) GetPreview() ([]*model.AlbumPreview, error) {
 }
 
 func (a *AlbumRepository) Delete(id string) error {
+	lock := getAlbumLock(id)
+	lock.Lock()
+	defer lock.Unlock()
+
 	albumPath := filepath.Join(a.Path, id)
 	if _, err := os.Stat(albumPath); os.IsNotExist(err) {
 		return custom_errors.NewError(custom_errors.ErrNotFound, "album not found")
 	}
-	err := os.RemoveAll(albumPath)
+
+	metaFilePath := filepath.Join(albumPath, "meta.json")
+	err := os.Remove(metaFilePath)
 	if err != nil {
-		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to delete album")
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to delete metadata file")
+	}
+
+	err = os.RemoveAll(albumPath)
+	if err != nil {
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to delete album directory")
 	}
 
 	return nil
 }
 
 func (a *AlbumRepository) Update(id string, m *model.AlbumPreview) (*model.AlbumPreview, error) {
+	lock := getAlbumLock(id)
+	lock.Lock()
+	defer lock.Unlock()
+
 	albumPath := filepath.Join(a.Path, id)
 	if _, err := os.Stat(albumPath); os.IsNotExist(err) {
 		return nil, custom_errors.NewError(custom_errors.ErrNotFound, "album not found")
 	}
 
-	metaFilePath := filepath.Join(albumPath, "meta.txt")
-	var imageCount int
-	if _, err := os.Stat(metaFilePath); err == nil {
-		imageCount, err = utils.GetImageCount(metaFilePath)
-		if err != nil {
-			return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to get image count")
-		}
-		os.Remove(metaFilePath)
+	metaFilePath := filepath.Join(albumPath, "meta.json")
+	albumMetadata, err := utils.LoadMetaData(metaFilePath)
+	if err != nil {
+		return nil, err
 	}
+
+	albumMetadata["Title"] = m.Title
+	albumMetadata["Description"] = m.Desc
+	albumMetadata["Date"] = m.Date
+	albumMetadata["Type"] = m.Type
+	albumMetadata["PreviewImageURL"] = m.PreviewImageURL
 
 	metaFile, err := os.Create(metaFilePath)
 	if err != nil {
-		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to create metadata file")
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to open metadata file for writing")
 	}
 	defer metaFile.Close()
 
-	_, err = metaFile.WriteString(fmt.Sprintf("Title: %s\nDescription: %s\nDate: %s\nImageCount: %d\nType: %s\nPreviewImageURL: %s\n",
-		m.Title, m.Desc, m.Date, imageCount, m.Type, m.PreviewImageURL))
+	encoder := json.NewEncoder(metaFile)
+	err = encoder.Encode(albumMetadata)
 	if err != nil {
-		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to write metadata file")
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to write updated metadata to JSON")
 	}
 
 	m.ID = id

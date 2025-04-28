@@ -2,6 +2,7 @@ package repository
 
 import (
 	"image-service/internal/model"
+	"sync"
 )
 
 type Storage struct {
@@ -18,6 +19,13 @@ type Storage struct {
 		Upload(string, *model.Image) (*model.Image, error)
 		Delete(string, string) error
 	}
+}
+
+var albumLocks sync.Map
+
+func getAlbumLock(id string) *sync.Mutex {
+	lock, _ := albumLocks.LoadOrStore(id, &sync.Mutex{})
+	return lock.(*sync.Mutex)
 }
 
 func NewStorage(path string, apiBasePath string) *Storage {

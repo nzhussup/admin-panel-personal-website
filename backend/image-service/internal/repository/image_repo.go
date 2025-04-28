@@ -15,11 +15,9 @@ type ImageRepository struct {
 }
 
 func (i *ImageRepository) Upload(albumID string, image *model.Image) (*model.Image, error) {
-
 	var imageID string
 	var imagePath string
 
-	// REPETETIVE ID GENERATION FOR UNIQUE ID
 	for {
 		imageID = utils.GenerateUUID()
 		extension := "." + strings.Split(string(image.Type), "/")[1]
@@ -30,9 +28,15 @@ func (i *ImageRepository) Upload(albumID string, image *model.Image) (*model.Ima
 	}
 
 	albumPath := filepath.Join(i.Path, albumID)
+	metaDataPath := filepath.Join(albumPath, "meta.json")
+
 	if _, err := os.Stat(albumPath); os.IsNotExist(err) {
 		return nil, custom_errors.NewError(custom_errors.ErrNotFound, "album not found")
 	}
+
+	lock := getAlbumLock(albumID)
+	lock.Lock()
+	defer lock.Unlock()
 
 	err := os.MkdirAll(filepath.Dir(imagePath), os.ModePerm)
 	if err != nil {
@@ -44,12 +48,17 @@ func (i *ImageRepository) Upload(albumID string, image *model.Image) (*model.Ima
 		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to save image data")
 	}
 
-	err = utils.IncrementImageCount(filepath.Join(albumPath, "meta.txt"), 1)
+	metaData, err := utils.LoadMetaData(metaDataPath)
 	if err != nil {
-		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to increment image count")
+		return nil, err
 	}
 
-	image.ID = strings.Split(imagePath, "/")[len(strings.Split(imagePath, "/"))-1]
+	err = utils.IncrementImageCountMeta(metaDataPath, metaData, 1)
+	if err != nil {
+		return nil, err
+	}
+
+	image.ID = filepath.Base(imagePath)
 	image.Data = nil
 	image.URL = filepath.Join(i.ApiBasePath, albumID, image.ID)
 
@@ -58,16 +67,30 @@ func (i *ImageRepository) Upload(albumID string, image *model.Image) (*model.Ima
 
 func (i *ImageRepository) Delete(albumID string, imageID string) error {
 	imagePath := filepath.Join(i.Path, albumID, imageID)
+	metaDataPath := filepath.Join(i.Path, albumID, "meta.json")
+
+	lock := getAlbumLock(albumID)
+	lock.Lock()
+	defer lock.Unlock()
+
 	if _, err := os.Stat(imagePath); os.IsNotExist(err) {
 		return custom_errors.NewError(custom_errors.ErrNotFound, "image not found")
 	}
+
 	err := os.Remove(imagePath)
 	if err != nil {
 		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to delete image")
 	}
-	err = utils.DecrementImageCount(filepath.Join(i.Path, albumID, "meta.txt"), 1)
+
+	metaData, err := utils.LoadMetaData(metaDataPath)
 	if err != nil {
-		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to decrement image count")
+		return err
 	}
+
+	err = utils.DecrementImageCountMeta(metaDataPath, metaData, 1)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

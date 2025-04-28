@@ -2,12 +2,11 @@ package utils
 
 import (
 	"bytes"
+	"encoding/json"
 	"image"
 	"image/jpeg"
 	"image/png"
 	"os"
-	"strconv"
-	"strings"
 	"sync"
 
 	"github.com/adrium/goheif"
@@ -109,83 +108,73 @@ func applyOrientation(img image.Image, orientation int) image.Image {
 	}
 }
 
-func GetImageCount(metaDataPath string) (int, error) {
-	content, err := os.ReadFile(metaDataPath)
-	if err != nil {
-		return 0, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to read metadata file")
+func GetImageCount(metaData map[string]any) (int, error) {
+	imageCountFloat, ok := metaData["ImageCount"].(float64)
+	if !ok {
+		return 0, custom_errors.NewError(custom_errors.ErrInternalServer, "invalid type for ImageCount")
 	}
-	countString := strings.Split(strings.Split(string(content), "\n")[3], ": ")[1]
-	count, err := strconv.Atoi(countString)
-	if err != nil {
-		return 0, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to parse image count")
-	}
-	return count, nil
+	return int(imageCountFloat), nil
 }
 
-func IncrementImageCount(metaDataPath string, n int) error {
-	MetadataMutex.Lock()
-	defer MetadataMutex.Unlock()
-
+func LoadMetaData(metaDataPath string) (map[string]any, error) {
 	content, err := os.ReadFile(metaDataPath)
 	if err != nil {
-		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to read metadata file")
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to read metadata file")
 	}
 
-	lines := strings.Split(string(content), "\n")
-
-	countLine := lines[3]
-	parts := strings.Split(countLine, ": ")
-	if len(parts) != 2 {
-		return custom_errors.NewError(custom_errors.ErrInternalServer, "invalid count line format")
-	}
-
-	count, err := strconv.Atoi(parts[1])
+	var metaData map[string]any
+	err = json.Unmarshal(content, &metaData)
 	if err != nil {
-		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to parse image count")
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to parse metadata JSON")
 	}
 
+	return metaData, nil
+}
+
+func IncrementImageCountMeta(metaDataPath string, metaData map[string]any, n int) error {
+	countFloat, ok := metaData["ImageCount"].(float64)
+	if !ok {
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "invalid type for ImageCount")
+	}
+
+	count := int(countFloat)
 	count += n
-	lines[3] = parts[0] + ": " + strconv.Itoa(count)
+	metaData["ImageCount"] = count
 
-	err = os.WriteFile(metaDataPath, []byte(strings.Join(lines, "\n")), os.ModePerm)
+	newContent, err := json.MarshalIndent(metaData, "", "  ")
 	if err != nil {
-		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to write metadata file")
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to marshal updated metadata")
+	}
+
+	err = os.WriteFile(metaDataPath, newContent, os.ModePerm)
+	if err != nil {
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to write updated metadata")
 	}
 
 	return nil
 }
 
-func DecrementImageCount(metaDataPath string, n int) error {
-	MetadataMutex.Lock()
-	defer MetadataMutex.Unlock()
-
-	content, err := os.ReadFile(metaDataPath)
-	if err != nil {
-		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to read metadata file")
+func DecrementImageCountMeta(metaDataPath string, metaData map[string]any, n int) error {
+	countFloat, ok := metaData["ImageCount"].(float64)
+	if !ok {
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "invalid type for ImageCount")
 	}
 
-	lines := strings.Split(string(content), "\n")
-
-	countLine := lines[3]
-	parts := strings.Split(countLine, ": ")
-	if len(parts) != 2 {
-		return custom_errors.NewError(custom_errors.ErrInternalServer, "invalid count line format")
-	}
-
-	count, err := strconv.Atoi(parts[1])
-	if err != nil {
-		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to parse image count")
-	}
-
+	count := int(countFloat)
 	count -= n
 	if count < 0 {
 		count = 0
 	}
-	lines[3] = parts[0] + ": " + strconv.Itoa(count)
+	metaData["ImageCount"] = count
 
-	err = os.WriteFile(metaDataPath, []byte(strings.Join(lines, "\n")), os.ModePerm)
+	newContent, err := json.MarshalIndent(metaData, "", "  ")
 	if err != nil {
-		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to write metadata file")
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to marshal updated metadata")
+	}
+
+	err = os.WriteFile(metaDataPath, newContent, os.ModePerm)
+	if err != nil {
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to write updated metadata")
 	}
 
 	return nil
