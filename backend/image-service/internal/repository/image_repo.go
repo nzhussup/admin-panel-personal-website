@@ -31,22 +31,22 @@ func (i *ImageRepository) Upload(albumID string, image *model.Image) (*model.Ima
 
 	albumPath := filepath.Join(i.Path, albumID)
 	if _, err := os.Stat(albumPath); os.IsNotExist(err) {
-		return nil, custom_errors.NewNotFoundError("album not found")
+		return nil, custom_errors.NewError(custom_errors.ErrNotFound, "album not found")
 	}
 
 	err := os.MkdirAll(filepath.Dir(imagePath), os.ModePerm)
 	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to create image directory")
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to create image directory")
 	}
 
 	err = os.WriteFile(imagePath, image.Data, os.ModePerm)
 	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to save image data")
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to save image data")
 	}
 
 	err = utils.IncrementImageCount(filepath.Join(albumPath, "meta.txt"), 1)
 	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to increment image count")
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to increment image count")
 	}
 
 	image.ID = strings.Split(imagePath, "/")[len(strings.Split(imagePath, "/"))-1]
@@ -59,15 +59,15 @@ func (i *ImageRepository) Upload(albumID string, image *model.Image) (*model.Ima
 func (i *ImageRepository) Delete(albumID string, imageID string) error {
 	imagePath := filepath.Join(i.Path, albumID, imageID)
 	if _, err := os.Stat(imagePath); os.IsNotExist(err) {
-		return custom_errors.NewNotFoundError("image not found")
+		return custom_errors.NewError(custom_errors.ErrNotFound, "image not found")
 	}
 	err := os.Remove(imagePath)
 	if err != nil {
-		return custom_errors.NewInternalServerError("failed to delete image")
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to delete image")
 	}
 	err = utils.DecrementImageCount(filepath.Join(i.Path, albumID, "meta.txt"), 1)
 	if err != nil {
-		return custom_errors.NewInternalServerError("failed to decrement image count")
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to decrement image count")
 	}
 	return nil
 }

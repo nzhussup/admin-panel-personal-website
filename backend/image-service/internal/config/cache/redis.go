@@ -60,16 +60,16 @@ func (r *RedisClient) Get(key string, dest any) error {
 	if err != nil {
 		if err == redis.Nil {
 			log.Println("CACHE INFO: Key does not exist in cache:", key)
-			return custom_errors.NewBadRequestError("Key does not exist in cache")
+			return custom_errors.NewError(custom_errors.ErrNotFound, "Key does not exist in cache")
 		}
 		log.Println("CACHE ERROR: Failed to get value from cache:", err)
-		return custom_errors.NewInternalServerError("Failed to get value from cache")
+		return custom_errors.NewError(custom_errors.ErrBadRequest, "Failed to get value from cache")
 	}
 
 	err = json.Unmarshal([]byte(val), dest)
 	if err != nil {
 		log.Println("CACHE ERROR: Failed to unmarshal value from cache:", err)
-		return custom_errors.NewBadRequestError("Failed to unmarshal value from cache")
+		return custom_errors.NewError(custom_errors.ErrBadRequest, "Failed to unmarshal value from cache")
 	}
 
 	return nil
@@ -93,7 +93,7 @@ func (r *RedisClient) FlushAll() error {
 	ctx := context.Background()
 	err := r.Client.FlushAll(ctx).Err()
 	if err != nil {
-		custom_errors.NewInternalServerError("Failed to flush all cache")
+		custom_errors.NewError(custom_errors.ErrBadRequest, "Failed to flush all cache")
 	}
 	return nil
 }

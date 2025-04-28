@@ -5,10 +5,20 @@ import (
 	"image-service/internal/config/discovery"
 	"image-service/internal/config/security"
 	"image-service/internal/controller"
+	"image-service/internal/model"
 	"image-service/internal/repository"
 	"image-service/internal/service"
 	"time"
+
+	"github.com/go-playground/validator/v10"
 )
+
+var validate *validator.Validate
+
+func init() {
+	validate = validator.New(validator.WithRequiredStructEnabled())
+	validate.RegisterValidation("albumtype", model.ValidateAlbumType)
+}
 
 type app struct {
 	config         config
@@ -56,7 +66,7 @@ func newApp(config config, securityConfig *security.AuthConfig) *app {
 		config.redisConfig.duration,
 	)
 	storage := repository.NewStorage(config.storagePath, config.apiBasePath)
-	service := service.NewService(storage, redisClient, securityConfig)
+	service := service.NewService(storage, redisClient, securityConfig, validate)
 	controller := controller.NewController(service)
 	eurekaClient := discovery.NewEurekaClient(
 		config.discoveryConfig.eurekaURL,

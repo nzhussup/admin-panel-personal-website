@@ -15,6 +15,9 @@ definitions:
         type: string
       type:
         $ref: '#/definitions/model.AlbumType'
+    required:
+    - title
+    - type
     type: object
   model.AlbumPreview:
     properties:
@@ -26,10 +29,15 @@ definitions:
         type: string
       image_count:
         type: integer
+      preview_image:
+        type: string
       title:
         type: string
       type:
         $ref: '#/definitions/model.AlbumType'
+    required:
+    - title
+    - type
     type: object
   model.AlbumType:
     enum:
@@ -41,6 +49,18 @@ definitions:
     - Private
     - SemiPublic
     - Public
+  model.ErrorDetails:
+    properties:
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
+  model.ErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/model.ErrorDetails'
+    type: object
   model.Image:
     properties:
       data:
@@ -66,6 +86,14 @@ definitions:
     - JPG
     - PNG
     - HEIC
+  model.SuccessResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+      status:
+        type: integer
+    type: object
 host: localhost:8085
 info:
   contact:
@@ -98,33 +126,30 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/model.AlbumPreview'
-            type: array
+            allOf:
+            - $ref: '#/definitions/model.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.AlbumPreview'
+                  type: array
+              type: object
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Get album previews
@@ -145,34 +170,30 @@ paths:
       - application/json
       responses:
         "201":
-          description: Album created successfully
+          description: Created
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/model.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AlbumPreview'
+              type: object
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
         "409":
           description: Conflict
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Create a new album
@@ -193,27 +214,19 @@ paths:
         "200":
           description: Album deleted successfully
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.SuccessResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Delete an album
@@ -233,37 +246,32 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.Album'
+            allOf:
+            - $ref: '#/definitions/model.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Album'
+              type: object
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
         "403":
           description: Forbidden
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Get a specific album by ID
@@ -289,28 +297,26 @@ paths:
       - application/json
       responses:
         "200":
-          description: Album updated successfully
+          description: OK
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/model.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.AlbumPreview'
+              type: object
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Update an album
@@ -336,27 +342,24 @@ paths:
         "200":
           description: Image deleted successfully
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            allOf:
+            - $ref: '#/definitions/model.SuccessResponse'
+            - properties:
+                data:
+                  type: object
+              type: object
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorDetails'
         "404":
           description: Image Not Found
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorDetails'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorDetails'
       security:
       - ApiKeyAuth: []
       summary: Delete an image from an album
@@ -385,9 +388,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorDetails'
       security:
       - ApiKeyAuth: []
       summary: Serve an image file
@@ -415,32 +416,30 @@ paths:
         "201":
           description: Image uploaded successfully
           schema:
-            additionalProperties: true
-            type: object
+            allOf:
+            - $ref: '#/definitions/model.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Image'
+                  type: array
+              type: object
         "400":
           description: Bad Request
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorDetails'
         "404":
           description: Album Not Found
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorDetails'
         "409":
           description: Conflict
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorDetails'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorDetails'
       security:
       - ApiKeyAuth: []
       summary: Upload image(s) to an album
@@ -457,15 +456,11 @@ paths:
         "200":
           description: Cache cleared successfully
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.SuccessResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.ErrorResponse'
       security:
       - ApiKeyAuth: []
       summary: Clear the image cache
@@ -480,9 +475,7 @@ paths:
         "200":
           description: Service is healthy
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/model.SuccessResponse'
       summary: Health check endpoint
       tags:
       - Health

@@ -10,12 +10,14 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type AlbumService struct {
 	storage        *repository.Storage
 	redis          *cache.RedisClient
 	securityConfig *security.AuthConfig
+	validate       *validator.Validate
 }
 
 func (s *AlbumService) GetAlbum(c *gin.Context, id string) (*model.Album, error) {
@@ -70,16 +72,12 @@ func (s *AlbumService) CreateAlbum(album *model.AlbumPreview) (*model.AlbumPrevi
 	album.Title = strings.TrimSpace(album.Title)
 	album.Desc = strings.TrimSpace(album.Desc)
 
-	if album.Title == "" {
-		return nil, custom_errors.NewBadRequestError("title is required")
-	}
-
 	if album.Type == "" {
 		album.Type = model.Private
-	} else {
-		if !album.Type.IsValid() {
-			return nil, custom_errors.NewBadRequestError("invalid album type")
-		}
+	}
+
+	if err := s.validate.Struct(album); err != nil {
+		return nil, custom_errors.NewError(custom_errors.ErrBadRequest, err.Error())
 	}
 
 	createdAlbum, err := s.storage.Album.Create(album)
@@ -106,12 +104,8 @@ func (s *AlbumService) UpdateAlbum(id string, album *model.AlbumPreview) (*model
 	album.Title = strings.TrimSpace(album.Title)
 	album.Desc = strings.TrimSpace(album.Desc)
 
-	if album.Title == "" {
-		return nil, custom_errors.NewBadRequestError("title is required")
-	}
-
-	if !album.Type.IsValid() {
-		return nil, custom_errors.NewBadRequestError("invalid album type")
+	if err := s.validate.Struct(album); err != nil {
+		return nil, custom_errors.NewError(custom_errors.ErrBadRequest, err.Error())
 	}
 
 	updatedAlbum, err := s.storage.Album.Update(id, album)

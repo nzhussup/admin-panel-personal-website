@@ -1,6 +1,8 @@
 package controller
 
 import (
+	custom_errors "image-service/internal/errors"
+	"image-service/internal/json"
 	"image-service/internal/service"
 
 	"github.com/gin-gonic/gin"
@@ -20,17 +22,17 @@ func NewCacheController(service *service.Service) *CacheController {
 // @Tags Cache
 // @Accept  json
 // @Produce  json
-// @Success 200 {object} map[string]string "Cache cleared successfully"
-// @Failure 500 {object} map[string]string "Internal Server Error"
+// @Success 200 {object} model.SuccessResponse "Cache cleared successfully"
+// @Failure 500 {object} model.ErrorResponse "Internal Server Error"
 // @Router /v1/album/cache [delete]
 // @Security ApiKeyAuth
 func (ctrl *CacheController) ClearCache(c *gin.Context) {
 
 	err := ctrl.service.CacheService.ClearCache()
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
+		custom_errors.MapErrors(c, err)
 		return
 	}
 
-	c.JSON(200, gin.H{"message": "Cache cleared successfully"})
+	json.ConstructJsonResponseSuccess(c, nil, "Cache cleared successfully")
 }

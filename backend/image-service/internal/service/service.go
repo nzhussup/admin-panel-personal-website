@@ -8,10 +8,12 @@ import (
 	"mime/multipart"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type Service struct {
 	storage      *repository.Storage
+	validate     *validator.Validate
 	AlbumService interface {
 		GetAlbumsPreview(string) ([]*model.AlbumPreview, error)
 		GetAlbum(*gin.Context, string) (*model.Album, error)
@@ -29,11 +31,12 @@ type Service struct {
 	}
 }
 
-func NewService(storage *repository.Storage, redis *cache.RedisClient, securityConfig *security.AuthConfig) *Service {
+func NewService(storage *repository.Storage, redis *cache.RedisClient, securityConfig *security.AuthConfig, validate *validator.Validate) *Service {
 	return &Service{
 		storage:      storage,
-		AlbumService: &AlbumService{storage: storage, redis: redis, securityConfig: securityConfig},
-		ImageService: &ImageService{storage: storage, redis: redis},
+		validate:     validate,
+		AlbumService: &AlbumService{storage: storage, redis: redis, securityConfig: securityConfig, validate: validate},
+		ImageService: &ImageService{storage: storage, redis: redis, validate: validate},
 		CacheService: &CacheService{redis: redis},
 	}
 }

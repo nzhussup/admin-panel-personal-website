@@ -56,46 +56,46 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/model.AlbumPreview"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.AlbumPreview"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     }
                 }
@@ -130,46 +130,45 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "Album created successfully",
+                        "description": "Created",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.AlbumPreview"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     }
                 }
@@ -197,19 +196,13 @@ const docTemplate = `{
                     "200": {
                         "description": "Cache cleared successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.SuccessResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     }
                 }
@@ -229,10 +222,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Service is healthy",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.SuccessResponse"
                         }
                     }
                 }
@@ -266,52 +256,49 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/model.Album"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Album"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     }
                 }
@@ -353,37 +340,39 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Album updated successfully",
+                        "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.AlbumPreview"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     }
                 }
@@ -415,37 +404,25 @@ const docTemplate = `{
                     "200": {
                         "description": "Album deleted successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.SuccessResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorResponse"
                         }
                     }
                 }
@@ -489,44 +466,46 @@ const docTemplate = `{
                     "201": {
                         "description": "Image uploaded successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.Image"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorDetails"
                         }
                     },
                     "404": {
                         "description": "Album Not Found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorDetails"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorDetails"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorDetails"
                         }
                     }
                 }
@@ -573,10 +552,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorDetails"
                         }
                     }
                 }
@@ -615,37 +591,37 @@ const docTemplate = `{
                     "200": {
                         "description": "Image deleted successfully",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorDetails"
                         }
                     },
                     "404": {
                         "description": "Image Not Found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorDetails"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/model.ErrorDetails"
                         }
                     }
                 }
@@ -655,6 +631,10 @@ const docTemplate = `{
     "definitions": {
         "model.Album": {
             "type": "object",
+            "required": [
+                "title",
+                "type"
+            ],
             "properties": {
                 "date": {
                     "type": "string"
@@ -681,6 +661,10 @@ const docTemplate = `{
         },
         "model.AlbumPreview": {
             "type": "object",
+            "required": [
+                "title",
+                "type"
+            ],
             "properties": {
                 "date": {
                     "type": "string"
@@ -693,6 +677,9 @@ const docTemplate = `{
                 },
                 "image_count": {
                     "type": "integer"
+                },
+                "preview_image": {
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"
@@ -714,6 +701,25 @@ const docTemplate = `{
                 "SemiPublic",
                 "Public"
             ]
+        },
+        "model.ErrorDetails": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/model.ErrorDetails"
+                }
+            }
         },
         "model.Image": {
             "type": "object",
@@ -749,6 +755,18 @@ const docTemplate = `{
                 "PNG",
                 "HEIC"
             ]
+        },
+        "model.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
         }
     },
     "securityDefinitions": {

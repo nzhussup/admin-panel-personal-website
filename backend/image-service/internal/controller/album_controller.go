@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"errors"
 	"fmt"
 	custom_errors "image-service/internal/errors"
+	"image-service/internal/json"
 	"image-service/internal/model"
 	"image-service/internal/service"
 	"net/http"
@@ -28,41 +28,27 @@ var validTypes = map[string]bool{
 // @Tags Album
 // @Produce json
 // @Param id path string true "Album ID"
-// @Success 200 {object} model.Album
-// @Failure 400 {object} map[string]string "Bad Request"
-// @Failure 401 {object} map[string]string "Unauthorized"
-// @Failure 403 {object} map[string]string "Forbidden"
-// @Failure 404 {object} map[string]string "Not Found"
-// @Failure 500 {object} map[string]string "Internal Server Error"
+// @Success 200 {object} model.SuccessResponse{data=model.Album}
+// @Failure 400 {object} model.ErrorResponse "Bad Request"
+// @Failure 401 {object} model.ErrorResponse "Unauthorized"
+// @Failure 403 {object} model.ErrorResponse "Forbidden"
+// @Failure 404 {object} model.ErrorResponse "Not Found"
+// @Failure 500 {object} model.ErrorResponse "Internal Server Error"
 // @Router /v1/album/{id} [get]
 // @Security ApiKeyAuth
 func (ctrl *AlbumController) Get(c *gin.Context) {
 	pathParam := c.Param("id")
 	album, err := ctrl.service.AlbumService.GetAlbum(c, pathParam)
 	if err != nil {
-		switch {
-		case errors.Is(err, custom_errors.ErrNotFound):
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		case errors.Is(err, custom_errors.ErrBadRequest):
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		case errors.Is(err, custom_errors.ErrUnauthorized):
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		case errors.Is(err, custom_errors.ErrForbidden):
-			c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
-		case errors.Is(err, custom_errors.ErrInternalServer):
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		custom_errors.MapErrors(c, err)
 		return
-
 	}
 
 	if album.Images == nil {
 		album.Images = []*model.Image{}
 	}
 
-	c.JSON(http.StatusOK, album)
+	json.ConstructJsonResponseSuccess(c, album, http.StatusOK)
 }
 
 // GetPreview godoc
@@ -71,11 +57,11 @@ func (ctrl *AlbumController) Get(c *gin.Context) {
 // @Tags Album
 // @Produce json
 // @Param type query string false "Album type (public, semi-public, private, all)" Enums(public, semi-public, private, all) default(public)
-// @Success 200 {array} model.AlbumPreview
-// @Failure 400 {object} map[string]string "Bad Request"
-// @Failure 401 {object} map[string]string "Unauthorized"
-// @Failure 403 {object} map[string]string "Forbidden"
-// @Failure 500 {object} map[string]string "Internal Server Error"
+// @Success 200 {object} model.SuccessResponse{data=[]model.AlbumPreview}
+// @Failure 400 {object} model.ErrorResponse "Bad Request"
+// @Failure 401 {object} model.ErrorResponse "Unauthorized"
+// @Failure 403 {object} model.ErrorResponse "Forbidden"
+// @Failure 500 {object} model.ErrorResponse "Internal Server Error"
 // @Router /v1/album [get]
 // @Security ApiKeyAuth
 func (ctrl *AlbumController) GetPreview(c *gin.Context) {
@@ -89,22 +75,13 @@ func (ctrl *AlbumController) GetPreview(c *gin.Context) {
 	album, err := ctrl.service.AlbumService.GetAlbumsPreview(typeQuery)
 
 	if err != nil {
-		switch {
-		case errors.Is(err, custom_errors.ErrBadRequest):
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		case errors.Is(err, custom_errors.ErrUnauthorized):
-			c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		case errors.Is(err, custom_errors.ErrForbidden):
-			c.JSON(http.StatusForbidden, gin.H{"error": err.Error()})
-		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		custom_errors.MapErrors(c, err)
 		return
 	}
 	if album == nil {
 		album = []*model.AlbumPreview{}
 	}
-	c.JSON(200, album)
+	json.ConstructJsonResponseSuccess(c, album, http.StatusOK)
 }
 
 // Create godoc
@@ -114,11 +91,11 @@ func (ctrl *AlbumController) GetPreview(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param album body model.AlbumPreview true "Album preview data"
-// @Success 201 {object} map[string]interface{} "Album created successfully"
-// @Failure 400 {object} map[string]string "Bad Request"
-// @Failure 404 {object} map[string]string "Not Found"
-// @Failure 409 {object} map[string]string "Conflict"
-// @Failure 500 {object} map[string]string "Internal Server Error"
+// @Success 201 {object} model.SuccessResponse{data=model.AlbumPreview}
+// @Failure 400 {object} model.ErrorResponse "Bad Request"
+// @Failure 404 {object} model.ErrorResponse "Not Found"
+// @Failure 409 {object} model.ErrorResponse "Conflict"
+// @Failure 500 {object} model.ErrorResponse "Internal Server Error"
 // @Router /v1/album [post]
 // @Security ApiKeyAuth
 func (ctrl *AlbumController) Create(c *gin.Context) {
@@ -130,20 +107,12 @@ func (ctrl *AlbumController) Create(c *gin.Context) {
 
 	createdAlbum, err := ctrl.service.AlbumService.CreateAlbum(&request)
 	if err != nil {
-		switch {
-		case errors.Is(err, custom_errors.ErrNotFound):
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		case errors.Is(err, custom_errors.ErrConflict):
-			c.JSON(http.StatusConflict, gin.H{"error": err.Error()})
-		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		custom_errors.MapErrors(c, err)
 		return
 
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "Album created successfully",
-		"data": createdAlbum})
+	json.ConstructJsonResponseSuccess(c, createdAlbum, http.StatusCreated, "Album created successfully")
 }
 
 // Delete godoc
@@ -152,28 +121,21 @@ func (ctrl *AlbumController) Create(c *gin.Context) {
 // @Tags Album
 // @Produce json
 // @Param id path string true "Album ID"
-// @Success 200 {object} map[string]string "Album deleted successfully"
-// @Failure 400 {object} map[string]string "Bad Request"
-// @Failure 404 {object} map[string]string "Not Found"
-// @Failure 500 {object} map[string]string "Internal Server Error"
+// @Success 200 {object} model.SuccessResponse "Album deleted successfully"
+// @Failure 400 {object} model.ErrorResponse "Bad Request"
+// @Failure 404 {object} model.ErrorResponse "Not Found"
+// @Failure 500 {object} model.ErrorResponse "Internal Server Error"
 // @Router /v1/album/{id} [delete]
 // @Security ApiKeyAuth
 func (ctrl *AlbumController) Delete(c *gin.Context) {
 	pathParam := c.Param("id")
 	err := ctrl.service.AlbumService.DeleteAlbum(pathParam)
 	if err != nil {
-		switch {
-		case errors.Is(err, custom_errors.ErrNotFound):
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		case errors.Is(err, custom_errors.ErrBadRequest):
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		custom_errors.MapErrors(c, err)
 		return
 
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Album deleted successfully"})
+	json.ConstructJsonResponseSuccess(c, nil, http.StatusOK, "Album deleted successfully")
 }
 
 // Update godoc
@@ -184,10 +146,10 @@ func (ctrl *AlbumController) Delete(c *gin.Context) {
 // @Produce json
 // @Param id path string true "Album ID"
 // @Param album body model.AlbumPreview true "Updated album preview data"
-// @Success 200 {object} map[string]interface{} "Album updated successfully"
-// @Failure 400 {object} map[string]string "Bad Request"
-// @Failure 404 {object} map[string]string "Not Found"
-// @Failure 500 {object} map[string]string "Internal Server Error"
+// @Success 200 {object} model.SuccessResponse{data=model.AlbumPreview}
+// @Failure 400 {object} model.ErrorResponse "Bad Request"
+// @Failure 404 {object} model.ErrorResponse "Not Found"
+// @Failure 500 {object} model.ErrorResponse "Internal Server Error"
 // @Router /v1/album/{id} [put]
 // @Security ApiKeyAuth
 func (ctrl *AlbumController) Update(c *gin.Context) {
@@ -201,16 +163,10 @@ func (ctrl *AlbumController) Update(c *gin.Context) {
 	updatedAlbum, err := ctrl.service.AlbumService.UpdateAlbum(pathParam, &request)
 
 	if err != nil {
-		switch {
-		case errors.Is(err, custom_errors.ErrNotFound):
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		}
+		custom_errors.MapErrors(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Album updated successfully",
-		"data": updatedAlbum})
+	json.ConstructJsonResponseSuccess(c, updatedAlbum, http.StatusOK, "Album updated successfully")
 
 }

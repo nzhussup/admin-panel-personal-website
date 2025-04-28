@@ -21,7 +21,7 @@ export const usePageData = (endpoint, isSingle, sortBy = "date") => {
       await fetchData(
         endpoint,
         (fetchedItems) => {
-          const sortedItems = [...fetchedItems].sort((a, b) => {
+          const sortedItems = [...fetchedItems.data].sort((a, b) => {
             const sortA = a[sortBy] ? new Date(a[sortBy]) : null;
             const sortB = b[sortBy] ? new Date(b[sortBy]) : null;
 
@@ -64,7 +64,7 @@ export const usePageData = (endpoint, isSingle, sortBy = "date") => {
     setError(null);
     try {
       await fetchData(`${endpoint}`, (fetchedItem) => {
-        setItems([fetchedItem]);
+        setItems([fetchedItem.data]);
       });
     } catch (error) {
       setError(error);

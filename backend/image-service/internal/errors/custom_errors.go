@@ -1,6 +1,13 @@
 package custom_errors
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+	"image-service/internal/json"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 var (
 	ErrNotFound       = errors.New("not found")
@@ -11,26 +18,27 @@ var (
 	ErrForbidden      = errors.New("forbidden")
 )
 
-func NewNotFoundError(message string) error {
-	return errors.Join(ErrNotFound, errors.New(message))
+var ErrorMap = map[error]int{
+	ErrNotFound:       http.StatusNotFound,
+	ErrInternalServer: http.StatusInternalServerError,
+	ErrBadRequest:     http.StatusBadRequest,
+	ErrConflict:       http.StatusConflict,
+	ErrUnauthorized:   http.StatusUnauthorized,
+	ErrForbidden:      http.StatusForbidden,
 }
 
-func NewInternalServerError(message string) error {
-	return errors.Join(ErrInternalServer, errors.New(message))
+func NewError(baseError error, message string) error {
+	return fmt.Errorf("%w: %s", baseError, message)
 }
 
-func NewBadRequestError(message string) error {
-	return errors.Join(ErrBadRequest, errors.New(message))
-}
-
-func NewConflictError(message string) error {
-	return errors.Join(ErrConflict, errors.New(message))
-}
-
-func NewUnauthorizedError(message string) error {
-	return errors.Join(ErrUnauthorized, errors.New(message))
-}
-
-func NewForbiddenError(message string) error {
-	return errors.Join(ErrForbidden, errors.New(message))
+func MapErrors(c *gin.Context, err error) {
+	mapper := errors.Unwrap(err)
+	if mapper != nil {
+		statusCode, ok := ErrorMap[mapper]
+		if ok {
+			json.ConstructJsonResponseError(c, err, statusCode)
+			return
+		}
+	}
+	json.ConstructJsonResponseError(c, errors.New("unexpected error"), http.StatusInternalServerError)
 }

@@ -28,10 +28,10 @@ func Validate(c *gin.Context, config *AuthConfig, token string) (ValidationRespo
 	var resp *http.Response
 	resp, err := http.Post(config.AuthServiceURL+config.ValidationURL, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil || resp.StatusCode == http.StatusInternalServerError {
-		return ValidationResponse{}, custom_errors.NewInternalServerError("Auth service unavailable")
+		return ValidationResponse{}, custom_errors.NewError(custom_errors.ErrInternalServer, "Failed to validate token")
 	}
 	if resp.StatusCode != http.StatusOK {
-		return ValidationResponse{}, custom_errors.NewUnauthorizedError("")
+		return ValidationResponse{}, custom_errors.NewError(custom_errors.ErrUnauthorized, "Invalid token")
 	}
 
 	body, _ := io.ReadAll(resp.Body)
@@ -44,7 +44,7 @@ func Validate(c *gin.Context, config *AuthConfig, token string) (ValidationRespo
 func GetToken(c *gin.Context) (string, error) {
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-		return "", custom_errors.NewUnauthorizedError("")
+		return "", custom_errors.NewError(custom_errors.ErrUnauthorized, "Authorization header missing or invalid")
 	}
 	token := strings.TrimPrefix(authHeader, "Bearer ")
 	return token, nil
@@ -90,5 +90,5 @@ func CheckIsAdmin(c *gin.Context, config *AuthConfig) error {
 	if isAdmin(validationResponse.Roles) {
 		return nil
 	}
-	return custom_errors.NewForbiddenError("")
+	return custom_errors.NewError(custom_errors.ErrForbidden, "User is not an admin")
 }

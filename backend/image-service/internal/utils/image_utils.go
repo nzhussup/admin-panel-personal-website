@@ -33,7 +33,7 @@ func CompressImage(reader *bytes.Reader, extension string) ([]byte, error) {
 	} else {
 		img, _, err = image.Decode(reader)
 		if err != nil {
-			return nil, custom_errors.NewInternalServerError("failed to decode image")
+			return nil, custom_errors.NewError(custom_errors.ErrBadRequest, "failed to decode image")
 		}
 	}
 
@@ -47,11 +47,11 @@ func CompressImage(reader *bytes.Reader, extension string) ([]byte, error) {
 	case "png":
 		err = png.Encode(&buf, compressedImage)
 	default:
-		return nil, custom_errors.NewBadRequestError("invalid image type. only jpeg and png are allowed")
+		return nil, custom_errors.NewError(custom_errors.ErrBadRequest, "unsupported image format. only jpeg, jpg, and png are allowed")
 	}
 
 	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to encode image while compressing")
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to encode image")
 	}
 
 	return buf.Bytes(), nil
@@ -60,12 +60,12 @@ func CompressImage(reader *bytes.Reader, extension string) ([]byte, error) {
 func ProcessHEIC(reader *bytes.Reader) (image.Image, error) {
 	img, err := goheif.Decode(reader)
 	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to decode HEIC image")
+		return nil, custom_errors.NewError(custom_errors.ErrBadRequest, "failed to decode HEIC image")
 	}
 
 	exifBytes, err := goheif.ExtractExif(reader)
 	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to extract EXIF data from HEIC image")
+		return nil, custom_errors.NewError(custom_errors.ErrBadRequest, "failed to extract EXIF data from HEIC image")
 	}
 	if len(exifBytes) == 0 {
 		return img, nil
@@ -73,7 +73,7 @@ func ProcessHEIC(reader *bytes.Reader) (image.Image, error) {
 
 	x, err := exif.Decode(bytes.NewReader(exifBytes))
 	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to decode EXIF data")
+		return nil, custom_errors.NewError(custom_errors.ErrBadRequest, "failed to decode EXIF data")
 	}
 
 	orientation, err := x.Get(exif.Orientation)
@@ -112,12 +112,12 @@ func applyOrientation(img image.Image, orientation int) image.Image {
 func GetImageCount(metaDataPath string) (int, error) {
 	content, err := os.ReadFile(metaDataPath)
 	if err != nil {
-		return 0, custom_errors.NewInternalServerError("failed to read metadata file")
+		return 0, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to read metadata file")
 	}
 	countString := strings.Split(strings.Split(string(content), "\n")[3], ": ")[1]
 	count, err := strconv.Atoi(countString)
 	if err != nil {
-		return 0, custom_errors.NewInternalServerError("failed to parse image count")
+		return 0, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to parse image count")
 	}
 	return count, nil
 }
@@ -128,7 +128,7 @@ func IncrementImageCount(metaDataPath string, n int) error {
 
 	content, err := os.ReadFile(metaDataPath)
 	if err != nil {
-		return custom_errors.NewInternalServerError("failed to read metadata file")
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to read metadata file")
 	}
 
 	lines := strings.Split(string(content), "\n")
@@ -136,12 +136,12 @@ func IncrementImageCount(metaDataPath string, n int) error {
 	countLine := lines[3]
 	parts := strings.Split(countLine, ": ")
 	if len(parts) != 2 {
-		return custom_errors.NewInternalServerError("invalid count line format")
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "invalid count line format")
 	}
 
 	count, err := strconv.Atoi(parts[1])
 	if err != nil {
-		return custom_errors.NewInternalServerError("failed to parse image count")
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to parse image count")
 	}
 
 	count += n
@@ -149,7 +149,7 @@ func IncrementImageCount(metaDataPath string, n int) error {
 
 	err = os.WriteFile(metaDataPath, []byte(strings.Join(lines, "\n")), os.ModePerm)
 	if err != nil {
-		return custom_errors.NewInternalServerError("failed to write metadata file")
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to write metadata file")
 	}
 
 	return nil
@@ -161,7 +161,7 @@ func DecrementImageCount(metaDataPath string, n int) error {
 
 	content, err := os.ReadFile(metaDataPath)
 	if err != nil {
-		return custom_errors.NewInternalServerError("failed to read metadata file")
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to read metadata file")
 	}
 
 	lines := strings.Split(string(content), "\n")
@@ -169,12 +169,12 @@ func DecrementImageCount(metaDataPath string, n int) error {
 	countLine := lines[3]
 	parts := strings.Split(countLine, ": ")
 	if len(parts) != 2 {
-		return custom_errors.NewInternalServerError("invalid count line format")
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "invalid count line format")
 	}
 
 	count, err := strconv.Atoi(parts[1])
 	if err != nil {
-		return custom_errors.NewInternalServerError("failed to parse image count")
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to parse image count")
 	}
 
 	count -= n
@@ -185,7 +185,7 @@ func DecrementImageCount(metaDataPath string, n int) error {
 
 	err = os.WriteFile(metaDataPath, []byte(strings.Join(lines, "\n")), os.ModePerm)
 	if err != nil {
-		return custom_errors.NewInternalServerError("failed to write metadata file")
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to write metadata file")
 	}
 
 	return nil

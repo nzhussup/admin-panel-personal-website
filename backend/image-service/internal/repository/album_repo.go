@@ -20,25 +20,25 @@ func (a *AlbumRepository) Create(m *model.AlbumPreview) (*model.AlbumPreview, er
 	albumPath := filepath.Join(a.Path, albumID)
 
 	if _, err := os.Stat(albumPath); err == nil {
-		return nil, custom_errors.NewConflictError("album already exists")
+		return nil, custom_errors.NewError(custom_errors.ErrConflict, "album already exists")
 	}
 
 	err := os.MkdirAll(albumPath, os.ModePerm)
 	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to create album")
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to create album")
 	}
 
 	metaFilePath := filepath.Join(albumPath, "meta.txt")
 	metaFile, err := os.Create(metaFilePath)
 	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to create metadata file")
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to create metadata file")
 	}
 	defer metaFile.Close()
 
 	_, err = metaFile.WriteString(fmt.Sprintf("Title: %s\nDescription: %s\nDate: %s\nImageCount: 0\nType: %s\nPreviewImageURL: %s\n",
 		m.Title, m.Desc, m.Date, m.Type, m.PreviewImageURL))
 	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to write metadata file")
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to write metadata file")
 	}
 	m.ID = albumID
 
@@ -48,7 +48,7 @@ func (a *AlbumRepository) Create(m *model.AlbumPreview) (*model.AlbumPreview, er
 func (a *AlbumRepository) Get(id string) (*model.Album, error) {
 	dirs, err := os.ReadDir(a.Path)
 	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to read storage path")
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to read storage path")
 	}
 
 	for _, dir := range dirs {
@@ -56,7 +56,7 @@ func (a *AlbumRepository) Get(id string) (*model.Album, error) {
 			metaFilePath := filepath.Join(a.Path, id, "meta.txt")
 			metaFileContent, err := os.ReadFile(metaFilePath)
 			if err != nil {
-				return nil, custom_errors.NewInternalServerError("failed to read metadata file")
+				return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to read metadata file")
 			}
 
 			album := &model.Album{
@@ -70,7 +70,7 @@ func (a *AlbumRepository) Get(id string) (*model.Album, error) {
 			albumPath := filepath.Join(a.Path, id)
 			files, err := os.ReadDir(albumPath)
 			if err != nil {
-				return nil, custom_errors.NewBadRequestError("failed to read album directory")
+				return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to read album directory")
 			}
 
 			var images []*model.Image
@@ -94,13 +94,13 @@ func (a *AlbumRepository) Get(id string) (*model.Album, error) {
 			return album, nil
 		}
 	}
-	return nil, custom_errors.NewNotFoundError("album not found")
+	return nil, custom_errors.NewError(custom_errors.ErrNotFound, "album not found")
 }
 
 func (a *AlbumRepository) GetPreview() ([]*model.AlbumPreview, error) {
 	dirs, err := os.ReadDir(a.Path)
 	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to read storage path")
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to read storage path")
 	}
 
 	var albumPreviews []*model.AlbumPreview
@@ -111,12 +111,12 @@ func (a *AlbumRepository) GetPreview() ([]*model.AlbumPreview, error) {
 
 			metaFileContent, err := os.ReadFile(metaFilePath)
 			if err != nil {
-				return nil, custom_errors.NewInternalServerError("failed to read metadata file")
+				return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to read metadata file")
 			}
 
 			imageCount, err := utils.GetImageCount(metaFilePath)
 			if err != nil {
-				return nil, custom_errors.NewInternalServerError("failed to get image count")
+				return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to get image count")
 			}
 
 			album := &model.AlbumPreview{
@@ -138,11 +138,11 @@ func (a *AlbumRepository) GetPreview() ([]*model.AlbumPreview, error) {
 func (a *AlbumRepository) Delete(id string) error {
 	albumPath := filepath.Join(a.Path, id)
 	if _, err := os.Stat(albumPath); os.IsNotExist(err) {
-		return custom_errors.NewNotFoundError("album not found")
+		return custom_errors.NewError(custom_errors.ErrNotFound, "album not found")
 	}
 	err := os.RemoveAll(albumPath)
 	if err != nil {
-		return custom_errors.NewInternalServerError("failed to delete album")
+		return custom_errors.NewError(custom_errors.ErrInternalServer, "failed to delete album")
 	}
 
 	return nil
@@ -151,7 +151,7 @@ func (a *AlbumRepository) Delete(id string) error {
 func (a *AlbumRepository) Update(id string, m *model.AlbumPreview) (*model.AlbumPreview, error) {
 	albumPath := filepath.Join(a.Path, id)
 	if _, err := os.Stat(albumPath); os.IsNotExist(err) {
-		return nil, custom_errors.NewNotFoundError("album not found")
+		return nil, custom_errors.NewError(custom_errors.ErrNotFound, "album not found")
 	}
 
 	metaFilePath := filepath.Join(albumPath, "meta.txt")
@@ -159,21 +159,21 @@ func (a *AlbumRepository) Update(id string, m *model.AlbumPreview) (*model.Album
 	if _, err := os.Stat(metaFilePath); err == nil {
 		imageCount, err = utils.GetImageCount(metaFilePath)
 		if err != nil {
-			return nil, custom_errors.NewInternalServerError("failed to get image count")
+			return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to get image count")
 		}
 		os.Remove(metaFilePath)
 	}
 
 	metaFile, err := os.Create(metaFilePath)
 	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to create metadata file")
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to create metadata file")
 	}
 	defer metaFile.Close()
 
 	_, err = metaFile.WriteString(fmt.Sprintf("Title: %s\nDescription: %s\nDate: %s\nImageCount: %d\nType: %s\nPreviewImageURL: %s\n",
 		m.Title, m.Desc, m.Date, imageCount, m.Type, m.PreviewImageURL))
 	if err != nil {
-		return nil, custom_errors.NewInternalServerError("failed to write metadata file")
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to write metadata file")
 	}
 
 	m.ID = id

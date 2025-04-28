@@ -13,11 +13,14 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type ImageService struct {
-	storage *repository.Storage
-	redis   *cache.RedisClient
+	storage  *repository.Storage
+	redis    *cache.RedisClient
+	validate *validator.Validate
 }
 
 func (s *ImageService) UploadImage(albumID string, files []*multipart.FileHeader) ([]*model.Image, error) {
@@ -28,14 +31,14 @@ func (s *ImageService) UploadImage(albumID string, files []*multipart.FileHeader
 		contentType := file.Header["Content-Type"][0]
 		imageType := model.ImageType(contentType)
 		if _, ok := model.AllowedTypes[imageType]; !ok {
-			return nil, custom_errors.NewBadRequestError(fmt.Sprintf("invalid image type: %s. Only JPEG, PNG, and HEIC are allowed", contentType))
+			return nil, custom_errors.NewError(custom_errors.ErrBadRequest, fmt.Sprintf("invalid image type: %s. Only JPEG, PNG, and HEIC are allowed", contentType))
 		}
 	}
 
 	for _, file := range files {
 		fileData, err := file.Open()
 		if err != nil {
-			return nil, custom_errors.NewBadRequestError("failed to open the file")
+			return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to open image file")
 		}
 		defer fileData.Close()
 
@@ -43,12 +46,12 @@ func (s *ImageService) UploadImage(albumID string, files []*multipart.FileHeader
 			Type: model.ImageType(file.Header["Content-Type"][0]),
 		}
 		if image.Type != model.JPEG && image.Type != model.PNG && image.Type != model.JPG && image.Type != model.HEIC {
-			return nil, custom_errors.NewBadRequestError("invalid image type. only jpeg, png and heic are allowed")
+			return nil, custom_errors.NewError(custom_errors.ErrBadRequest, fmt.Sprintf("invalid image type: %s. Only JPEG, PNG, and HEIC are allowed", image.Type))
 		}
 
 		data, err := io.ReadAll(fileData)
 		if err != nil {
-			return nil, custom_errors.NewInternalServerError("failed to read image data")
+			return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to read image file")
 		}
 		reader := bytes.NewReader(data)
 
@@ -102,7 +105,7 @@ func (s *ImageService) ServeImage(albumID string, imageID string) (string, error
 
 	imagePath := filepath.Join(s.storage.Path, albumID, imageID)
 	if _, err := os.Stat(imagePath); os.IsNotExist(err) {
-		return "", custom_errors.NewNotFoundError("image not found")
+		return "", custom_errors.NewError(custom_errors.ErrNotFound, fmt.Sprintf("image %s not found in album %s", imageID, albumID))
 	}
 
 	// CACHING
