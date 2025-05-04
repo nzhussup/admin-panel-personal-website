@@ -50,28 +50,31 @@ const Wedding = () => {
     }
   }, [response, setResponse]);
 
+  const handleTitle = (user) => {
+    let title = `${user.id} | `;
+
+    if (user.isFriend) {
+      title += "👥 | ";
+    }
+
+    title += user.name || "Unknown Name";
+    title += " | ";
+
+    title += handleAttendance(user.attendance) || "➖ No Attendance Info";
+
+    return title;
+  };
+
   const userPage = (
     <PageWrapper>
       <div className='mt-4'>
         {users.map((user) => (
-          <Card
-            key={user.id}
-            title={
-              user.id +
-              " | " +
-              user.name +
-              " | " +
-              handleAttendance(user.attendance)
-            }
-          >
-            <div className='mt-4'>
-              <p>{user.isFriend ? "Friend" : "Not Friend"}</p>
-              <p>
-                {user.relatives
-                  ? `Relatives: ${user.relatives}`
-                  : "No relatives info given"}
-              </p>
-            </div>
+          <Card key={user.id} title={handleTitle(user)}>
+            <p>
+              {user.relatives
+                ? `Relatives: ${user.relatives}`
+                : "No relatives info given"}
+            </p>
           </Card>
         ))}
       </div>
