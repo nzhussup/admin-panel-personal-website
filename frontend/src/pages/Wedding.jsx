@@ -24,6 +24,19 @@ const Wedding = () => {
 
   const { renderPage } = useRenderPage(users, showLoading, error);
 
+  const handleAttendance = (attendance) => {
+    switch (attendance) {
+      case "yes":
+        return "✅";
+      case "no":
+        return "⛔️";
+      case "maybe":
+        return "❓";
+      default:
+        return "➖";
+    }
+  };
+
   useEffect(() => {
     if (response) {
       if (response.status === 403) {
@@ -41,9 +54,17 @@ const Wedding = () => {
     <PageWrapper>
       <div className='mt-4'>
         {users.map((user) => (
-          <Card key={user.id} title={user.id + " | " + user.name}>
+          <Card
+            key={user.id}
+            title={
+              user.id +
+              " | " +
+              user.name +
+              " | " +
+              handleAttendance(user.attendance)
+            }
+          >
             <div className='mt-4'>
-              <p>Attending: {user.attendance}</p>
               <p>{user.isFriend ? "Friend" : "Not Friend"}</p>
               <p>
                 {user.relatives
