@@ -10,6 +10,7 @@ import NotFound from "../pages/misc/errors/NotFound";
 import Users from "../pages/Users";
 import AlbumsPreview from "../pages/albums/AlbumsPreview";
 import Album from "../pages/albums/Album";
+import Wedding from "../pages/Wedding";
 
 const routes = [
   {
@@ -66,6 +67,11 @@ const routes = [
     path: "/albums/:id",
     element: <Album />,
     isProtected: true,
+  },
+  {
+    path: "/wedding",
+    element: <Wedding />,
+    isProtected: false,
   },
   {
     path: "*",

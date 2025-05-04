@@ -27,6 +27,11 @@ const Home = () => {
     navigate("/albums");
   };
 
+  const handleNavigateWedding = () => {
+    console.log("Navigating to wedding");
+    navigate("/wedding");
+  };
+
   return (
     <>
       <Header text={"Welcome to the Admin Panel"} />
@@ -69,6 +74,15 @@ const Home = () => {
                 desc='Here you can manage your albums, add new albums and images, update and delete them.'
                 buttontxt='Manage Albums'
                 handleFunc={handleNavigateAlbums}
+              />
+            </div>
+
+            <div className='col'>
+              <Card
+                title='Wedding'
+                desc='Here you can see wedding related data'
+                buttontxt='Manage Wedding'
+                handleFunc={handleNavigateWedding}
               />
             </div>
           </div>

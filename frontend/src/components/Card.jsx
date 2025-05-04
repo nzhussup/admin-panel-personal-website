@@ -1,6 +1,6 @@
 import React from "react";
 
-const Card = ({ title, desc, img, buttontxt, handleFunc }) => {
+const Card = ({ title, desc, img, buttontxt, handleFunc, children }) => {
   return (
     <div
       className='card shadow-sm border-0 rounded-4 overflow-hidden card-hover transition'
@@ -37,6 +37,8 @@ const Card = ({ title, desc, img, buttontxt, handleFunc }) => {
           </button>
         )}
       </div>
+
+      {children ? <div className='card-footer'>{children}</div> : null}
 
       <style>{`
         .card-hover:hover {
