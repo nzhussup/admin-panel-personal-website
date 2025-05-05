@@ -12,6 +12,7 @@ import GlobalAlert from "../components/GlobalAlert";
 const Wedding = () => {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+  const [numberedUsers, setNumberedUsers] = useState([]);
 
   const {
     items: users,
@@ -50,8 +51,26 @@ const Wedding = () => {
     }
   }, [response, setResponse]);
 
+  useEffect(() => {
+    if (users && users.length > 0) {
+      // Step 1: Build ascending list to assign num
+      const ascending = [...users].sort((a, b) => a.id - b.id);
+      const idToNum = new Map(
+        ascending.map((user, index) => [user.id, index + 1])
+      );
+
+      // Step 2: Add num to original (descending) users
+      const withNumbers = users.map((user) => ({
+        ...user,
+        num: idToNum.get(user.id),
+      }));
+
+      setNumberedUsers(withNumbers);
+    }
+  }, [users]);
+
   const handleTitle = (user) => {
-    let title = `${user.id} | `;
+    let title = `${user.num} | `;
 
     if (user.isFriend) {
       title += "👥 | ";
@@ -68,7 +87,7 @@ const Wedding = () => {
   const userPage = (
     <PageWrapper>
       <div className='mt-4'>
-        {users.map((user) => (
+        {numberedUsers.map((user) => (
           <Card key={user.id} title={handleTitle(user)}>
             <p>
               {user.relatives
