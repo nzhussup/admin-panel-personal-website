@@ -13,6 +13,16 @@ const Wedding = () => {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [numberedUsers, setNumberedUsers] = useState([]);
+  const [stat, setStat] = useState({
+    totalPersons: 0,
+    totalVotes: 0,
+    attendanceStats: {
+      yes: 0,
+      no: 0,
+      maybe: 0,
+    },
+    friendsComing: 0,
+  });
 
   const {
     items: users,
@@ -53,19 +63,62 @@ const Wedding = () => {
 
   useEffect(() => {
     if (users && users.length > 0) {
-      // Step 1: Build ascending list to assign num
       const ascending = [...users].sort((a, b) => a.id - b.id);
       const idToNum = new Map(
         ascending.map((user, index) => [user.id, index + 1])
       );
 
-      // Step 2: Add num to original (descending) users
       const withNumbers = users.map((user) => ({
         ...user,
         num: idToNum.get(user.id),
       }));
 
       setNumberedUsers(withNumbers);
+    }
+  }, [users]);
+
+  useEffect(() => {
+    if (users && users.length > 0) {
+      let totalPersons = 0;
+      let totalVotes = 0;
+      let attendanceStats = {
+        yes: 0,
+        no: 0,
+        maybe: 0,
+      };
+      let friendsComing = 0;
+
+      users.forEach((user) => {
+        const relativesArray =
+          user.relatives &&
+          user.relatives.trim() !== "" &&
+          user.relatives !== "-"
+            ? user.relatives
+                .split(",")
+                .map((r) => r.trim())
+                .filter(Boolean)
+            : [];
+
+        const personCount = 1 + relativesArray.length;
+        totalPersons += personCount;
+
+        const attendance = user.attendance?.toLowerCase();
+        if (["yes", "no", "maybe"].includes(attendance)) {
+          attendanceStats[attendance] += personCount;
+
+          if (attendance === "yes" && user.isFriend) {
+            friendsComing += 1;
+          }
+        }
+      });
+      totalVotes = users.length;
+
+      setStat({
+        totalPersons,
+        totalVotes,
+        attendanceStats,
+        friendsComing,
+      });
     }
   }, [users]);
 
@@ -87,6 +140,16 @@ const Wedding = () => {
   const userPage = (
     <PageWrapper>
       <div className='mt-4'>
+        <Card title='📊 Wedding Stats'>
+          <ul className='list-disc list-inside space-y-1'>
+            <li>Total Persons: {stat.totalPersons}</li>
+            <li>Total Votes: {stat.totalVotes}</li>
+            <li>✅ Yes: {stat.attendanceStats.yes}</li>
+            <li>⛔️ No: {stat.attendanceStats.no}</li>
+            <li>❓ Maybe: {stat.attendanceStats.maybe}</li>
+            <li>👥 Friends Coming: {stat.friendsComing}</li>
+          </ul>
+        </Card>
         {numberedUsers.map((user) => (
           <Card key={user.id} title={handleTitle(user)}>
             <p>
