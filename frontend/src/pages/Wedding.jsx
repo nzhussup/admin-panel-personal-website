@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Card from "../components/Card";
 import { usePageData, useRenderPage } from "../utils/wedding/pageUtil";
@@ -8,6 +8,8 @@ import LoadingElement from "./misc/Loading";
 import ErrorElement from "./misc/errors/Error";
 import NoInfoFoundElement from "./misc/errors/NoInfoFound";
 import GlobalAlert from "../components/GlobalAlert";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const Wedding = () => {
   const [alertVisible, setAlertVisible] = useState(false);
@@ -137,6 +139,41 @@ const Wedding = () => {
     return title;
   };
 
+  function exportToExcel(users) {
+    const keyMap = {
+      id: "ID",
+      name: "Имя",
+      relatives: "Родственники",
+      attendance: "Посещение",
+      isFriend: "Друзья",
+    };
+
+    const translatedUsers = users.map((user) => {
+      const translatedUser = {};
+      for (const key in user) {
+        if (keyMap[key]) {
+          translatedUser[keyMap[key]] = user[key];
+        }
+      }
+      return translatedUser;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(translatedUsers);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Гости");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    const data = new Blob([excelBuffer], {
+      type: "application/octet-stream",
+    });
+
+    saveAs(data, "список_гостей.xlsx");
+  }
+
   const userPage = (
     <PageWrapper>
       <div className='mt-4'>
@@ -173,7 +210,15 @@ const Wedding = () => {
         type='alert-danger'
       />
       <div className='container my-5'>
-        <PageSubHeader toggleSort={toggleSort} />
+        <PageSubHeader toggleSort={toggleSort}>
+          <button
+            className='btn btn-primary'
+            onClick={() => exportToExcel(users)}
+          >
+            Export to Excel
+          </button>
+        </PageSubHeader>
+
         {renderPage(ErrorElement, LoadingElement, NoInfoFoundElement, userPage)}
       </div>
     </>
