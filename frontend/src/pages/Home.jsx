@@ -32,6 +32,11 @@ const Home = () => {
     navigate("/wedding");
   };
 
+  const handleNavigateCVGenerator = () => {
+    console.log("Navigating to CV Generator");
+    navigate("/cv-generator");
+  };
+
   return (
     <>
       <Header text={"Welcome to the Admin Panel"} />
@@ -83,6 +88,15 @@ const Home = () => {
                 desc='Here you can see wedding related data'
                 buttontxt='Manage Wedding'
                 handleFunc={handleNavigateWedding}
+              />
+            </div>
+
+            <div className='col'>
+              <Card
+                title='CV Generator'
+                desc='Here you can generate your CV using the CV Generator'
+                buttontxt='Generate CV'
+                handleFunc={handleNavigateCVGenerator}
               />
             </div>
           </div>

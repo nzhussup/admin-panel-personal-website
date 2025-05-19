@@ -1,6 +1,4 @@
-import React from "react";
-
-const Card = ({ title, desc, img, buttontxt, handleFunc, children }) => {
+const Card = ({ title, desc, img, buttontxt, handleFunc, children, style }) => {
   return (
     <div
       className='card shadow-sm border-0 rounded-4 overflow-hidden card-hover transition'
@@ -8,6 +6,7 @@ const Card = ({ title, desc, img, buttontxt, handleFunc, children }) => {
       style={{
         cursor: handleFunc ? "pointer" : "default",
         transition: "transform 0.25s ease, box-shadow 0.25s ease",
+        ...style,
       }}
     >
       {img && (
