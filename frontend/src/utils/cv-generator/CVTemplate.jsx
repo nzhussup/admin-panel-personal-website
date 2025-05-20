@@ -4,7 +4,7 @@ const Section = ({ title, children }) => (
   <div style={{ marginBottom: "10px" }}>
     <div
       style={{
-        fontSize: "15px !important",
+        fontSize: "15px",
         fontWeight: "bold",
         borderBottom: "1px solid #ccc",
         paddingBottom: "4px",
@@ -13,13 +13,19 @@ const Section = ({ title, children }) => (
     >
       {title}
     </div>
-
     {children}
   </div>
 );
 
 const Item = ({ title, subtitle, date, description, techStack }) => (
-  <div style={{ marginBottom: "6px", textAlign: "justify" }}>
+  <div
+    style={{
+      marginBottom: "6px",
+      textAlign: "justify",
+      pageBreakInside: "avoid",
+      breakInside: "avoid",
+    }}
+  >
     <strong>{title}</strong> | {subtitle} | <em>{date}</em>
     <div>{description}</div>
     {techStack && (
@@ -53,7 +59,10 @@ const CVTemplate = ({ data }) => {
       <div style={{ textAlign: "center", marginBottom: "10px" }}>
         {basic_info.name && <h2 style={{ margin: 0 }}>{basic_info.name}</h2>}
 
-        {(basic_info.address || basic_info.phone || basic_info.email) && (
+        {(basic_info.address ||
+          basic_info.phone ||
+          basic_info.email ||
+          basic_info.website) && (
           <div>
             {basic_info.address}
             {basic_info.address && basic_info.phone && " | "}
@@ -61,7 +70,21 @@ const CVTemplate = ({ data }) => {
             {(basic_info.address || basic_info.phone) &&
               basic_info.email &&
               " | "}
-            {basic_info.email}
+            {basic_info.email && (
+              <a href={`mailto:${basic_info.email}`}>{basic_info.email}</a>
+            )}
+            {(basic_info.email || basic_info.phone || basic_info.address) &&
+              basic_info.website &&
+              " | "}
+            {basic_info.website && (
+              <a
+                href={basic_info.website}
+                target='_blank'
+                rel='noopener noreferrer'
+              >
+                {basic_info.website}
+              </a>
+            )}
           </div>
         )}
 
@@ -114,18 +137,29 @@ const CVTemplate = ({ data }) => {
           <Section title='Education'>
             {education
               .sort((a, b) => b.displayOrder - a.displayOrder)
-              .map((edu) => (
-                <Item
-                  key={edu.id}
-                  title={edu.degree}
-                  subtitle={`${edu.institution}, ${edu.location}`}
-                  date={`${edu.startDate.slice(0, 10)} - ${edu.endDate.slice(
-                    0,
-                    10
-                  )}`}
-                  description={`${edu.description}. Thesis: ${edu.thesis}`}
-                />
-              ))}
+              .map((edu) => {
+                const date = `${edu.startDate.slice(0, 10)} - ${
+                  edu.endDate ? edu.endDate.slice(0, 10) : "Present"
+                }`;
+
+                const descriptionParts = [];
+                if (edu.description) {
+                  descriptionParts.push(edu.description);
+                }
+                if (edu.thesis) {
+                  descriptionParts.push(`Thesis: ${edu.thesis}`);
+                }
+
+                return (
+                  <Item
+                    key={edu.id}
+                    title={edu.degree}
+                    subtitle={`${edu.institution}, ${edu.location}`}
+                    date={date}
+                    description={descriptionParts.join(". ")}
+                  />
+                );
+              })}
           </Section>
         </>
       )}
@@ -154,7 +188,12 @@ const CVTemplate = ({ data }) => {
               .map((project) => (
                 <div
                   key={project.id}
-                  style={{ marginBottom: "4px", textAlign: "justify" }}
+                  style={{
+                    marginBottom: "4px",
+                    textAlign: "justify",
+                    pageBreakInside: "avoid",
+                    breakInside: "avoid",
+                  }}
                 >
                   <strong>{project.name}</strong> (
                   <a href={project.url}>{project.url}</a>)<br />
@@ -172,7 +211,14 @@ const CVTemplate = ({ data }) => {
             {certificates
               .sort((a, b) => b.displayOrder - a.displayOrder)
               .map((cert) => (
-                <div key={cert.id} style={{ marginBottom: "4px" }}>
+                <div
+                  key={cert.id}
+                  style={{
+                    marginBottom: "4px",
+                    pageBreakInside: "avoid",
+                    breakInside: "avoid",
+                  }}
+                >
                   <a href={cert.url}>{cert.name}</a>
                 </div>
               ))}

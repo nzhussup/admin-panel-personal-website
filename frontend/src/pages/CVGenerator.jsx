@@ -26,6 +26,7 @@ const CVGenerator = () => {
             address: "123 Main St, Vienna, Austria",
             email: "john.doe@example.com",
             phone: "+7 777 777 7777",
+            website: "https://nzhussup.com",
             linkedin: "https://www.linkedin.com/in/nurzhanat-zhussup/",
             github: "https://github.com/nzhussup",
             about:
@@ -41,6 +42,7 @@ const CVGenerator = () => {
       address: "123 Main St, Vienna, Austria",
       email: "john.doe@example.com",
       phone: "+7 777 777 7777",
+      website: "https://nzhussup.com",
       linkedin: "https://www.linkedin.com/in/nurzhanat-zhussup/",
       github: "https://github.com/nzhussup",
       about:
@@ -93,13 +95,13 @@ const CVGenerator = () => {
     );
   }, [selectedItems, basicInfo]);
 
-  const toggleSelect = (sectionName, itemIndex) => {
+  const toggleSelect = (sectionName, itemId) => {
     setSelectedItems((prev) => {
       const sectionSet = new Set(prev[sectionName] || []);
-      if (sectionSet.has(itemIndex)) {
-        sectionSet.delete(itemIndex);
+      if (sectionSet.has(itemId)) {
+        sectionSet.delete(itemId);
       } else {
-        sectionSet.add(itemIndex);
+        sectionSet.add(itemId);
       }
       return { ...prev, [sectionName]: sectionSet };
     });
@@ -112,8 +114,8 @@ const CVGenerator = () => {
       const items = sectionObj[sectionName];
       const selectedIndices = selectedItems[sectionName];
       if (selectedIndices && selectedIndices.size > 0) {
-        selectedData[sectionName] = items.filter((_, idx) =>
-          selectedIndices.has(idx)
+        selectedData[sectionName] = items.filter((item) =>
+          selectedIndices.has(item.id)
         );
       }
     }
@@ -176,18 +178,61 @@ const CVGenerator = () => {
         const sectionName = Object.keys(sectionObj)[0];
         const items = sectionObj[sectionName];
 
+        const allSelected = items.every((item) =>
+          selectedItems[sectionName]?.has(item.id)
+        );
+
+        const handleToggleAll = () => {
+          setSelectedItems((prev) => {
+            const updatedSet = new Set();
+            if (!allSelected) {
+              for (const item of items) {
+                updatedSet.add(item.id);
+              }
+            }
+            return { ...prev, [sectionName]: updatedSet };
+          });
+        };
+
         return (
           <Card
             key={index}
-            title={sectionName.replace(/_/g, " ")}
-            style={{ marginTop: "20px" }}
+            style={{ marginTop: "20px", padding: "16px" }}
+            title={
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <span>{sectionName.replace(/_/g, " ")}</span>
+                <button
+                  onClick={handleToggleAll}
+                  style={{
+                    fontSize: "0.8rem",
+                    padding: "4px 8px",
+                    cursor: "pointer",
+                    border: "1px solid #ccc",
+                    backgroundColor: "#f1f1f1",
+                    borderRadius: "4px",
+                  }}
+                  type='button'
+                >
+                  {allSelected ? "Deselect All" : "Select All"}
+                </button>
+              </div>
+            }
           >
             {Array.isArray(items) && items.length > 0 ? (
               items.map((item, idx) => {
-                const isChecked = selectedItems[sectionName]?.has(idx) || false;
+                const itemId = item.id;
+                const isChecked =
+                  selectedItems[sectionName]?.has(itemId) || false;
+
                 return (
                   <label
-                    key={idx}
+                    key={itemId}
                     style={{
                       display: "block",
                       userSelect: "none",
@@ -201,7 +246,7 @@ const CVGenerator = () => {
                     <input
                       type='checkbox'
                       checked={isChecked}
-                      onChange={() => toggleSelect(sectionName, idx)}
+                      onChange={() => toggleSelect(sectionName, itemId)}
                       style={{ marginRight: "8px" }}
                     />
                     <pre
