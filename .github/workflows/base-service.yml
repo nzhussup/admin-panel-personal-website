@@ -2,6 +2,8 @@ name: Base Service CI/CD
 
 on:
   push:
+    branches:
+      - "**"
     paths:
       - "backend/base-service/**"
   workflow_dispatch:
@@ -28,6 +30,3 @@ jobs:
       service_name: base-service
       service_path: backend/base-service
       lang: java
-    secrets:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
