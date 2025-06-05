@@ -17,11 +17,13 @@ jobs:
       - name: Read backend services config and detect changed services
         id: detect
         run: |
-          # Read JSON config entries like service:lang
           SERVICES=$(jq -r 'to_entries | map("\(.key):\(.value)") | .[]' .github/backend-services.json)
 
-          # Get changed files in backend/
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- backend/)
+          if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            CHANGED_FILES=$(git diff --name-only $(git hash-object -t tree /dev/null) ${{ github.sha }} -- backend/)
+          else
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- backend/)
+          fi
 
           changed_services=()
 
