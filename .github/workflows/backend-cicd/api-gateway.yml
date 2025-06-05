@@ -7,7 +7,7 @@ on:
 
 jobs:
   call-service-cicd:
-    uses: ../backend-cicd-template.yml
+    uses: ./backend-cicd-template.yml
     with:
       service_name: api-gateway
       service_path: backend/api-gateway
