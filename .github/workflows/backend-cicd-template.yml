@@ -11,7 +11,18 @@ on:
         type: string
       lang:
         required: true
-        type: string # e.g. "go" or "java"
+        type: string
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+      SERVER_HOST:
+        required: true
+      SERVER_USER:
+        required: true
+      SSH_PRIVATE_KEY:
+        required: true
 
 jobs:
   test:

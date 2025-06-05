@@ -33,4 +33,3 @@ build/
 .vscode/
 
 locally-deploy.sh
-.env
