@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.4](https://github.com/nzhussup/admin-panel-personal-website/compare/v2.4.3...v2.4.4) (2025-06-05)
+
+
+### Bug Fixes
+
+* release-on-tag.yml ([6c7b938](https://github.com/nzhussup/admin-panel-personal-website/commit/6c7b9384ad3709e68bc7c98f8537a14acebd73d0))
+
 ### [2.4.3](https://github.com/nzhussup/admin-panel-personal-website/compare/v2.4.2...v2.4.3) (2025-06-05)
 
 
