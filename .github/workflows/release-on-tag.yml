@@ -12,6 +12,28 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # ensure full history so we can check branches
+
+      - name: Check if tag is on main
+        id: check_branch
+        run: |
+          TAG_COMMIT=$(git rev-list -n 1 ${{ github.ref }})
+          echo "Tag commit: $TAG_COMMIT"
+          # Check if main contains the tag commit
+          if git merge-base --is-ancestor "$TAG_COMMIT" origin/main; then
+            echo "✅ Tag is on main"
+            echo "proceed=true" >> $GITHUB_OUTPUT
+          else
+            echo "🚫 Tag is not on main"
+            echo "proceed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Exit if tag is not on main
+        if: steps.check_branch.outputs.proceed != 'true'
+        run: |
+          echo "Not deploying — tag is not on main branch."
+          exit 1
 
       - name: Extract changelog entry for tag
         id: changelog
@@ -21,10 +43,8 @@ jobs:
           TAG_STRIPPED="${TAG#v}"
           echo "Extracting changelog for tag: $TAG_STRIPPED"
 
-          # Escape dots for regex match
           TAG_ESCAPED=$(echo "$TAG_STRIPPED" | sed 's/\./\\./g')
 
-          # Extract changelog section
           ENTRY=$(sed -n "/^### \[$TAG_ESCAPED\]/,/^### \[/p" CHANGELOG.md | sed '1d;$d')
 
           if [ -z "$ENTRY" ]; then
