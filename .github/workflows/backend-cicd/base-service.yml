@@ -1,0 +1,13 @@
+name: Base Service CI/CD
+
+on:
+  push:
+    paths:
+      - "backend/base-service/**"
+
+jobs:
+  call-service-cicd:
+    uses: ./.github/workflows/common/service-cicd.yml
+    with:
+      service_name: base-service
+      service_path: backend/base-service

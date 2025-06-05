@@ -1,0 +1,32 @@
+name: Image Service CI/CD for Build and Deploy
+
+on:
+  push:
+    paths:
+      - "backend/image-service/**"
+
+jobs:
+  test:
+    name: Run Go Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.24.1"
+
+      - name: Run Tests
+        run: |
+          set -e
+          go test ./... -v
+        working-directory: backend/image-service
+
+  call-service-cicd:
+    uses: ./.github/workflows/common/service-cicd.yml
+    with:
+      service_name: image-service
+      service_path: backend/image-service

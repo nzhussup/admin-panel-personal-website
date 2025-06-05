@@ -1,33 +1,19 @@
-name: Image Service CI/CD for Build and Deploy
+name: Java Service CI/CD for Build and Deploy
 
 on:
-  push:
-    paths:
-      - "backend/image-service/**"
+  workflow_call:
+    inputs:
+      service_name:
+        required: true
+        type: string
+      service_path:
+        required: true
+        type: string
 
 jobs:
-  test:
-    name: Run Go Tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: "1.24.1"
-
-      - name: Run Tests
-        run: |
-          set -e
-          go test ./... -v
-        working-directory: backend/image-service
   build:
     name: Build Docker Image
     runs-on: ubuntu-latest
-    needs: test
 
     steps:
       - name: Checkout Code
@@ -48,9 +34,9 @@ jobs:
         run: |
           docker buildx build \
             --platform linux/amd64,linux/arm64 \
-            -t ${{ secrets.DOCKERHUB_USERNAME }}/image-service:latest \
+            -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ inputs.service_name }}:latest \
             --push .
-        working-directory: backend/image-service
+        working-directory: ${{ inputs.service_path }}
 
   deploy:
     name: Deploy to Kubernetes
@@ -66,4 +52,4 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            kubectl rollout restart deployment/image-service
+            kubectl rollout restart deployment/${{ inputs.service_name }}

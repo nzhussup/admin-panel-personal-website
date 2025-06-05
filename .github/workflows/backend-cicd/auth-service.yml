@@ -1,0 +1,13 @@
+name: Auth Service CI/CD
+
+on:
+  push:
+    paths:
+      - "backend/auth-service/**"
+
+jobs:
+  call-service-cicd:
+    uses: ./.github/workflows/common/service-cicd.yml
+    with:
+      service_name: auth-service
+      service_path: backend/auth-service

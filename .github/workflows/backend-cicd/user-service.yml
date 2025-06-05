@@ -1,0 +1,13 @@
+name: User Service CI/CD
+
+on:
+  push:
+    paths:
+      - "backend/user-service/**"
+
+jobs:
+  call-service-cicd:
+    uses: ./.github/workflows/common/service-cicd.yml
+    with:
+      service_name: user-service
+      service_path: backend/user-service
