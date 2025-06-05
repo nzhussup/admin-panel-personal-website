@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.7.1](https://github.com/nzhussup/admin-panel-personal-website/compare/v2.7.0...v2.7.1) (2025-06-05)
+
+
+### Bug Fixes
+
+* remove unused files ([60a743d](https://github.com/nzhussup/admin-panel-personal-website/commit/60a743de2729e1784bf0b920055cc3b4f6090469))
+
 ## [2.7.0](https://github.com/nzhussup/admin-panel-personal-website/compare/v2.4.6...v2.7.0) (2025-06-05)
 
 
