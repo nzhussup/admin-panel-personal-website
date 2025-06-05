@@ -6,9 +6,28 @@ on:
       - "backend/image-service/**"
 
 jobs:
+  test:
+    name: Run Go Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.24.1"
+
+      - name: Run Tests
+        run: |
+          set -e
+          go test ./... -v
+        working-directory: backend/image-service
   build:
     name: Build Docker Image
     runs-on: ubuntu-latest
+    needs: test
 
     steps:
       - name: Checkout Code
