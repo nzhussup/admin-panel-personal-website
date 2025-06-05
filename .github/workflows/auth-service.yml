@@ -28,6 +28,3 @@ jobs:
       service_name: auth-service
       service_path: backend/auth-service
       lang: java
-    secrets:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
