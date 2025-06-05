@@ -52,7 +52,7 @@ jobs:
     if: needs.detect-changed-services.outputs.matrix != '[]'
     strategy:
       matrix: ${{ fromJson(needs.detect-changed-services.outputs.matrix) }}
-    uses: ./common/backend-cicd-template.yml@main
+    uses: ./.github/workflows/common/backend-cicd-template.yml@main
     with:
       service_name: ${{ matrix.service }}
       service_path: backend/${{ matrix.service }}
