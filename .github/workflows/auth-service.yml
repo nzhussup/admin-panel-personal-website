@@ -7,7 +7,7 @@ on:
 
 jobs:
   call-service-cicd:
-    uses: ./backend-cicd-template.yml
+    uses: .github/workflows/backend-cicd-template.yml
     with:
       service_name: auth-service
       service_path: backend/auth-service
