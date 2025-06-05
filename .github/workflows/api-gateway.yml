@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "backend/api-gateway/**"
+  workflow_dispatch:
 
 jobs:
   call-service-cicd:

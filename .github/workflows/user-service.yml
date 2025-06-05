@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - "backend/user-service/**"
-
+  workflow_dispatch:
 jobs:
   call-service-cicd:
     uses: ./.github/workflows/backend-cicd-template.yml

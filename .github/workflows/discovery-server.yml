@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - "backend/discovery-server/**"
-
+  workflow_dispatch:
 jobs:
   call-service-cicd:
     uses: ./.github/workflows/backend-cicd-template.yml
