@@ -26,7 +26,7 @@ jobs:
         working-directory: backend/image-service
 
   call-service-cicd:
-    uses: ./.github/workflows/common/service-cicd.yml
+    uses: ./.github/workflows/common/backend-cicd.yml
     with:
       service_name: image-service
       service_path: backend/image-service

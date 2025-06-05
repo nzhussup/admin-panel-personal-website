@@ -1,4 +1,4 @@
-name: Java Service CI/CD for Build and Deploy
+name: Backend CI/CD for Build and Deploy
 
 on:
   workflow_call:

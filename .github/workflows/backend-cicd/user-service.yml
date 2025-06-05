@@ -7,7 +7,7 @@ on:
 
 jobs:
   call-service-cicd:
-    uses: ./.github/workflows/common/service-cicd.yml
+    uses: ./.github/workflows/common/backend-cicd.yml
     with:
       service_name: user-service
       service_path: backend/user-service
