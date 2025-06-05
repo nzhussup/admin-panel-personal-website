@@ -11,8 +11,24 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
+type RedisClientInterface interface {
+	Set(key string, value any)
+	Get(key string, dest any) error
+	Del(key string)
+	FlushAll() error
+	CheckHealth()
+}
+
+type RedisAPI interface {
+	Ping(ctx context.Context) *redis.StatusCmd
+	Set(ctx context.Context, key string, value any, expiration time.Duration) *redis.StatusCmd
+	Get(ctx context.Context, key string) *redis.StringCmd
+	Del(ctx context.Context, keys ...string) *redis.IntCmd
+	FlushAll(ctx context.Context) *redis.StatusCmd
+}
+
 type RedisClient struct {
-	Client   *redis.Client
+	Client   RedisAPI
 	Duration time.Duration
 }
 

@@ -3,7 +3,7 @@ package service
 import "image-service/internal/config/cache"
 
 type CacheService struct {
-	redis *cache.RedisClient
+	redis cache.RedisClientInterface
 }
 
 func (s *CacheService) ClearCache() error {

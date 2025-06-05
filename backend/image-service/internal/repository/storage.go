@@ -23,7 +23,7 @@ type Storage struct {
 
 var albumLocks sync.Map
 
-func getAlbumLock(id string) *sync.Mutex {
+var getAlbumLock = func(id string) *sync.Mutex {
 	lock, _ := albumLocks.LoadOrStore(id, &sync.Mutex{})
 	return lock.(*sync.Mutex)
 }

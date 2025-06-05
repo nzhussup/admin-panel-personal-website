@@ -78,7 +78,7 @@ func shouldAuthenticate(c *gin.Context, rules []AuthRule) bool {
 	return false
 }
 
-func CheckIsAdmin(c *gin.Context, config *AuthConfig) error {
+var CheckIsAdmin = func(c *gin.Context, config *AuthConfig) error {
 	token, err := GetToken(c)
 	if err != nil {
 		return err

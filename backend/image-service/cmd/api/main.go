@@ -55,6 +55,12 @@ func main() {
 			duration: 24 * time.Hour,
 		},
 		apiGatewayURL: "https://api.nzhussup.com",
+		kafkaConfig:   &kafkaConfig{
+			// brokerList: []string{
+			// 	env.GetString("KAFKA_BROKER_1", "kafka-broker-1.default.svc.cluster.local:29092"),
+			// },
+			// topic: env.GetString("KAFKA_TOPIC", "image-service"),
+		},
 	}
 
 	secuirityCfg := GetSecurityConfig(&cfg)
@@ -67,5 +73,5 @@ func main() {
 	}
 	app.Redis.CheckHealth()
 
-	app.run()
+	app.Run()
 }

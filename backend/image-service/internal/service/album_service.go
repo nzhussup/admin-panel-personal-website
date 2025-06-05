@@ -15,7 +15,7 @@ import (
 
 type AlbumService struct {
 	storage        *repository.Storage
-	redis          *cache.RedisClient
+	redis          cache.RedisClientInterface
 	securityConfig *security.AuthConfig
 	validate       *validator.Validate
 }

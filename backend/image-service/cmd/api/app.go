@@ -3,6 +3,7 @@ package main
 import (
 	"image-service/internal/config/cache"
 	"image-service/internal/config/discovery"
+	"image-service/internal/config/messaging"
 	"image-service/internal/config/security"
 	"image-service/internal/controller"
 	"image-service/internal/model"
@@ -16,7 +17,7 @@ import (
 var validate *validator.Validate
 
 func init() {
-	validate = validator.New(validator.WithRequiredStructEnabled())
+	validate = validator.New()
 	validate.RegisterValidation("albumtype", model.ValidateAlbumType)
 }
 
@@ -38,6 +39,7 @@ type config struct {
 	discoveryConfig *discoveryConfig
 	redisConfig     *redisConfig
 	apiGatewayURL   string
+	kafkaConfig     *kafkaConfig
 }
 
 type discoveryConfig struct {
@@ -58,6 +60,11 @@ type redisConfig struct {
 	duration time.Duration
 }
 
+type kafkaConfig struct {
+	brokerList []string
+	topic      string
+}
+
 func newApp(config config, securityConfig *security.AuthConfig) *app {
 	redisClient := cache.NewRedisClient(
 		config.redisConfig.addr,
@@ -65,9 +72,10 @@ func newApp(config config, securityConfig *security.AuthConfig) *app {
 		config.redisConfig.db,
 		config.redisConfig.duration,
 	)
+	producer := messaging.NewKafkaProducer(config.kafkaConfig.brokerList, config.kafkaConfig.topic)
 	storage := repository.NewStorage(config.storagePath, config.apiBasePath)
 	service := service.NewService(storage, redisClient, securityConfig, validate)
-	controller := controller.NewController(service)
+	controller := controller.NewController(service, producer)
 	eurekaClient := discovery.NewEurekaClient(
 		config.discoveryConfig.eurekaURL,
 		config.discoveryConfig.appName,
@@ -86,7 +94,7 @@ func newApp(config config, securityConfig *security.AuthConfig) *app {
 	}
 }
 
-func (a *app) run() {
+func (a *app) Run() {
 	router := a.GetRouter()
 	router.Run(a.config.addr)
 }

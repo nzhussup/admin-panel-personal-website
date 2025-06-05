@@ -19,7 +19,7 @@ import (
 
 type ImageService struct {
 	storage  *repository.Storage
-	redis    *cache.RedisClient
+	redis    cache.RedisClientInterface
 	validate *validator.Validate
 }
 

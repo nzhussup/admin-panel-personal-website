@@ -1,8 +1,9 @@
 package controller
 
 import (
+	"image-service/internal/config/messaging"
 	custom_errors "image-service/internal/errors"
-	"image-service/internal/json"
+	customJson "image-service/internal/json"
 	"image-service/internal/service"
 	"net/http"
 
@@ -10,7 +11,8 @@ import (
 )
 
 type ImageController struct {
-	service *service.Service
+	service  *service.Service
+	producer messaging.ProducerInterface
 }
 
 // Upload godoc
@@ -33,13 +35,13 @@ func (ctrl *ImageController) Upload(c *gin.Context) {
 
 	form, err := c.MultipartForm()
 	if err != nil {
-		json.ConstructJsonResponseError(c, custom_errors.NewError(custom_errors.ErrBadRequest, "Failed to get multipart form"), http.StatusBadRequest)
+		customJson.ConstructJsonResponseError(c, custom_errors.NewError(custom_errors.ErrBadRequest, "Failed to get multipart form"), http.StatusBadRequest)
 		return
 	}
 
 	files := form.File["file"]
 	if len(files) == 0 {
-		json.ConstructJsonResponseError(c, custom_errors.NewError(custom_errors.ErrBadRequest, "No files uploaded"), http.StatusBadRequest)
+		customJson.ConstructJsonResponseError(c, custom_errors.NewError(custom_errors.ErrBadRequest, "No files uploaded"), http.StatusBadRequest)
 		return
 	}
 
@@ -48,7 +50,24 @@ func (ctrl *ImageController) Upload(c *gin.Context) {
 		custom_errors.MapErrors(c, err)
 		return
 	}
-	json.ConstructJsonResponseSuccess(c, savedImage, http.StatusCreated, "Image(s) uploaded successfully")
+	customJson.ConstructJsonResponseSuccess(c, savedImage, http.StatusCreated, "Image(s) uploaded successfully")
+
+	// uploadMeta := map[string]interface{}{
+	// 	"status":   "uploaded",
+	// 	"album_id": albumID,
+	// 	"images":   savedImage,
+	// }
+	// message, err := json.Marshal(uploadMeta)
+	// if err != nil {
+	// 	log.Printf("Error marshaling file metadata: %v", err)
+	// 	return
+	// }
+	// err = ctrl.producer.SendMessage(message)
+	// if err != nil {
+	// 	log.Printf("Error sending message to Kafka: %v", err)
+	// 	return
+	// }
+	// log.Printf("Message sent to Kafka: %s", message)
 }
 
 // Delete godoc
@@ -73,7 +92,7 @@ func (ctrl *ImageController) Delete(c *gin.Context) {
 		custom_errors.MapErrors(c, err)
 		return
 	}
-	json.ConstructJsonResponseSuccess(c, nil, "Image deleted successfully")
+	customJson.ConstructJsonResponseSuccess(c, nil, "Image deleted successfully")
 }
 
 // Serve godoc
