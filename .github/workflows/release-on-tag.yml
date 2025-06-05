@@ -18,16 +18,17 @@ jobs:
         shell: bash
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
-          echo "Extracting changelog for tag: $TAG"
+          TAG_STRIPPED="${TAG#v}"
+          echo "Extracting changelog for tag: $TAG_STRIPPED"
 
           # Escape dots for regex match
-          TAG_ESCAPED=$(echo "$TAG" | sed 's/\./\\./g')
+          TAG_ESCAPED=$(echo "$TAG_STRIPPED" | sed 's/\./\\./g')
 
-          # Use sed to extract everything between the header of this tag and the next header
+          # Extract changelog section
           ENTRY=$(sed -n "/^### \[$TAG_ESCAPED\]/,/^### \[/p" CHANGELOG.md | sed '1d;$d')
 
           if [ -z "$ENTRY" ]; then
-            echo "❌ No changelog entry found for $TAG"
+            echo "❌ No changelog entry found for $TAG_STRIPPED"
             exit 1
           fi
 
