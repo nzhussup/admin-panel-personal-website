@@ -28,7 +28,7 @@ This is a full-stack web application that serves as an [**Admin Panel**](https:/
 - **Dark Mode**: Toggleable theme for improved user experience.
 - **Forms**: For easy data management (e.g., adding/editing content).
 - **CI/CD Integration**: Continuous integration and deployment via GitHub Actions for smooth development and deployment.
-- **Docker & Kubernetes**: For scalable and flexible approach of software development.
+- **Docker / Kubernetes**: For scalable and flexible approach of software development.
 
 ---
 
