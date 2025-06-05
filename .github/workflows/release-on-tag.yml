@@ -1,0 +1,34 @@
+name: Create GitHub Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*" # trigger on semantic version tags like v2.3.0
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Get changelog entry for tag
+        id: changelog
+        run: |
+          # Extract changelog for this tag
+          TAG_NAME=${GITHUB_REF##refs/tags/}
+          # Using sed to extract changelog section for this tag
+          ENTRY=$(sed -n "/## \[${TAG_NAME}\]/,/^## /p" CHANGELOG.md | head -n -1 | tail -n +2)
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$ENTRY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: ${{ steps.changelog.outputs.changelog }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
