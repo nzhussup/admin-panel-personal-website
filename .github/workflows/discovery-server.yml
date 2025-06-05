@@ -7,7 +7,7 @@ on:
 
 jobs:
   call-service-cicd:
-    uses: .github/workflows/backend-cicd-template.yml
+    uses: ./.github/workflows/backend-cicd-template.yml@main
     with:
       service_name: discovery-server
       service_path: backend/discovery-server
