@@ -17,19 +17,17 @@ jobs:
       - name: Read backend services config and detect changed services
         id: detect
         run: |
-          # Read JSON config as bash associative array (jq output)
-          SERVICES=$(jq -r 'to_entries|map("\(.key):\(.value)")|.[]' backend-services.json)
+          # Read JSON config entries like service:lang
+          SERVICES=$(jq -r 'to_entries | map("\(.key):\(.value)") | .[]' .github/backend-services.json)
 
           # Get changed files in backend/
           CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- backend/)
 
-          # Detect changed services in config list
           changed_services=()
 
           for service_lang in $SERVICES; do
             service=${service_lang%%:*}
             lang=${service_lang#*:}
-            # Check if any changed file belongs to this service folder
             if echo "$CHANGED_FILES" | grep -q "^backend/$service/"; then
               changed_services+=("{\"service\":\"$service\",\"lang\":\"$lang\"}")
             fi
@@ -37,24 +35,24 @@ jobs:
 
           if [ ${#changed_services[@]} -eq 0 ]; then
             echo "No changed services detected."
-            echo "::set-output name=matrix::[]"
+            echo "matrix=[]" >> $GITHUB_OUTPUT
             exit 0
           fi
 
           matrix_json=$(printf '%s\n' "${changed_services[@]}" | jq -s '.')
           echo "Matrix to run: $matrix_json"
+          echo "matrix=$matrix_json" >> $GITHUB_OUTPUT
 
-          echo "::set-output name=matrix::$matrix_json"
       - name: Set matrix output
         id: set-matrix
-        run: echo "::set-output name=matrix::${{ steps.detect.outputs.matrix }}"
+        run: echo "matrix=${{ steps.detect.outputs.matrix }}" >> $GITHUB_OUTPUT
 
   build-and-deploy:
     needs: detect-changed-services
     if: needs.detect-changed-services.outputs.matrix != '[]'
     strategy:
       matrix: ${{ fromJson(needs.detect-changed-services.outputs.matrix) }}
-    uses: ./common/backend-cicd-template.yml
+    uses: ./common/backend-cicd-template.yml@main
     with:
       service_name: ${{ matrix.service }}
       service_path: backend/${{ matrix.service }}
