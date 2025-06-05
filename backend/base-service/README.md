@@ -1,5 +1,3 @@
 # ADMIN PANEL BACKEND
 
 ## BASE SERVICE
-
-### ...
