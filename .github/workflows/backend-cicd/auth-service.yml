@@ -1,18 +1,14 @@
 name: Auth Service CI/CD
 
 on:
-  workflow_call:
-    inputs:
-      service_name:
-        required: true
-        type: string
-      service_path:
-        required: true
-        type: string
+  push:
+    paths:
+      - "backend/auth-service/**"
 
 jobs:
   call-service-cicd:
-    uses: ./.github/workflows/common/backend-cicd-template.yml
+    uses: ../backend-cicd-template.yml
     with:
-      service_name: ${{ inputs.service_name }}
-      service_path: ${{ inputs.service_path }}
+      service_name: auth-service
+      service_path: backend/auth-service
+      lang: java
