@@ -2,6 +2,8 @@ name: Frontend CI/CD for Build and Deploy
 
 on:
   push:
+    branches:
+      - "**"
     paths:
       - "frontend/**"
 
