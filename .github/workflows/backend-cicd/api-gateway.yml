@@ -1,13 +1,18 @@
 name: API Gateway CI/CD
 
 on:
-  push:
-    paths:
-      - "backend/api-gateway/**"
+  workflow_call:
+    inputs:
+      service_name:
+        required: true
+        type: string
+      service_path:
+        required: true
+        type: string
 
 jobs:
   call-service-cicd:
-    uses: ./.github/workflows/common/backend-cicd.yml
+    uses: ./.github/workflows/common/backend-cicd-template.yml
     with:
-      service_name: api-gateway
-      service_path: backend/api-gateway
+      service_name: ${{ inputs.service_name }}
+      service_path: ${{ inputs.service_path }}

@@ -1,0 +1,8 @@
+{
+  "api-gateway": "java",
+  "auth-service": "java",
+  "base-service": "java",
+  "discovery-server": "java",
+  "image-service": "go",
+  "user-service": "java"
+}

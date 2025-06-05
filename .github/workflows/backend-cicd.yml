@@ -1,0 +1,61 @@
+name: Backend CI/CD
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - ".github/backend-services.json"
+
+jobs:
+  detect-changed-services:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Read backend services config and detect changed services
+        id: detect
+        run: |
+          # Read JSON config as bash associative array (jq output)
+          SERVICES=$(jq -r 'to_entries|map("\(.key):\(.value)")|.[]' backend-services.json)
+
+          # Get changed files in backend/
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} -- backend/)
+
+          # Detect changed services in config list
+          changed_services=()
+
+          for service_lang in $SERVICES; do
+            service=${service_lang%%:*}
+            lang=${service_lang#*:}
+            # Check if any changed file belongs to this service folder
+            if echo "$CHANGED_FILES" | grep -q "^backend/$service/"; then
+              changed_services+=("{\"service\":\"$service\",\"lang\":\"$lang\"}")
+            fi
+          done
+
+          if [ ${#changed_services[@]} -eq 0 ]; then
+            echo "No changed services detected."
+            echo "::set-output name=matrix::[]"
+            exit 0
+          fi
+
+          matrix_json=$(printf '%s\n' "${changed_services[@]}" | jq -s '.')
+          echo "Matrix to run: $matrix_json"
+
+          echo "::set-output name=matrix::$matrix_json"
+      - name: Set matrix output
+        id: set-matrix
+        run: echo "::set-output name=matrix::${{ steps.detect.outputs.matrix }}"
+
+  build-and-deploy:
+    needs: detect-changed-services
+    if: needs.detect-changed-services.outputs.matrix != '[]'
+    strategy:
+      matrix: ${{ fromJson(needs.detect-changed-services.outputs.matrix) }}
+    uses: ./.github/workflows/common/backend-cicd-template.yml
+    with:
+      service_name: ${{ matrix.service }}
+      service_path: backend/${{ matrix.service }}
+      lang: ${{ matrix.lang }}
