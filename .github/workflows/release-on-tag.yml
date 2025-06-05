@@ -18,17 +18,21 @@ jobs:
         shell: bash
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
-          echo "Looking for changelog for $TAG"
+          echo "Extracting changelog for tag: $TAG"
 
-          changelog=$(awk "/^### \\[$TAG\\]/ {flag=1; next} /^### \\[/ {flag=0} flag" CHANGELOG.md | sed '/^\s*$/d')
+          # Escape dots for regex match
+          TAG_ESCAPED=$(echo "$TAG" | sed 's/\./\\./g')
 
-          if [ -z "$changelog" ]; then
+          # Use sed to extract everything between the header of this tag and the next header
+          ENTRY=$(sed -n "/^### \[$TAG_ESCAPED\]/,/^### \[/p" CHANGELOG.md | sed '1d;$d')
+
+          if [ -z "$ENTRY" ]; then
             echo "❌ No changelog entry found for $TAG"
             exit 1
           fi
 
           echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$changelog" >> "$GITHUB_OUTPUT"
+          echo "$ENTRY" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Create GitHub Release
