@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Release Guide
 
 This document explains how to create releases for this project using `standard-version` and how to write commit messages following the **Conventional Commits** specification.
@@ -96,3 +97,17 @@ Read the full Conventional Commits specification here:
 - Commits **not following** the conventional commit format will **not be included** in the changelog.
 - Version bumps are based only on commits with recognized types (e.g., `feat` triggers minor, `fix` triggers patch).
 - Use a commit message linter like [`commitlint`](https://github.com/conventional-changelog/commitlint) to enforce proper commit message format.
+=======
+# How to release
+
+`npm run release` -> 2.2.0 -> 2.2.1
+`npm run release:minor` -> 2.2.1 -> 2.3.0
+`npm run release:major` -> 2.3.0 -> 3.0.0
+
+`npm run release -- --release-as 2.2.1`
+
+# How to commit
+
+Conventional commits:
+https://www.conventionalcommits.org/en/v1.0.0/#summary
+>>>>>>> main
