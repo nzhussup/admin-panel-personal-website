@@ -38,5 +38,6 @@ jobs:
       - name: Run Java Tests
         if: ${{ inputs.lang == 'java' }}
         run: |
+          chmod +x mvnw
           ./mvnw test
         working-directory: ${{ inputs.service_path }}
