@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.4.6](https://github.com/nzhussup/admin-panel-personal-website/compare/v2.4.5...v2.4.6) (2025-06-05)
+
+
+### Bug Fixes
+
+* all cicd pipelines and secrets reference ([23bfe18](https://github.com/nzhussup/admin-panel-personal-website/commit/23bfe18b82e19351dc4df77de12a99220ad67dfc))
+* final fixes of cicd ([0f6f2ee](https://github.com/nzhussup/admin-panel-personal-website/commit/0f6f2ee83c4b9f3a36088cf1e6ed1bcfb43c9a32))
+* reference in backend-cicd.yml ([b963793](https://github.com/nzhussup/admin-panel-personal-website/commit/b96379381247ba4309569c3ebc810a32e5efe5e8))
+* reference in backend-cicd.yml ([93842b0](https://github.com/nzhussup/admin-panel-personal-website/commit/93842b03dda336ebedaa40cfc7032ec5596a673b))
+* reference in backend-cicd.yml ([54ac46a](https://github.com/nzhussup/admin-panel-personal-website/commit/54ac46ad3fb18a7b860f62ca539eb9c00b6ff872))
+* reference in backend-cicd.yml ([cdbb154](https://github.com/nzhussup/admin-panel-personal-website/commit/cdbb154914216d02783c853a72edd8c6fdcc1455))
+* reference in backend-cicd.yml ([93eb9f3](https://github.com/nzhussup/admin-panel-personal-website/commit/93eb9f3ab9529d68ba056bcb07478d8c0cccdd68))
+* release-on-tag.yml ([ebee36d](https://github.com/nzhussup/admin-panel-personal-website/commit/ebee36dfaebf1b4abb27daa96aec7ae8a41c20a2))
+
 ### [2.4.5](https://github.com/nzhussup/admin-panel-personal-website/compare/v2.4.4...v2.4.5) (2025-06-05)
 
 
