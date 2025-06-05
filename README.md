@@ -12,6 +12,10 @@
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kubernetes.io)
 [![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
 
+## Useful Links
+
+- [**Admin Panel Frontend (needs authentication)**](https://admin.nzhussup.com)
+- [**API Gateway**](https://api.nzhussup.com)
 
 ## Overview
 
@@ -31,11 +35,13 @@ This is a full-stack web application that serves as an [**Admin Panel**](https:/
 
 Here is a collage showcasing various features and pages of the Admin Panel and the Personal Website:
 
-| ![Image 1](https://api.nzhussup.com/api/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/004d5267-2fb9-40ba-a760-e42542fbee34.png) | ![Image 2](https://api.nzhussup.com/api/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/0d23c36f-aecf-47f2-b01d-35ae2b74a7f6.png) | ![Image 3](https://api.nzhussup.com/api/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/109e3463-9dc3-45ea-adf2-a64f51be3fb1.png) |
-|----------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------|
-| ![Image 4](https://api.nzhussup.com/api/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/5b586072-5377-4993-a759-9e8eaa434fa8.png) | ![Image 5](https://api.nzhussup.com/api/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/63e90e2b-8994-4387-a1bb-2467952084b1.png) | ![Image 6](https://api.nzhussup.com/api/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/77770db5-1578-45cd-8cbf-367013059fba.png) |
-| ![Image 7](https://api.nzhussup.com/api/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/f4d27bc2-d4d8-47a3-9c5b-4e83c54b3670.png) | ![Image 8](https://api.nzhussup.com/api/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/ff901dd8-181a-4581-9007-ca90fa7fbf1a.png) |                                                                 |
+| ![Image 1](https://api.nzhussup.com/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/004d5267-2fb9-40ba-a760-e42542fbee34.png)  | ![Image 2](https://api.nzhussup.com/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/0d23c36f-aecf-47f2-b01d-35ae2b74a7f6.png) | ![Image 3](https://api.nzhussup.com/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/109e3463-9dc3-45ea-adf2-a64f51be3fb1.png) |
+| -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| ![Image 4](https://api.nzhussup.com/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/5b586072-5377-4993-a759-9e8eaa434fa8.png)  | ![Image 5](https://api.nzhussup.com/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/63e90e2b-8994-4387-a1bb-2467952084b1.png) | ![Image 6](https://api.nzhussup.com/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/8623aafd-e6dd-4bb7-9d06-dbd01af9e9d7.png) |
+| ![Image 7](https://api.nzhussup.com/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/9524d151-e091-44eb-81da-91a14bb0cf1a.png)  | ![Image 8](https://api.nzhussup.com/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/a59990d3-17cc-4f25-91b3-ebee09976cd3.png) | ![Image 9](https://api.nzhussup.com/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/f4d27bc2-d4d8-47a3-9c5b-4e83c54b3670.png) |
+| ![Image 10](https://api.nzhussup.com/v1/album/2267ab33-35a7-4f3a-95ce-d18b0d826a28/ff901dd8-181a-4581-9007-ca90fa7fbf1a.png) |                                                                                                                                 |                                                                                                                                 |
 
+---
 
 ## Technologies Used
 
