@@ -26,4 +26,4 @@ var/images/*
 
 deploy-from-local.sh
 locally-deploy.sh
-
+.envrc
