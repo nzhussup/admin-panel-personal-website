@@ -19,14 +19,19 @@ jobs:
           TAG_STRIPPED="${TAG#v}"
           echo "Extracting changelog for tag: $TAG_STRIPPED"
 
-          # Escape dots for regex match
+          # Escape dots for regex
           TAG_ESCAPED=$(echo "$TAG_STRIPPED" | sed 's/\./\\./g')
 
-          # Extract changelog section
-          ENTRY=$(sed -n "/^### \[$TAG_ESCAPED\]/,/^### \[/p" CHANGELOG.md | sed '1d;$d')
+          # Use awk to extract section between matching [TAG] and the next version heading
+          ENTRY=$(awk -v tag="\\[$TAG_ESCAPED\\]" '
+            $0 ~ tag { in_section = 1; next }
+            in_section && $0 ~ /^\s*#+ \[[0-9]+\.[0-9]+\.[0-9]+.*\]/ { exit }
+            in_section { print }
+          ' CHANGELOG.md)
 
           if [ -z "$ENTRY" ]; then
             echo "❌ No changelog entry found for $TAG_STRIPPED"
+            grep -E '^#+ \[[0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md || true
             exit 1
           fi
 
