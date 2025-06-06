@@ -96,3 +96,31 @@ Read the full Conventional Commits specification here:
 - Commits **not following** the conventional commit format will **not be included** in the changelog.
 - Version bumps are based only on commits with recognized types (e.g., `feat` triggers minor, `fix` triggers patch).
 - Use a commit message linter like [`commitlint`](https://github.com/conventional-changelog/commitlint) to enforce proper commit message format.
+
+---
+
+### How to recreate this for another repos
+
+```bash
+npm init -y
+
+npm install --save-dev standard-version @commitlint/cli @commitlint/config-conventional husky
+
+# In package.json
+"scripts": {
+  "release": "standard-version",
+  "release:minor": "standard-version --release-as minor",
+  "release:major": "standard-version --release-as major",
+  "prepare": "husky install"
+}
+
+npx husky install
+npx husky add .husky/commit-msg 'npx --no -- commitlint --edit "$1"'
+
+# create commitlint.config.js in root
+module.exports = {
+  extends: ['@commitlint/config-conventional'],
+};
+
+# copy release cicd if needed
+```
