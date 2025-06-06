@@ -1,9 +1,15 @@
 name: Create GitHub Release
+
 on:
   push:
     tags:
-      - "v*.*.*" # trigger on semantic version tags like v2.3.0
+      - "v*.*.*"
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to create release for (e.g., v2.8.0)"
+        required: true
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -16,17 +22,29 @@ jobs:
         id: changelog
         shell: bash
         run: |
-          TAG="${GITHUB_REF#refs/tags/}"
-          TAG_STRIPPED="${TAG#v}"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            # Manual run - use input or fail if missing
+            TAG="${{ github.event.inputs.tag }}"
+            if [ -z "$TAG" ]; then
+              echo "❌ 'tag' input is required for manual runs"
+              exit 1
+            fi
+            TAG_STRIPPED="${TAG#v}"
+          else
+            # Push event - extract tag from ref
+            if [[ "$GITHUB_REF" != refs/tags/* ]]; then
+              echo "❌ Not a tag push — skipping changelog extraction."
+              exit 1
+            fi
+            TAG="${GITHUB_REF#refs/tags/}"
+            TAG_STRIPPED="${TAG#v}"
+          fi
+
           echo "Extracting changelog for tag: $TAG_STRIPPED"
 
-          # Escape dots for regex
-          TAG_ESCAPED=$(echo "$TAG_STRIPPED" | sed 's/\./\\./g')
-
-          # Use awk to extract section between matching [TAG] and the next version heading
-          ENTRY=$(awk -v tag="\\[$TAG_ESCAPED\\]" '
+          ENTRY=$(awk -v tag="[$TAG_STRIPPED]" '
             $0 ~ tag { in_section = 1; next }
-            in_section && $0 ~ /^\s*#+ \[[0-9]+\.[0-9]+\.[0-9]+.*\]/ { exit }
+            in_section && $0 ~ /^#+ \[[0-9]+\.[0-9]+\.[0-9]+.*\]/ { exit }
             in_section { print }
           ' CHANGELOG.md)
 
@@ -43,8 +61,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          name: ${{ github.event.inputs.tag || github.ref_name }}
           body: ${{ steps.changelog.outputs.changelog }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
