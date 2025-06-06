@@ -19,7 +19,11 @@ type ValidationResponse struct {
 	Roles    []string `json:"roles"`
 }
 
-func AuthMiddleware(authServiceURL string) gin.HandlerFunc {
+func AuthMiddlewareWithClient(authServiceURL string, client *http.Client) gin.HandlerFunc {
+	if client == nil {
+		client = http.DefaultClient
+	}
+
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if !strings.HasPrefix(authHeader, "Bearer ") {
@@ -42,7 +46,7 @@ func AuthMiddleware(authServiceURL string) gin.HandlerFunc {
 		}
 		req.Header.Set("Content-Type", "application/json")
 
-		resp, err := http.DefaultClient.Do(req)
+		resp, err := client.Do(req)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Token validation failed"})
 			return

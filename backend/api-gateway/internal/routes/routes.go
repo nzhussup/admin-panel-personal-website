@@ -3,6 +3,8 @@ package routes
 import (
 	"api-gateway/internal/middleware"
 	"api-gateway/internal/proxy"
+	"net/http"
+	"time"
 
 	"os"
 
@@ -20,8 +22,13 @@ func SetupRouter() *gin.Engine {
 	imageServiceURL := os.Getenv("IMAGE_SERVICE_URL")
 	weddingServiceURL := os.Getenv("WEDDING_SERVICE_URL")
 
-	// Middleware setup := middlewar(authServiceURL)
-	r.Use(middleware.CorsMiddleware())
+	httpClient := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	r.Use(
+		middleware.CorsMiddleware(),
+		middleware.AuthMiddlewareWithClient(authServiceURL, httpClient),
+	)
 
 	r.Static("/docs", "./public/docs")
 

@@ -15,7 +15,7 @@ jobs:
     with:
       service_name: api-gateway
       service_path: backend/api-gateway
-      lang: java
+      lang: go
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -29,4 +29,4 @@ jobs:
     with:
       service_name: api-gateway
       service_path: backend/api-gateway
-      lang: java
+      lang: go
