@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.8.1](https://github.com/nzhussup/admin-panel-personal-website/compare/v2.8.0...v2.8.1) (2025-06-06)
+
+
+### Bug Fixes
+
+* allow manual release ([258e0a2](https://github.com/nzhussup/admin-panel-personal-website/commit/258e0a2b1cf6503c08b06aa60c42bab584dbf97a))
+* final touches to release cicd ([f72cc66](https://github.com/nzhussup/admin-panel-personal-website/commit/f72cc66afadb382437e611d88d67d60ca617732e))
+* hopefully final bug fix of release cicd ([a8dd6ac](https://github.com/nzhussup/admin-panel-personal-website/commit/a8dd6ac1b6ecf3dc1b47f596f14af9fa360a4e0f))
+* release cicd ([395ef2c](https://github.com/nzhussup/admin-panel-personal-website/commit/395ef2ca170920a1572dfed2ebe9b6c64430c6b8))
+
 ## [2.8.0](https://github.com/nzhussup/admin-panel-personal-website/compare/v2.7.3...v2.8.0) (2025-06-06)
 
 
