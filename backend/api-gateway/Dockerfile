@@ -1,27 +1,24 @@
-FROM eclipse-temurin:21-jdk AS build
-LABEL authors="nzhussup"
+# BUILD STAGE
+FROM golang:1.24.1 AS builder
+ARG TARGETOS
+ARG TARGETARCH
+ENV CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH}
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN go build -o bin/api-gateway ./cmd/main.go
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl git openssh-client ca-certificates \
-    && curl -fsSL "https://downloads.apache.org/maven/maven-3/3.9.9/binaries/apache-maven-3.9.9-bin.tar.gz" | tar -xz -C /usr/share \
-    && ln -s /usr/share/apache-maven-3.9.9/bin/mvn /usr/bin/mvn \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
+# RUN STAGE
+FROM alpine:latest
 WORKDIR /app
 
-COPY pom.xml .
-RUN mvn dependency:go-offline -B
+# # Install dependencies required by CGO
+# RUN apk add --no-cache libc6-compat libstdc++ gcc libgcc
 
-COPY src ./src
-
-RUN mvn clean package -DskipTests
-
-FROM eclipse-temurin:21-jre AS runtime
-
-WORKDIR /app
-
-COPY --from=build /app/target/*.jar ./app.jar
-
+COPY --from=builder /app/bin/api-gateway /app/api-gateway
+COPY public /app/public
 EXPOSE 8082
+CMD ["/app/api-gateway"]
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
