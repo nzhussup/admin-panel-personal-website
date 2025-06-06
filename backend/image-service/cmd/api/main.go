@@ -6,8 +6,6 @@ import (
 	"time"
 
 	_ "image-service/docs"
-
-	"github.com/gin-gonic/gin"
 )
 
 // @title Image Service API
@@ -66,11 +64,6 @@ func main() {
 	secuirityCfg := GetSecurityConfig(&cfg)
 
 	app := newApp(cfg, secuirityCfg)
-	gin.SetMode(gin.ReleaseMode)
-	if gin.Mode() != gin.DebugMode {
-		app.Discovery.RegisterWithEureka()
-		defer app.Discovery.DeregisterWithEureka()
-	}
 	app.Redis.CheckHealth()
 
 	app.Run()

@@ -2,7 +2,6 @@ package main
 
 import (
 	"image-service/internal/config/cache"
-	"image-service/internal/config/discovery"
 	"image-service/internal/config/messaging"
 	"image-service/internal/config/security"
 	"image-service/internal/controller"
@@ -27,7 +26,6 @@ type app struct {
 	Controller     *controller.Controller
 	Service        *service.Service
 	Storage        *repository.Storage
-	Discovery      *discovery.EurekaClient
 	Redis          *cache.RedisClient
 }
 
@@ -76,12 +74,6 @@ func newApp(config config, securityConfig *security.AuthConfig) *app {
 	storage := repository.NewStorage(config.storagePath, config.apiBasePath)
 	service := service.NewService(storage, redisClient, securityConfig, validate)
 	controller := controller.NewController(service, producer)
-	eurekaClient := discovery.NewEurekaClient(
-		config.discoveryConfig.eurekaURL,
-		config.discoveryConfig.appName,
-		config.port,
-		config.discoveryConfig.refreshRate,
-	)
 
 	return &app{
 		config:         config,
@@ -89,7 +81,6 @@ func newApp(config config, securityConfig *security.AuthConfig) *app {
 		Controller:     controller,
 		Service:        service,
 		Storage:        storage,
-		Discovery:      eurekaClient,
 		Redis:          redisClient,
 	}
 }
