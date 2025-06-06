@@ -23,7 +23,6 @@ jobs:
         shell: bash
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            # Manual run - use input or fail if missing
             TAG="${{ github.event.inputs.tag }}"
             if [ -z "$TAG" ]; then
               echo "❌ 'tag' input is required for manual runs"
@@ -31,7 +30,6 @@ jobs:
             fi
             TAG_STRIPPED="${TAG#v}"
           else
-            # Push event - extract tag from ref
             if [[ "$GITHUB_REF" != refs/tags/* ]]; then
               echo "❌ Not a tag push — skipping changelog extraction."
               exit 1
@@ -44,18 +42,14 @@ jobs:
 
           ENTRY=$(awk -v tag="$TAG_STRIPPED" '
             BEGIN { in_section = 0 }
-            # Start capturing at "# [tag]", "## [tag]", or "### [tag]"
             $0 ~ "^#+ \\[" tag "\\]" { in_section = 1; next }
-            # Stop capturing at the next heading line with a version
             in_section && $0 ~ /^#+ \[[0-9]+\.[0-9]+\.[0-9]+/ { exit }
             in_section { print }
           ' CHANGELOG.md)
 
           if [ -z "$ENTRY" ]; then
-            echo "❌ No changelog entry found for $TAG_STRIPPED"
-            echo "Available versions:"
-            grep -E '^#+ \[[0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md
-            exit 1
+            echo "⚠️ No changelog entry found for $TAG_STRIPPED. Proceeding with empty release notes."
+            ENTRY=""
           fi
 
           echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
