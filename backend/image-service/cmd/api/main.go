@@ -66,8 +66,7 @@ func main() {
 	secuirityCfg := GetSecurityConfig(&cfg)
 
 	app := newApp(cfg, secuirityCfg)
-	gin.SetMode(gin.ReleaseMode)
-	if gin.Mode() != gin.DebugMode {
+	if gin.Mode() == gin.ReleaseMode {
 		app.Discovery.RegisterWithEureka()
 		defer app.Discovery.DeregisterWithEureka()
 	}
