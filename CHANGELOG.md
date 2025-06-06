@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.8.0](https://github.com/nzhussup/admin-panel-personal-website/compare/v2.7.3...v2.8.0) (2025-06-06)
+
+
+### Features
+
+* Create Golang based API Gateway ([b5af266](https://github.com/nzhussup/admin-panel-personal-website/commit/b5af266d901c637a4135891c0a735c665fe2d5c8))
+* get rid of discovery server code / cicd. adjust all other code not to use eureka ([e90cf7e](https://github.com/nzhussup/admin-panel-personal-website/commit/e90cf7e389a5f8fdf3f691d0baf47b69209188fc))
+* rename go-api-gateway to api-gateway ([e4ca079](https://github.com/nzhussup/admin-panel-personal-website/commit/e4ca079521791b7a94287273cbabea6d556399ee))
+
+
+### Bug Fixes
+
+* fix java unit tests ([da3d76a](https://github.com/nzhussup/admin-panel-personal-website/commit/da3d76af4acca0084591b05e0ae165a6eac9d105))
+
 ### [2.7.3](https://github.com/nzhussup/admin-panel-personal-website/compare/v2.7.2...v2.7.3) (2025-06-06)
 
 ### [2.7.2](https://github.com/nzhussup/admin-panel-personal-website/compare/v2.7.1...v2.7.2) (2025-06-05)
