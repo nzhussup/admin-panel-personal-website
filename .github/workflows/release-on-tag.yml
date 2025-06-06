@@ -42,15 +42,19 @@ jobs:
 
           echo "Extracting changelog for tag: $TAG_STRIPPED"
 
-          ENTRY=$(awk -v tag="[$TAG_STRIPPED]" '
-            $0 ~ tag { in_section = 1; next }
-            in_section && $0 ~ /^#+ \[[0-9]+\.[0-9]+\.[0-9]+.*\]/ { exit }
+          ENTRY=$(awk -v tag="$TAG_STRIPPED" '
+            BEGIN { in_section = 0 }
+            # Start capturing at "# [tag]", "## [tag]", or "### [tag]"
+            $0 ~ "^#+ \\[" tag "\\]" { in_section = 1; next }
+            # Stop capturing at the next heading line with a version
+            in_section && $0 ~ /^#+ \[[0-9]+\.[0-9]+\.[0-9]+/ { exit }
             in_section { print }
           ' CHANGELOG.md)
 
           if [ -z "$ENTRY" ]; then
             echo "❌ No changelog entry found for $TAG_STRIPPED"
-            grep -E '^#+ \[[0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md || true
+            echo "Available versions:"
+            grep -E '^#+ \[[0-9]+\.[0-9]+\.[0-9]+' CHANGELOG.md
             exit 1
           fi
 
