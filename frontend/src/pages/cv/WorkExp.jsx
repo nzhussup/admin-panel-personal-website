@@ -130,7 +130,14 @@ const WorkExp = () => {
                 {experience.startDate} -{" "}
                 {experience.endDate ? experience.endDate : "Present"}
               </p>
-              <p>Description: {experience.description}</p>
+              <p>
+                Description:
+                <br />
+                <span style={{ whiteSpace: "pre-line" }}>
+                  {experience.description}
+                </span>
+              </p>
+
               <p>
                 Tech Stack:{" "}
                 {
