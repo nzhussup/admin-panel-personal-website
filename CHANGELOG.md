@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.1.0](https://github.com/nzhussup/admin-panel-personal-website/compare/v3.0.0...v3.1.0) (2025-06-19)
+
+
+### Features
+
+* add filter and search functionality to wedding page ([e7b5dca](https://github.com/nzhussup/admin-panel-personal-website/commit/e7b5dca43e906bc56844cfe29c7f1d31f2684fe2))
+* add summarizer service ([5a53870](https://github.com/nzhussup/admin-panel-personal-website/commit/5a538707fb0496e4bd6647a1645c624787b5eb8e))
+
+
+### Bug Fixes
+
+* fix filtering logic and enhance UI ([3416956](https://github.com/nzhussup/admin-panel-personal-website/commit/3416956eb01ce93accf52a14a013feebb07ca803))
+* how description is shown in the front-end. show the formatting ([33bf9a3](https://github.com/nzhussup/admin-panel-personal-website/commit/33bf9a3bacec472a4402e4313d6c5e7062e02bb6))
+
 ## [3.0.0](https://github.com/nzhussup/admin-panel-personal-website/compare/v2.8.1...v3.0.0) (2025-06-06)
 
 ### [2.8.1](https://github.com/nzhussup/admin-panel-personal-website/compare/v2.8.0...v2.8.1) (2025-06-06)
