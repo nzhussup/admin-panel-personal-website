@@ -26,6 +26,8 @@ const Wedding = () => {
     },
     friendsComing: 0,
   });
+  const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
 
   const {
     items: users,
@@ -125,6 +127,70 @@ const Wedding = () => {
     }
   }, [users]);
 
+  useEffect(() => {
+    if (!users || users.length === 0) return;
+
+    const filtered = users.filter((user) => {
+      const matchesFilter =
+        filter === "all" ||
+        (filter === "friend" && user.isFriend) ||
+        (filter === "not friends" && !user.isFriend) ||
+        filter === user.attendance?.toLowerCase();
+
+      const matchesSearch = user.name
+        ?.toLowerCase()
+        .includes(search.toLowerCase());
+
+      return matchesFilter && matchesSearch;
+    });
+
+    const ascending = [...filtered].sort((a, b) => a.id - b.id);
+    const idToNum = new Map(
+      ascending.map((user, index) => [user.id, index + 1])
+    );
+
+    const withNumbers = filtered.map((user) => ({
+      ...user,
+      num: idToNum.get(user.id),
+    }));
+
+    setNumberedUsers(withNumbers);
+
+    // Stats calculation
+    let totalPersons = 0;
+    let attendanceStats = { yes: 0, no: 0, maybe: 0 };
+    let friendsComing = 0;
+
+    filtered.forEach((user) => {
+      const relativesArray =
+        user.relatives && user.relatives.trim() !== "" && user.relatives !== "-"
+          ? user.relatives
+              .split(",")
+              .map((r) => r.trim())
+              .filter(Boolean)
+          : [];
+
+      const personCount = 1 + relativesArray.length;
+      totalPersons += personCount;
+
+      const attendance = user.attendance?.toLowerCase();
+      if (["yes", "no", "maybe"].includes(attendance)) {
+        attendanceStats[attendance] += personCount;
+
+        if (attendance === "yes" && user.isFriend) {
+          friendsComing += 1;
+        }
+      }
+    });
+
+    setStat({
+      totalPersons,
+      totalVotes: filtered.length,
+      attendanceStats,
+      friendsComing,
+    });
+  }, [users, filter, search]);
+
   const handleTitle = (user) => {
     let title = `${user.num} | `;
 
@@ -214,6 +280,46 @@ const Wedding = () => {
         <PageSubHeader toggleSort={toggleSort}>
           <ExportButton onClick={() => exportToExcel(users)} />
         </PageSubHeader>
+        <div className='row mb-3'>
+          <div className='col-md-3'>
+            <label
+              htmlFor='filterSelect'
+              className='form-label fw-bold text-primary'
+            >
+              Filter by:
+            </label>
+            <select
+              id='filterSelect'
+              className='form-select'
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+            >
+              <option value='all'>All</option>
+              <option value='friend'>Friends</option>
+              <option value='not friends'>Not Friends</option>
+              <option value='yes'>Yes</option>
+              <option value='no'>No</option>
+              <option value='maybe'>Maybe</option>
+            </select>
+          </div>
+
+          <div className='col-md-4'>
+            <label
+              htmlFor='searchInput'
+              className='form-label fw-bold text-primary'
+            >
+              Search by Name:
+            </label>
+            <input
+              type='text'
+              id='searchInput'
+              className='form-control'
+              placeholder='Enter name...'
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+        </div>
 
         {renderPage(ErrorElement, LoadingElement, NoInfoFoundElement, userPage)}
       </div>
