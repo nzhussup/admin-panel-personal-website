@@ -22,7 +22,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/summarizer": {
+        "/v1/summarizer": {
             "get": {
                 "description": "Fetches personal data, generates a summary using LLM, and returns the professional bio summary.",
                 "produces": [

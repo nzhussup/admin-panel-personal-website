@@ -15,7 +15,7 @@
     },
     "host": "localhost:8086",
     "paths": {
-        "/summarizer": {
+        "/v1/summarizer": {
             "get": {
                 "description": "Fetches personal data, generates a summary using LLM, and returns the professional bio summary.",
                 "produces": [

@@ -10,7 +10,7 @@ info:
   title: Summarizer Service API
   version: 1.0.0
 paths:
-  /summarizer:
+  /v1/summarizer:
     get:
       description: Fetches personal data, generates a summary using LLM, and returns
         the professional bio summary.

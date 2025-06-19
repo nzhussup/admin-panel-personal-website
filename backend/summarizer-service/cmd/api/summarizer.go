@@ -14,7 +14,7 @@ import (
 // @Produce      json
 // @Success      200  {string}  string  "Professional summary string"
 // @Failure      500  {object}  map[string]string  "Internal server error"
-// @Router       /summarizer [get]
+// @Router       /v1/summarizer [get]
 func (app *app) handleGetSummarizer(ctx *gin.Context) {
 
 	s := summarizer.NewSummarizer(

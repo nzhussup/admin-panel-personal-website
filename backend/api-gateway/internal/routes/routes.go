@@ -4,6 +4,7 @@ import (
 	"api-gateway/internal/middleware"
 	"api-gateway/internal/proxy"
 	"net/http"
+	"path/filepath"
 	"time"
 
 	"os"
@@ -31,12 +32,17 @@ func SetupRouter() *gin.Engine {
 		middleware.AuthMiddlewareWithClient(authServiceURL, httpClient),
 	)
 
-	r.Static("/docs", "./public/docs")
+	r.GET("/docs/*filepath", func(c *gin.Context) {
+		path := c.Param("filepath")
 
-	r.GET("/docs", func(c *gin.Context) {
-		c.File("./public/docs/index.html")
+		if path == "" || path == "/" {
+			c.File("./public/docs/index.html")
+			return
+		}
+		cleanPath := filepath.Clean(path)
+		filePath := filepath.Join("./public/docs", cleanPath)
+		c.File(filePath)
 	})
-
 	// Routes
 	//// Gateway Main Page
 	r.GET("/", func(c *gin.Context) {
