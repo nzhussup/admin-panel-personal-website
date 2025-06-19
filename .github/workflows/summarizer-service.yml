@@ -1,0 +1,32 @@
+name: Summarizer Service CI/CD for Build and Deploy
+
+on:
+  push:
+    branches:
+      - "**"
+    paths:
+      - "backend/summarizer-service/**"
+  workflow_dispatch:
+
+jobs:
+  call-main-cicd:
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/backend-cicd-template.yml
+    with:
+      service_name: summarizer-service
+      service_path: backend/summarizer-service
+      lang: go
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      SERVER_HOST: ${{ secrets.SERVER_HOST }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+  call-feature-cicd:
+    if: github.ref != 'refs/heads/main'
+    uses: ./.github/workflows/backend-cicd-template-feature.yml
+    with:
+      service_name: summarizer-service
+      service_path: backend/summarizer-service
+      lang: go

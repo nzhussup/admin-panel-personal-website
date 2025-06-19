@@ -1,0 +1,55 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "This is the API for generating summary from user profile data.",
+        "title": "Summarizer Service API",
+        "contact": {
+            "name": "Nurzhanat Zhussup",
+            "url": "https://github.com/nzhussup"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0.0"
+    },
+    "host": "localhost:8086",
+    "paths": {
+        "/summarizer": {
+            "get": {
+                "description": "Fetches personal data, generates a summary using LLM, and returns the professional bio summary.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "summarizer"
+                ],
+                "summary": "Get summarized profile",
+                "responses": {
+                    "200": {
+                        "description": "Professional summary string",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

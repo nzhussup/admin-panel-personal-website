@@ -1,4 +1,4 @@
-echo "Building image-service"
+echo "Building api-gateway"
 docker buildx build --platform linux/amd64,linux/arm64 -t nzhussup/go-api-gateway:latest --push .
 
 echo "Deploying to k8s"
