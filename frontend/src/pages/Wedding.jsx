@@ -26,7 +26,8 @@ const Wedding = () => {
     },
     friendsComing: 0,
   });
-  const [filter, setFilter] = useState("all");
+  const [filteredStat, setFilteredStat] = useState(null);
+  const [filter, setFilter] = useState(["all"]);
   const [search, setSearch] = useState("");
 
   const {
@@ -130,18 +131,32 @@ const Wedding = () => {
   useEffect(() => {
     if (!users || users.length === 0) return;
 
-    const filtered = users.filter((user) => {
-      const matchesFilter =
-        filter === "all" ||
-        (filter === "friend" && user.isFriend) ||
-        (filter === "not friends" && !user.isFriend) ||
-        filter === user.attendance?.toLowerCase();
+    const relationshipFilters = filter.includes("all")
+      ? []
+      : filter.filter((f) => f === "friend" || f === "not friends");
 
+    const attendanceFilters = filter.includes("all")
+      ? []
+      : filter.filter((f) => ["yes", "no", "maybe"].includes(f));
+
+    const filtered = users.filter((user) => {
+      // Search logic
       const matchesSearch = user.name
         ?.toLowerCase()
         .includes(search.toLowerCase());
 
-      return matchesFilter && matchesSearch;
+      // Relationship logic
+      const matchesRelationship =
+        relationshipFilters.length === 0 ||
+        (relationshipFilters.includes("friend") && user.isFriend) ||
+        (relationshipFilters.includes("not friends") && !user.isFriend);
+
+      // Attendance logic
+      const matchesAttendance =
+        attendanceFilters.length === 0 ||
+        attendanceFilters.includes(user.attendance?.toLowerCase());
+
+      return matchesSearch && matchesRelationship && matchesAttendance;
     });
 
     const ascending = [...filtered].sort((a, b) => a.id - b.id);
@@ -183,7 +198,7 @@ const Wedding = () => {
       }
     });
 
-    setStat({
+    setFilteredStat({
       totalPersons,
       totalVotes: filtered.length,
       attendanceStats,
@@ -245,15 +260,35 @@ const Wedding = () => {
     <PageWrapper>
       <div className='mt-4'>
         <Card title='📊 Wedding Stats'>
-          <ul className='list-disc list-inside space-y-1'>
-            <li>Total Persons: {stat.totalPersons}</li>
-            <li>Total Votes: {stat.totalVotes}</li>
-            <li>✅ Yes: {stat.attendanceStats.yes}</li>
-            <li>⛔️ No: {stat.attendanceStats.no}</li>
-            <li>❓ Maybe: {stat.attendanceStats.maybe}</li>
-            <li>👥 Friends Coming: {stat.friendsComing}</li>
-          </ul>
+          <div className='row'>
+            <div className='col-md-6'>
+              <h6 className='fw-bold text-primary mb-2'>Total Stats:</h6>
+              <ul className='list-disc list-inside mb-3'>
+                <li>Total Persons: {stat.totalPersons}</li>
+                <li>Total Votes: {stat.totalVotes}</li>
+                <li>✅ Yes: {stat.attendanceStats.yes}</li>
+                <li>⛔️ No: {stat.attendanceStats.no}</li>
+                <li>❓ Maybe: {stat.attendanceStats.maybe}</li>
+                <li>👥 Friends Coming: {stat.friendsComing}</li>
+              </ul>
+            </div>
+
+            {!filter.includes("all") && (
+              <div className='col-md-6'>
+                <h6 className='fw-bold text-success mb-2'>Filtered Stats:</h6>
+                <ul className='list-disc list-inside mb-3'>
+                  <li>Total Persons: {filteredStat.totalPersons}</li>
+                  <li>Total Votes: {filteredStat.totalVotes}</li>
+                  <li>✅ Yes: {filteredStat.attendanceStats.yes}</li>
+                  <li>⛔️ No: {filteredStat.attendanceStats.no}</li>
+                  <li>❓ Maybe: {filteredStat.attendanceStats.maybe}</li>
+                  <li>👥 Friends Coming: {filteredStat.friendsComing}</li>
+                </ul>
+              </div>
+            )}
+          </div>
         </Card>
+
         {numberedUsers.map((user) => (
           <Card key={user.id} title={handleTitle(user)}>
             <p>
@@ -278,29 +313,66 @@ const Wedding = () => {
       />
       <div className='container my-5'>
         <PageSubHeader toggleSort={toggleSort}>
-          <ExportButton onClick={() => exportToExcel(users)} />
+          <ExportButton onClick={() => exportToExcel(numberedUsers)} />
         </PageSubHeader>
         <div className='row mb-3'>
-          <div className='col-md-3'>
-            <label
-              htmlFor='filterSelect'
-              className='form-label fw-bold text-primary'
-            >
+          <div className='col-md-4 mb-2'>
+            <label className='form-label fw-bold text-primary'>
               Filter by:
             </label>
-            <select
-              id='filterSelect'
-              className='form-select'
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-            >
-              <option value='all'>All</option>
-              <option value='friend'>Friends</option>
-              <option value='not friends'>Not Friends</option>
-              <option value='yes'>Yes</option>
-              <option value='no'>No</option>
-              <option value='maybe'>Maybe</option>
-            </select>
+            <div className='dropdown' data-bs-auto-close='outside'>
+              <button
+                className='btn btn-outline-primary dropdown-toggle w-100 text-start'
+                type='button'
+                data-bs-toggle='dropdown'
+                aria-expanded='false'
+              >
+                {filter.includes("all")
+                  ? "All"
+                  : filter.join(", ") || "Select filters"}
+              </button>
+              <ul className='dropdown-menu p-2' style={{ minWidth: "100%" }}>
+                {["all", "friend", "not friends", "yes", "no", "maybe"].map(
+                  (option) => (
+                    <li key={option} onClick={(e) => e.stopPropagation()}>
+                      <div className='form-check'>
+                        <input
+                          className='form-check-input'
+                          type='checkbox'
+                          id={`filter-${option}`}
+                          checked={filter.includes(option)}
+                          onChange={(e) => {
+                            if (option === "all") {
+                              setFilter(["all"]);
+                            } else {
+                              let updated = filter.filter((f) => f !== "all");
+                              if (e.target.checked) {
+                                updated.push(option);
+                              } else {
+                                updated = updated.filter((f) => f !== option);
+                              }
+                              setFilter(
+                                updated.length === 0 ? ["all"] : updated
+                              );
+                            }
+                          }}
+                        />
+                        <label
+                          className='form-check-label text-capitalize text-primary'
+                          htmlFor={`filter-${option}`}
+                        >
+                          {option === "friend"
+                            ? "Friends"
+                            : option === "not friends"
+                            ? "Not Friends"
+                            : option.charAt(0).toUpperCase() + option.slice(1)}
+                        </label>
+                      </div>
+                    </li>
+                  )
+                )}
+              </ul>
+            </div>
           </div>
 
           <div className='col-md-4'>
@@ -313,7 +385,7 @@ const Wedding = () => {
             <input
               type='text'
               id='searchInput'
-              className='form-control'
+              className='form-control primary-input'
               placeholder='Enter name...'
               value={search}
               onChange={(e) => setSearch(e.target.value)}
