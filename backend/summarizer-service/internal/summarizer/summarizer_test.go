@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"summarizer-service/internal/model"
+	"summarizer-service/internal/utils"
 	"testing"
 	"time"
 
@@ -33,7 +34,7 @@ var (
 				Institution: "MIT",
 				Location:    "Cambridge, MA",
 				StartDate:   time.Date(2016, time.September, 1, 0, 0, 0, 0, time.UTC),
-				EndDate:     ptrTime(time.Date(2020, time.May, 31, 0, 0, 0, 0, time.UTC)),
+				EndDate:     utils.ToPtrTime(time.Date(2020, time.May, 31, 0, 0, 0, 0, time.UTC)),
 				Degree:      "B.Sc. in Computer Science",
 				Thesis:      "Efficient Parallel Algorithms",
 			},
@@ -63,12 +64,12 @@ var (
 	}
 )
 
-func ptrTime(t time.Time) *time.Time {
-	return &t
-}
-
+// Flexible mockRedis with optional injected behavior
 type mockRedis struct {
-	store map[string]string
+	store   map[string]string
+	setFunc func(key string, value any) error
+	getFunc func(key string, dest any) error
+	delFunc func(key string) error
 }
 
 func newMockRedis() *mockRedis {
@@ -76,6 +77,9 @@ func newMockRedis() *mockRedis {
 }
 
 func (m *mockRedis) Set(key string, value any) error {
+	if m.setFunc != nil {
+		return m.setFunc(key, value)
+	}
 	bytes, err := json.Marshal(value)
 	if err != nil {
 		return err
@@ -85,6 +89,9 @@ func (m *mockRedis) Set(key string, value any) error {
 }
 
 func (m *mockRedis) Get(key string, dest any) error {
+	if m.getFunc != nil {
+		return m.getFunc(key, dest)
+	}
 	val, ok := m.store[key]
 	if !ok {
 		return fmt.Errorf("key not found")
@@ -93,6 +100,9 @@ func (m *mockRedis) Get(key string, dest any) error {
 }
 
 func (m *mockRedis) Del(key string) error {
+	if m.delFunc != nil {
+		return m.delFunc(key)
+	}
 	delete(m.store, key)
 	return nil
 }
@@ -144,63 +154,79 @@ func mockLLMServer(t *testing.T, response string, fail bool) *httptest.Server {
 	}))
 }
 
-func TestSummarizer_Summarize(t *testing.T) {
+func TestSummarizer_Summarize_Multilingual_Failures(t *testing.T) {
 	tests := []struct {
-		name             string
-		data             model.PersonalData
-		llmContent       string
-		llmFail          bool
-		expectErr        bool
-		primeCache       bool
-		changeData       bool
-		expectFromCache  bool
-		expectedContains string
+		name           string
+		lang           string
+		data           model.PersonalData
+		llmContent     string
+		llmFail        bool
+		setup          func(redis *mockRedis)
+		overrideAPIURL bool
+		expectErr      bool
+		errMatch       string
 	}{
 		{
-			name:             "successful summary and cache it",
-			data:             data,
-			llmContent:       "Nurzhanat Zhussup is a software engineer with experience at Google...",
-			expectedContains: "Nurzhanat",
-		},
-		{
-			name:             "summary returned from cache",
-			data:             data,
-			primeCache:       true,
-			expectFromCache:  true,
-			expectedContains: "Cached summary for Nurzhanat",
-		},
-		{
-			name:      "LLM failure",
+			name:      "LLM API returns non-200 response",
+			lang:      "en",
 			data:      data,
 			llmFail:   true,
 			expectErr: true,
+			errMatch:  "model error",
 		},
 		{
-			name:       "missing LLM response",
+			name:       "LLM response is empty",
+			lang:       "kz",
 			data:       data,
 			llmContent: "",
 			expectErr:  true,
+			errMatch:   "no summary received",
 		},
 		{
-			name:             "data changed triggers fresh summarization",
-			data:             modifiedData(), // function below
-			llmContent:       "New summary after data changed for Nurzhanat",
-			changeData:       true,
-			expectedContains: "New summary",
+			name:           "Broken personal data fetch (wrong URL)",
+			lang:           "de",
+			data:           data,
+			expectErr:      true,
+			overrideAPIURL: true,
+			errMatch:       "failed to fetch personal data: failed to unmarshal work-experience: invalid character 'p' after top-level value",
+		},
+		{
+			name: "Cache get returns invalid data",
+			lang: "en",
+			data: data,
+			setup: func(redis *mockRedis) {
+				redis.store["previous_personal_data"] = "not a json object"
+			},
+			llmContent: "Fallback summary for broken cache",
+			expectErr:  false,
+		},
+		{
+			name: "Cache set fails silently",
+			lang: "kz",
+			data: data,
+			setup: func(redis *mockRedis) {
+				redis.setFunc = func(key string, value any) error {
+					return fmt.Errorf("forced cache failure")
+				}
+			},
+			llmContent: "Summary with cache write failure",
+			expectErr:  false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			redis := newMockRedis()
-
-			// Prime cache if needed
-			if tt.primeCache {
-				_ = redis.Set("previous_personal_data", &tt.data)
-				_ = redis.Set("summary", "Cached summary for Nurzhanat")
+			if tt.setup != nil {
+				tt.setup(redis)
 			}
 
-			dataSrv := mockDataServer(t, tt.data)
+			var dataSrv *httptest.Server
+			if tt.overrideAPIURL {
+				dataSrv = httptest.NewServer(http.NotFoundHandler())
+			} else {
+				dataSrv = mockDataServer(t, tt.data)
+			}
 			defer dataSrv.Close()
 
 			llmSrv := mockLLMServer(t, tt.llmContent, tt.llmFail)
@@ -212,16 +238,100 @@ func TestSummarizer_Summarize(t *testing.T) {
 				dataSrv.URL + "/project",
 				dataSrv.URL + "/skill",
 				dataSrv.URL + "/certificate",
-			}, llmSrv.Client(), redis)
+			}, llmSrv.Client(), redis, tt.lang)
 
 			summary, err := s.Summarize(context.Background())
 
 			if tt.expectErr {
 				require.Error(t, err)
+				if tt.errMatch != "" {
+					require.Contains(t, err.Error(), tt.errMatch)
+				}
 			} else {
 				require.NoError(t, err)
-				require.Contains(t, summary, tt.expectedContains)
+				require.NotEmpty(t, summary)
 			}
+		})
+	}
+}
+
+func TestSummarizer_Summarize_SuccessCases(t *testing.T) {
+	tests := []struct {
+		name             string
+		lang             string
+		data             model.PersonalData
+		primeCache       bool
+		cacheSummary     string
+		llmContent       string
+		changeData       bool
+		expectedContains string
+	}{
+		{
+			name:             "Generate new summary in English",
+			lang:             "en",
+			data:             data,
+			llmContent:       "Nurzhanat Zhussup is a software engineer with experience at Google.",
+			expectedContains: "Nurzhanat Zhussup",
+		},
+		{
+			name:             "Generate new summary in Kazakh",
+			lang:             "kz",
+			data:             data,
+			llmContent:       "Нұржанат Жүсіп — Google компаниясында тәжірибесі бар бағдарламашы.",
+			expectedContains: "Нұржанат",
+		},
+		{
+			name:             "Generate new summary in German",
+			lang:             "de",
+			data:             data,
+			llmContent:       "Nurzhanat Zhussup ist ein Softwareentwickler mit Erfahrung bei Google.",
+			expectedContains: "Softwareentwickler",
+		},
+		{
+			name:             "Use cached summary if data unchanged",
+			lang:             "en",
+			data:             data,
+			primeCache:       true,
+			cacheSummary:     "Cached summary of Nurzhanat from Redis",
+			expectedContains: "Cached summary",
+		},
+		{
+			name:             "Regenerate summary if data changed",
+			lang:             "en",
+			data:             modifiedData(),
+			llmContent:       "Summary updated after company change to Microsoft.",
+			expectedContains: "Microsoft",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			redis := newMockRedis()
+
+			// Prime cache if necessary
+			if tt.primeCache {
+				_ = redis.Set("previous_personal_data", &data)
+				cacheKey := "summary_" + tt.lang
+				_ = redis.Set(cacheKey, tt.cacheSummary)
+			}
+
+			dataSrv := mockDataServer(t, tt.data)
+			defer dataSrv.Close()
+
+			llmSrv := mockLLMServer(t, tt.llmContent, false)
+			defer llmSrv.Close()
+
+			s := NewSummarizer("dummy-key", llmSrv.URL, []string{
+				dataSrv.URL + "/work-experience",
+				dataSrv.URL + "/education",
+				dataSrv.URL + "/project",
+				dataSrv.URL + "/skill",
+				dataSrv.URL + "/certificate",
+			}, llmSrv.Client(), redis, tt.lang)
+
+			summary, err := s.Summarize(context.Background())
+			require.NoError(t, err)
+			require.Contains(t, summary, tt.expectedContains)
 		})
 	}
 }

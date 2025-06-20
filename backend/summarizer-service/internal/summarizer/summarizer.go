@@ -15,6 +15,18 @@ import (
 
 const wrapper = "%w: %v"
 
+var cacheKeys = map[string]string{
+	"kz": "summary_kz",
+	"de": "summary_de",
+	"en": "summary_en",
+}
+
+var promptBaseMap = map[string]string{
+	"kz": SYSTEM_PROMPT_KZ,
+	"de": SYSTEM_PROMPT_DE,
+	"en": SYSTEM_PROMPT_EN,
+}
+
 var (
 	ErrFailedToFetchPersonalData = fmt.Errorf("failed to fetch personal data")
 	ErrFailedToFetchPromptBase   = fmt.Errorf("failed to fetch prompt base data")
@@ -34,15 +46,17 @@ type Summarizer struct {
 	DATA_URLS []string
 	Client    *http.Client
 	redis     cache.Cacher
+	lang      string
 }
 
-func NewSummarizer(apiKey, apiURL string, dataURLS []string, client *http.Client, redis cache.Cacher) *Summarizer {
+func NewSummarizer(apiKey, apiURL string, dataURLS []string, client *http.Client, redis cache.Cacher, lang string) *Summarizer {
 	return &Summarizer{
 		API_KEY:   apiKey,
 		API_URL:   apiURL,
 		DATA_URLS: dataURLS,
 		Client:    client,
 		redis:     redis,
+		lang:      lang,
 	}
 }
 
@@ -53,23 +67,67 @@ func (s *Summarizer) Summarize(ctx context.Context) (string, error) {
 		return "", fmt.Errorf(wrapper, ErrFailedToFetchPersonalData, err)
 	}
 
-	if s.checkDataUnchanged(ctx, pd) {
-		if cachedSummary := s.fetchCachedSummary(ctx); cachedSummary != "" {
+	dataUnchanged := s.checkDataUnchanged(ctx, pd)
+	if dataUnchanged {
+		if cachedSummary := s.fetchCachedSummary(); cachedSummary != "" {
 			return cachedSummary, nil
+		}
+	} else {
+		s.flushAllSummaryCache()
+
+		if err := s.redis.Set("previous_personal_data", pd); err != nil {
+			slog.Error("Failed to cache previous personal data", slog.String("error", err.Error()))
 		}
 	}
 
-	if err := s.redis.Set("previous_personal_data", pd); err != nil {
-		slog.Error("Failed to cache previous personal data", slog.String("error", err.Error()))
+	// Immediate summarization for the current language
+	currentSummary, err := s.doFullSummarization(ctx, pd)
+	if err != nil {
+		return "", fmt.Errorf(wrapper, ErrFailedToGetSummary, err)
 	}
-	return s.doFullSummarization(ctx, pd)
+
+	// Background summaries for other languages
+	go s.backgroundSummarizeOthers(context.Background(), pd)
+
+	return currentSummary, nil
 }
 
-func (s *Summarizer) fetchCachedSummary(ctx context.Context) string {
-	const cacheKey = "summary"
+// backgroundSummarizeOthers generates summaries for languages other than s.lang, caches them
+func (s *Summarizer) backgroundSummarizeOthers(ctx context.Context, pd *model.PersonalData) {
+	langs := []string{"en", "kz", "de"}
+
+	for _, lang := range langs {
+		if lang == s.lang {
+			continue // Skip current language, already processed
+		}
+
+		go func(lang string) {
+			// Create a new Summarizer instance with the other language
+			otherSummarizer := NewSummarizer(s.API_KEY, s.API_URL, s.DATA_URLS, s.Client, s.redis, lang)
+
+			// Run summarization ignoring errors (just log)
+			summary, err := otherSummarizer.doFullSummarization(ctx, pd)
+			if err != nil {
+				slog.Error("Background summarization failed",
+					slog.String("lang", lang),
+					slog.String("error", err.Error()))
+				return
+			}
+
+			// Cache the summary (doFullSummarization caches it too, but we do again here just in case)
+			if err := s.redis.Set(otherSummarizer.getCacheKey(), summary); err != nil {
+				slog.Error("Failed to cache background summary",
+					slog.String("lang", lang),
+					slog.String("error", err.Error()))
+			}
+		}(lang)
+	}
+}
+
+func (s *Summarizer) fetchCachedSummary() string {
 	var cachedSummary string
 
-	if err := s.redis.Get(cacheKey, &cachedSummary); err != nil {
+	if err := s.redis.Get(s.getCacheKey(), &cachedSummary); err != nil {
 		return ""
 	}
 	return cachedSummary
@@ -104,7 +162,7 @@ func (s *Summarizer) doFullSummarization(ctx context.Context, pd *model.Personal
 	}
 
 	// Cache the summary for future requests
-	if err := s.redis.Set("summary", result.Choices[0].Message.Content); err != nil {
+	if err := s.redis.Set(s.getCacheKey(), result.Choices[0].Message.Content); err != nil {
 		slog.Error("Failed to cache summary", slog.String("error", err.Error()))
 	}
 	return result.Choices[0].Message.Content, nil
@@ -173,6 +231,27 @@ func (s *Summarizer) doLLMRequest(ctx context.Context, payload map[string]interf
 	return result, nil
 }
 
+func (s *Summarizer) flushAllSummaryCache() {
+	if err := s.redis.Del("summary_en"); err != nil {
+		slog.Error("error deleting summary cache for English", slog.Any("error", err))
+	}
+	if err := s.redis.Del("summary_kz"); err != nil {
+		slog.Error("error deleting summary cache for Kazakh", slog.Any("error", err))
+	}
+	if err := s.redis.Del("summary_de"); err != nil {
+		slog.Error("error deleting summary cache for German", slog.Any("error", err))
+	}
+}
+
+// gets right cache based on the language setting
+func (s *Summarizer) getCacheKey() string {
+	if key, ok := cacheKeys[s.lang]; ok {
+		return key
+	}
+	slog.Warn("unsupported language, defaulting to English", slog.String("lang", s.lang))
+	return "summary_en"
+}
+
 // fetches all personal data from the configured endpoints
 func (s *Summarizer) fetchAllData() (*model.PersonalData, error) {
 	pd := &model.PersonalData{}
@@ -231,22 +310,18 @@ func (s *Summarizer) fetchAllData() (*model.PersonalData, error) {
 
 // generates system and user prompts based on the personal data
 func (s *Summarizer) getPromptBase(pd *model.PersonalData) (string, string, error) {
-	systemPrompt := `You are a helpful assistant summarizing the profile of Nurzhanat Zhussup, a male Software Engineer.
-The summary should:
-- Start with the most recent roles, projects, skills, and achievements
-- Mention older experiences briefly
-- Be well-structured and professional in tone
-- Use third-person narrative
-- Be concise and suitable for a professional portfolio
-`
+	systemPrompt, ok := promptBaseMap[s.lang]
+	if !ok {
+		slog.Warn("unsupported language, defaulting to English prompt", slog.String("lang", s.lang))
+		systemPrompt = SYSTEM_PROMPT_EN
+	}
 
 	dataJSON, err := json.MarshalIndent(pd, "", "  ")
 	if err != nil {
 		return "", "", fmt.Errorf("failed to marshal personal data: %w", err)
 	}
 
-	userPrompt := "Here is the structured profile data in JSON format:\n" + string(dataJSON) +
-		"\n\nPlease generate a professional and concise bio summary based on this data."
+	userPrompt := fmt.Sprintf(USER_PROMPT, string(dataJSON))
 
 	return systemPrompt, userPrompt, nil
 }
