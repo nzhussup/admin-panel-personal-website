@@ -22,25 +22,65 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/v1/health": {
+            "get": {
+                "description": "Checks the connectivity and health of dependent services, particularly Redis.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "health"
+                ],
+                "summary": "Health check endpoint",
+                "responses": {
+                    "200": {
+                        "description": "Status OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Redis connection failed",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/v1/summarizer": {
             "get": {
-                "description": "Fetches personal data, generates a summary using LLM, and returns the professional bio summary.",
+                "description": "Retrieves structured personal data (e.g., work experience, education), generates a professional summary using a large language model (LLM), and returns it in the requested language.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "summarizer"
                 ],
-                "summary": "Get summarized profile",
+                "summary": "Generate professional profile summary",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Language code for the summary output. Supported values: 'en' (English), 'kz' (Kazakh), 'de' (German). Defaults to 'en'.",
+                        "name": "lang",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Professional summary string",
+                        "description": "Generated professional summary",
                         "schema": {
                             "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal server error",
+                        "description": "Internal server error with error details",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {

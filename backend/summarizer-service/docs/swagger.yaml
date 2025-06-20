@@ -10,24 +10,53 @@ info:
   title: Summarizer Service API
   version: 1.0.0
 paths:
-  /v1/summarizer:
+  /v1/health:
     get:
-      description: Fetches personal data, generates a summary using LLM, and returns
-        the professional bio summary.
+      description: Checks the connectivity and health of dependent services, particularly
+        Redis.
       produces:
       - application/json
       responses:
         "200":
-          description: Professional summary string
-          schema:
-            type: string
-        "500":
-          description: Internal server error
+          description: Status OK
           schema:
             additionalProperties:
               type: string
             type: object
-      summary: Get summarized profile
+        "500":
+          description: Redis connection failed
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health check endpoint
+      tags:
+      - health
+  /v1/summarizer:
+    get:
+      description: Retrieves structured personal data (e.g., work experience, education),
+        generates a professional summary using a large language model (LLM), and returns
+        it in the requested language.
+      parameters:
+      - description: 'Language code for the summary output. Supported values: ''en''
+          (English), ''kz'' (Kazakh), ''de'' (German). Defaults to ''en''.'
+        in: query
+        name: lang
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Generated professional summary
+          schema:
+            type: string
+        "500":
+          description: Internal server error with error details
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Generate professional profile summary
       tags:
       - summarizer
 securityDefinitions:
