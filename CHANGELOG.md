@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.2.0](https://github.com/nzhussup/admin-panel-personal-website/compare/v3.1.0...v3.2.0) (2025-06-20)
+
+
+### Features
+
+* add multilanguage support for summarizer and add parallel caching ([83e7d77](https://github.com/nzhussup/admin-panel-personal-website/commit/83e7d77b27bd75537f56315e3dea9bcf38a227a3))
+
+
+### Bug Fixes
+
+* fix api gateway documentation fix summarizer docs ([a0d5cee](https://github.com/nzhussup/admin-panel-personal-website/commit/a0d5ceef4b23af11bccdf7f90d6426bdf50e669f))
+* fix caching functionality and add utils functions ([e3934ff](https://github.com/nzhussup/admin-panel-personal-website/commit/e3934ff7ab809bc9479b29ce75ba1a152fa6b62f))
+* fix the documentation ([1648295](https://github.com/nzhussup/admin-panel-personal-website/commit/164829544f049d057237abe670514eb3571e4b2e))
+
 ## [3.1.0](https://github.com/nzhussup/admin-panel-personal-website/compare/v3.0.0...v3.1.0) (2025-06-19)
 
 
