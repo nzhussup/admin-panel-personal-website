@@ -24,6 +24,7 @@ type RedisAPI interface {
 	Set(ctx context.Context, key string, value any, expiration time.Duration) *redis.StatusCmd
 	Get(ctx context.Context, key string) *redis.StringCmd
 	Del(ctx context.Context, keys ...string) *redis.IntCmd
+	Ping(ctx context.Context) *redis.StatusCmd
 }
 
 type RedisClient struct {
@@ -87,6 +88,15 @@ func (r *RedisClient) Del(key string) error {
 	err := r.Client.Del(ctx, key).Err()
 	if err != nil {
 		return fmt.Errorf(wrapper, err, "failed to delete cache key")
+	}
+	return nil
+}
+
+func (r *RedisClient) Ping() error {
+	ctx := context.Background()
+
+	if err := r.Client.Ping(ctx).Err(); err != nil {
+		return fmt.Errorf(wrapper, err, "failed to ping Redis")
 	}
 	return nil
 }

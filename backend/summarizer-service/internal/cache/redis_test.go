@@ -32,6 +32,11 @@ func (m *MockRedisClient) Del(ctx context.Context, keys ...string) *redis.IntCmd
 	return args.Get(0).(*redis.IntCmd)
 }
 
+func (m *MockRedisClient) Ping(ctx context.Context) *redis.StatusCmd {
+	args := m.Called(ctx)
+	return args.Get(0).(*redis.StatusCmd)
+}
+
 // Helper functions to create redis.Cmd mocks
 func newStatusCmd(err error) *redis.StatusCmd {
 	cmd := redis.NewStatusCmd(context.Background())
@@ -48,6 +53,13 @@ func newStringCmd(val string, err error) *redis.StringCmd {
 
 func newIntCmd(val int64, err error) *redis.IntCmd {
 	cmd := redis.NewIntCmd(context.Background())
+	cmd.SetVal(val)
+	cmd.SetErr(err)
+	return cmd
+}
+
+func newPingStatusCmd(val string, err error) *redis.StatusCmd {
+	cmd := redis.NewStatusCmd(context.Background())
 	cmd.SetVal(val)
 	cmd.SetErr(err)
 	return cmd
@@ -142,6 +154,26 @@ func TestRedisClient_SetGetDel(t *testing.T) {
 				return client.Del(key)
 			},
 			expectedErr: errors.New("failed to delete cache key"),
+		},
+		"ping_success": {
+			setupMock: func() {
+				mockRedis.On("Ping", mock.Anything).
+					Return(newPingStatusCmd("PONG", nil)).Once()
+			},
+			run: func() error {
+				return client.Ping()
+			},
+			expectedErr: nil,
+		},
+		"ping_failure": {
+			setupMock: func() {
+				mockRedis.On("Ping", mock.Anything).
+					Return(newPingStatusCmd("", errors.New("ping error"))).Once()
+			},
+			run: func() error {
+				return client.Ping()
+			},
+			expectedErr: errors.New("failed to ping Redis"),
 		},
 	}
 

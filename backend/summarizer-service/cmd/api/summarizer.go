@@ -3,19 +3,25 @@ package main
 import (
 	"net/http"
 	"summarizer-service/internal/summarizer"
+	"summarizer-service/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
 // handleGetSummarizer godoc
-// @Summary      Get summarized profile
-// @Description  Fetches personal data, generates a summary using LLM, and returns the professional bio summary.
+// @Summary      Generate professional profile summary
+// @Description  Retrieves structured personal data (e.g., work experience, education), generates a professional summary using a large language model (LLM), and returns it in the requested language.
 // @Tags         summarizer
 // @Produce      json
-// @Success      200  {string}  string  "Professional summary string"
-// @Failure      500  {object}  map[string]string  "Internal server error"
+// @Param        lang  query     string  false  "Language code for the summary output. Supported values: 'en' (English), 'kz' (Kazakh), 'de' (German). Defaults to 'en'."
+// @Success      200   {string}  string  "Generated professional summary"
+// @Failure      500   {object}  map[string]string  "Internal server error with error details"
 // @Router       /v1/summarizer [get]
 func (app *app) handleGetSummarizer(ctx *gin.Context) {
+	lang := ctx.DefaultQuery("lang", "en")
+	if !utils.IsValidLanguage(lang) {
+		lang = "en" // Default to English if the provided language is invalid
+	}
 
 	s := summarizer.NewSummarizer(
 		app.config.summarizerConfig.API_KEY,
@@ -29,6 +35,7 @@ func (app *app) handleGetSummarizer(ctx *gin.Context) {
 		},
 		http.DefaultClient,
 		app.redis,
+		lang,
 	)
 
 	summary, err := s.Summarize(ctx.Request.Context())

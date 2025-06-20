@@ -75,17 +75,7 @@ func (app *app) getRouter() *gin.Engine {
 
 	api.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// healthCheck godoc
-	// @Summary      Health check endpoint
-	// @Description  Returns "ok" if the service is running
-	// @Tags         health
-	// @Produce      json
-	// @Success      200  {string}  string  "ok"
-	// @Router       /health [get]
-	api.GET("/health", func(c *gin.Context) {
-		constructJSONResponse(c, 200, "ok")
-	})
-
+	api.GET("/health", app.handleGetHealth)
 	api.GET("", app.handleGetSummarizer)
 	return r
 }
