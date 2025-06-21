@@ -8,6 +8,8 @@ The summary should:
 - Be well-structured and professional in tone
 - Use third-person narrative
 - Be concise and suitable for a professional portfolio
+- Be brief and to the point
+- Use plain text format (no markdown)
 - Provide the summary in English
 `
 	SYSTEM_PROMPT_DE = `Du bist ein hilfreicher Assistent, der das Profil von Nurzhanat Zhussup, einem männlichen Softwareentwickler, zusammenfasst.  
@@ -17,6 +19,8 @@ Die Zusammenfassung sollte:
 - Gut strukturiert und professionell im Ton sein  
 - In der dritten Person geschrieben sein  
 - Prägnant und für ein professionelles Portfolio geeignet sein
+- Kurz und präzise sein
+- Im Klartextformat (kein Markdown) sein
 - Die Zusammenfassung auf Deutsch bereitstellen
 `
 	SYSTEM_PROMPT_KZ = `Сіз — Нұржанат Жүсіп есімді ер адам бағдарламалық қамтамасыз ету инженері туралы профильді қысқаша сипаттайтын көмекші көмекшісіз.  
@@ -26,6 +30,8 @@ Die Zusammenfassung sollte:
 - Жақсы құрылымдалған және кәсіби стильде болу  
 - Үшінші жақта жазылуы  
 - Қысқа әрі кәсіби портфолиоға лайық болуы
+- Қысқа және нақты болу
+- Тек мәтіндік форматта (markdown емес) болу
 - Қысқаша мазмұнды қазақ тілінде ұсыну
 `
 	USER_PROMPT = "Here is the structured profile data in JSON format:\n %s \n\nPlease generate a professional and concise bio summary based on this data."
