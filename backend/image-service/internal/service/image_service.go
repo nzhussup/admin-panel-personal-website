@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -24,11 +25,16 @@ type ImageService struct {
 }
 
 func (s *ImageService) UploadImage(albumID string, files []*multipart.FileHeader) ([]*model.Image, error) {
+	var (
+		savedImages []*model.Image
+		mu          sync.Mutex
+		wg          sync.WaitGroup
+		errChan     = make(chan error, len(files))
+	)
 
-	var savedImages []*model.Image
-
+	// Pre-validate image types
 	for _, file := range files {
-		contentType := file.Header["Content-Type"][0]
+		contentType := file.Header.Get("Content-Type")
 		imageType := model.ImageType(contentType)
 		if _, ok := model.AllowedTypes[imageType]; !ok {
 			return nil, custom_errors.NewError(custom_errors.ErrBadRequest, fmt.Sprintf("invalid image type: %s. Only JPEG, PNG, and HEIC are allowed", contentType))
@@ -36,43 +42,62 @@ func (s *ImageService) UploadImage(albumID string, files []*multipart.FileHeader
 	}
 
 	for _, file := range files {
-		fileData, err := file.Open()
-		if err != nil {
-			return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to open image file")
-		}
-		defer fileData.Close()
+		wg.Add(1)
+		go func(file *multipart.FileHeader) {
+			defer wg.Done()
 
-		image := &model.Image{
-			Type: model.ImageType(file.Header["Content-Type"][0]),
-		}
-		if image.Type != model.JPEG && image.Type != model.PNG && image.Type != model.JPG && image.Type != model.HEIC {
-			return nil, custom_errors.NewError(custom_errors.ErrBadRequest, fmt.Sprintf("invalid image type: %s. Only JPEG, PNG, and HEIC are allowed", image.Type))
-		}
+			fileData, err := file.Open()
+			if err != nil {
+				errChan <- custom_errors.NewError(custom_errors.ErrInternalServer, "failed to open image file")
+				return
+			}
+			defer fileData.Close()
 
-		data, err := io.ReadAll(fileData)
-		if err != nil {
-			return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to read image file")
-		}
-		reader := bytes.NewReader(data)
+			image := &model.Image{
+				Type: model.ImageType(file.Header.Get("Content-Type")),
+			}
 
-		extention := strings.Split(string(image.Type), "/")[1]
-		compressedData, err := utils.CompressImage(reader, extention)
-		if err != nil {
-			return nil, err
-		}
-		if extention == "heic" {
-			image.Type = model.JPEG
-		}
-		image.Data = compressedData
+			data, err := io.ReadAll(fileData)
+			if err != nil {
+				errChan <- custom_errors.NewError(custom_errors.ErrInternalServer, "failed to read image file")
+				return
+			}
 
-		savedImage, err := s.storage.Image.Upload(albumID, image)
-		if err != nil {
-			return nil, err
-		}
-		savedImages = append(savedImages, savedImage)
+			reader := bytes.NewReader(data)
+			extension := strings.Split(string(image.Type), "/")[1]
 
-		// CACHING
-		s.redis.Set(fmt.Sprintf("image:%s:%s", albumID, savedImage.ID), fmt.Sprintf("%s/%s/%s", s.storage.Path, albumID, savedImage.ID))
+			compressedData, err := utils.CompressImage(reader, extension)
+			if err != nil {
+				errChan <- err
+				return
+			}
+
+			if extension == "heic" {
+				image.Type = model.JPEG
+			}
+			image.Data = compressedData
+
+			savedImage, err := s.storage.Image.Upload(albumID, image)
+			if err != nil {
+				errChan <- err
+				return
+			}
+
+			cacheKey := fmt.Sprintf("image:%s:%s", albumID, savedImage.ID)
+			cacheValue := fmt.Sprintf("%s/%s/%s", s.storage.Path, albumID, savedImage.ID)
+			s.redis.Set(cacheKey, cacheValue)
+
+			mu.Lock()
+			savedImages = append(savedImages, savedImage)
+			mu.Unlock()
+		}(file)
+	}
+
+	wg.Wait()
+	close(errChan)
+
+	if len(errChan) > 0 {
+		return nil, <-errChan
 	}
 
 	s.redis.Del(fmt.Sprintf("album_%s", albumID))
