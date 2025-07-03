@@ -1,4 +1,4 @@
-module summarizer-service
+module llm-service
 
 go 1.24.1
 

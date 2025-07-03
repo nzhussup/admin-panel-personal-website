@@ -7,14 +7,14 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN go build -o bin/summarizer-service ./cmd/api
+RUN go build -o bin/llm-service ./cmd/api
 
 # RUN STAGE
 FROM alpine:latest
 WORKDIR /app
 
-COPY --from=builder /app/bin/summarizer-service /app/summarizer-service
+COPY --from=builder /app/bin/llm-service /app/llm-service
 EXPOSE 8086
-CMD ["/app/summarizer-service"]
+CMD ["/app/llm-service"]
 
 

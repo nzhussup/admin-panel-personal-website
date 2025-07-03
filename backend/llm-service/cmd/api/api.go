@@ -1,11 +1,11 @@
 package main
 
 import (
-	"summarizer-service/internal/cache"
-	"summarizer-service/internal/ratelimiter"
+	"llm-service/internal/cache"
+	"llm-service/internal/ratelimiter"
 	"time"
 
-	_ "summarizer-service/docs"
+	_ "llm-service/docs"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -76,7 +76,7 @@ func (app *app) getRouter() *gin.Engine {
 	api.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	api.GET("/health", app.handleGetHealth)
-	api.GET("", app.handleGetSummarizer)
+	api.GET("/summarize", app.handleGetSummarizer)
 	return r
 }
 

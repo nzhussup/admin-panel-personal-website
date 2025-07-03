@@ -6,11 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"llm-service/internal/cache"
+	"llm-service/internal/model"
 	"log/slog"
 	"net/http"
 	"strings"
-	"summarizer-service/internal/cache"
-	"summarizer-service/internal/model"
 )
 
 const wrapper = "%w: %v"

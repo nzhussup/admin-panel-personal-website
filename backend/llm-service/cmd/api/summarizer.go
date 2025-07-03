@@ -1,9 +1,9 @@
 package main
 
 import (
+	"llm-service/internal/summarizer"
+	"llm-service/internal/utils"
 	"net/http"
-	"summarizer-service/internal/summarizer"
-	"summarizer-service/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,7 +16,7 @@ import (
 // @Param        lang  query     string  false  "Language code for the summary output. Supported values: 'en' (English), 'kz' (Kazakh), 'de' (German). Defaults to 'en'."
 // @Success      200   {string}  string  "Generated professional summary"
 // @Failure      500   {object}  map[string]string  "Internal server error with error details"
-// @Router       /v1/summarizer [get]
+// @Router       /v1/llm/summarize [get]
 func (app *app) handleGetSummarizer(ctx *gin.Context) {
 	lang := ctx.DefaultQuery("lang", "en")
 	if !utils.IsValidLanguage(lang) {

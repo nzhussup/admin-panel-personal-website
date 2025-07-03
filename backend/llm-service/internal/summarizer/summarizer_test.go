@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"llm-service/internal/model"
+	"llm-service/internal/utils"
 	"net/http"
 	"net/http/httptest"
-	"summarizer-service/internal/model"
-	"summarizer-service/internal/utils"
 	"testing"
 	"time"
 

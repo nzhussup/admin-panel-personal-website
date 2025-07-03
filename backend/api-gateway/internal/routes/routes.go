@@ -21,7 +21,7 @@ func SetupRouter() *gin.Engine {
 	baseServiceURL := os.Getenv("BASE_SERVICE_URL")
 	userServiceURL := os.Getenv("USER_SERVICE_URL")
 	imageServiceURL := os.Getenv("IMAGE_SERVICE_URL")
-	summarizerServiceURL := os.Getenv("SUMMARIZER_SERVICE_URL")
+	llmServiceURL := os.Getenv("LLM_SERVICE_URL")
 	weddingServiceURL := os.Getenv("WEDDING_SERVICE_URL")
 
 	httpClient := &http.Client{
@@ -62,9 +62,9 @@ func SetupRouter() *gin.Engine {
 	//// User
 	v1.Any("/user", proxy.NewServiceProxy(userServiceURL))
 	v1.Any("/user/*proxyPath", proxy.NewServiceProxy(userServiceURL))
-	//// Summarizer
-	v1.Any("/summarizer", proxy.NewServiceProxy(summarizerServiceURL))
-	v1.Any("/summarizer/*proxyPath", proxy.NewServiceProxy(summarizerServiceURL))
+	//// LLM
+	v1.Any("/llm", proxy.NewServiceProxy(llmServiceURL))
+	v1.Any("/llm/*proxyPath", proxy.NewServiceProxy(llmServiceURL))
 
 	return r
 }

@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"llm-service/internal/cache"
+	"llm-service/internal/env"
 	"log/slog"
-	"summarizer-service/internal/cache"
-	"summarizer-service/internal/env"
 	"time"
 )
 
@@ -25,14 +25,14 @@ import (
 // @in header
 // @name Authorization
 func main() {
-	slog.Info("Starting summarizer service...")
+	slog.Info("Starting LLM service...")
 
 	API_GATEWAY_URL := env.GetString("API_GATEWAY_URL", "http://api-gateway.default.svc.cluster.local:8082")
 
 	config := &config{
 		appConfig: &appConfig{
 			port:     "8086",
-			endpoint: "/v1/summarizer",
+			endpoint: "/v1/llm",
 		},
 		ratelimiterConfig: &ratelimiterConfig{
 			rate:     5,
