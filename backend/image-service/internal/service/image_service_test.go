@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	custom_errors "image-service/internal/errors"
 	"image-service/internal/model"
 	"image-service/internal/repository"
 	"image/color"
@@ -13,6 +14,7 @@ import (
 	"mime/multipart"
 	"net/http/httptest"
 	"net/textproto"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -191,4 +193,104 @@ func TestUploadImage_ConcurrentSuccess(t *testing.T) {
 	assert.Len(t, images, numFiles)
 	mockImageRepo.AssertExpectations(t)
 	mockRedis.AssertExpectations(t)
+}
+
+func TestRenameImage(t *testing.T) {
+	mockImageRepo := new(MockImageRepo)
+	mockRedis := new(MockRedisClient)
+
+	svc := &ImageService{
+		storage:  &repository.Storage{Image: mockImageRepo},
+		redis:    mockRedis,
+		validate: validator.New(),
+	}
+
+	tests := []struct {
+		name           string
+		albumID        string
+		imageID        string
+		newName        string
+		mockRepoResult *model.Image
+		mockRepoErr    error
+		expectError    bool
+		expectBaseErr  error
+	}{
+		{
+			name:           "valid rename",
+			albumID:        "album1",
+			imageID:        "img.jpg",
+			newName:        "renamed",
+			mockRepoResult: &model.Image{ID: "renamed.jpg"},
+			expectError:    false,
+		},
+		{
+			name:          "invalid name (non-alphanumeric)",
+			albumID:       "album1",
+			imageID:       "img.jpg",
+			newName:       "renamed!!!",
+			expectError:   true,
+			expectBaseErr: custom_errors.ErrBadRequest,
+		},
+		{
+			name:          "invalid name (path component)",
+			albumID:       "album1",
+			imageID:       "img.jpg",
+			newName:       "../hack",
+			expectError:   true,
+			expectBaseErr: custom_errors.ErrBadRequest,
+		},
+		{
+			name:          "repo returns not found",
+			albumID:       "album1",
+			imageID:       "nonexistent.jpg",
+			newName:       "newname",
+			mockRepoErr:   custom_errors.NewError(custom_errors.ErrNotFound, "image does not exist"),
+			expectError:   true,
+			expectBaseErr: custom_errors.ErrNotFound,
+		},
+		{
+			name:          "rename to existing file",
+			albumID:       "album1",
+			imageID:       "img.jpg",
+			newName:       "existing",
+			mockRepoErr:   custom_errors.NewError(custom_errors.ErrConflict, "file already exists"),
+			expectError:   true,
+			expectBaseErr: custom_errors.ErrConflict,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			fullNewName := fmt.Sprintf("%s%s", tt.newName, filepath.Ext(tt.imageID))
+
+			if tt.mockRepoErr != nil || tt.mockRepoResult != nil {
+				mockImageRepo.
+					On("Rename", tt.albumID, tt.imageID, fullNewName).
+					Return(tt.mockRepoResult, tt.mockRepoErr).
+					Once()
+			}
+
+			if !tt.expectError {
+				mockRedis.On("Del", fmt.Sprintf("image:%s:%s", tt.albumID, tt.imageID)).Return().Once()
+				mockRedis.On("Del", fmt.Sprintf("album_%s", tt.albumID)).Return().Once()
+			}
+
+			img, err := svc.RenameImage(tt.albumID, tt.imageID, tt.newName)
+
+			if tt.expectError {
+				assert.Error(t, err)
+				if tt.expectBaseErr != nil {
+					assert.True(t, errors.Is(err, tt.expectBaseErr), "expected base error: %v, got: %v", tt.expectBaseErr, err)
+				}
+				assert.Nil(t, img)
+			} else {
+				assert.NoError(t, err)
+				assert.NotNil(t, img)
+				assert.Equal(t, fullNewName, img.ID)
+			}
+
+			mockImageRepo.AssertExpectations(t)
+			mockRedis.AssertExpectations(t)
+		})
+	}
 }

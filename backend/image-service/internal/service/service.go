@@ -23,6 +23,7 @@ type Service struct {
 	}
 	ImageService interface {
 		UploadImage(string, []*multipart.FileHeader) ([]*model.Image, error)
+		RenameImage(string, string, string) (*model.Image, error)
 		DeleteImage(string, string) error
 		ServeImage(string, string) (string, error)
 	}

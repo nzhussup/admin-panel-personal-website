@@ -20,6 +20,7 @@ type Controller struct {
 		Upload(*gin.Context)
 		Delete(*gin.Context)
 		Serve(*gin.Context)
+		Rename(*gin.Context)
 	}
 	CacheController interface {
 		ClearCache(*gin.Context)

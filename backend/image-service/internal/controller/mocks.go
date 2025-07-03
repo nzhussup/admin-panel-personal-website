@@ -29,6 +29,14 @@ func (m *MockImageService) ServeImage(albumID, imageID string) (string, error) {
 	return args.String(0), args.Error(1)
 }
 
+func (m *MockImageService) RenameImage(albumID, imageID, newName string) (*model.Image, error) {
+	args := m.Called(albumID, imageID, newName)
+	if img, ok := args.Get(0).(*model.Image); ok {
+		return img, args.Error(1)
+	}
+	return nil, args.Error(1)
+}
+
 // PRDUCER
 
 type MockProducer struct {

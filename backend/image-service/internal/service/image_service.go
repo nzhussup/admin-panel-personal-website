@@ -105,6 +105,31 @@ func (s *ImageService) UploadImage(albumID string, files []*multipart.FileHeader
 	return savedImages, nil
 }
 
+func (s *ImageService) RenameImage(albumID string, imageID string, newName string) (*model.Image, error) {
+	if err := s.validate.Var(newName, "required,alphanum"); err != nil {
+		return nil, custom_errors.NewError(custom_errors.ErrBadRequest, "invalid image name")
+	}
+
+	if newName != filepath.Base(newName) || strings.Contains(newName, string(os.PathSeparator)) || strings.Contains(newName, "..") {
+		return nil, custom_errors.NewError(custom_errors.ErrBadRequest, "image name must not include path components or directory traversal")
+	}
+
+	extension := filepath.Ext(imageID)
+	newName = fmt.Sprintf("%s%s", newName, extension)
+
+	image, err := s.storage.Image.Rename(albumID, imageID, newName)
+	if err != nil {
+		return nil, err
+	}
+
+	// CACHE EVICTION
+	cacheKey := fmt.Sprintf("image:%s:%s", albumID, imageID)
+	s.redis.Del(cacheKey)
+	s.redis.Del(fmt.Sprintf("album_%s", albumID))
+
+	return image, nil
+}
+
 func (s *ImageService) DeleteImage(albumID string, imageID string) error {
 	err := s.storage.Image.Delete(albumID, imageID)
 	if err != nil {

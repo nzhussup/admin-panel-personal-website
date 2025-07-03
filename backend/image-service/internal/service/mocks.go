@@ -52,6 +52,15 @@ func (m *MockImageRepo) Delete(albumID string, imageID string) error {
 	return args.Error(0)
 }
 
+func (m *MockImageRepo) Rename(albumID string, imageID string, newName string) (*model.Image, error) {
+	args := m.Called(albumID, imageID, newName)
+	var img *model.Image
+	if res := args.Get(0); res != nil {
+		img = res.(*model.Image)
+	}
+	return img, args.Error(1)
+}
+
 // REDIS CLIENT
 
 type MockRedisClient struct {

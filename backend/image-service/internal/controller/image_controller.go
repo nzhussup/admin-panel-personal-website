@@ -117,3 +117,36 @@ func (ctrl *ImageController) Serve(c *gin.Context) {
 
 	c.File(imagePath)
 }
+
+// Rename godoc
+// @Summary Rename an image in an album
+// @Description Renames a specific image in an album to a new valid name (alphanumeric, no path components)
+// @Tags Image
+// @Produce json
+// @Param id path string true "Album ID"
+// @Param imageID path string true "Image ID"
+// @Param newName query string true "New name for the image (without extension)"
+// @Success 200 {object} model.SuccessResponse{data=model.Image} "Image renamed successfully"
+// @Failure 400 {object} model.ErrorDetails "Bad Request"
+// @Failure 404 {object} model.ErrorDetails "Image Not Found"
+// @Failure 409 {object} model.ErrorDetails "Conflict - Duplicate image name"
+// @Failure 500 {object} model.ErrorDetails "Internal Server Error"
+// @Router /v1/album/{id}/{imageID}/rename [patch]
+// @Security ApiKeyAuth
+func (ctrl *ImageController) Rename(c *gin.Context) {
+	albumID := c.Param("id")
+	imageID := c.Param("imageID")
+	newName := c.DefaultQuery("newName", imageID)
+
+	if newName == "" {
+		customJson.ConstructJsonResponseError(c, custom_errors.NewError(custom_errors.ErrBadRequest, "New name is required"), http.StatusBadRequest)
+		return
+	}
+
+	image, err := ctrl.service.ImageService.RenameImage(albumID, imageID, newName)
+	if err != nil {
+		custom_errors.MapErrors(c, err)
+		return
+	}
+	customJson.ConstructJsonResponseSuccess(c, image, "Image renamed successfully")
+}

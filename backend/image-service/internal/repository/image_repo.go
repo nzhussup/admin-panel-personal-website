@@ -65,6 +65,40 @@ func (i *ImageRepository) Upload(albumID string, image *model.Image) (*model.Ima
 	return image, nil
 }
 
+func (i *ImageRepository) Rename(albumID string, imageID string, newName string) (*model.Image, error) {
+	imagePath := filepath.Join(i.Path, albumID, imageID)
+	newImagePath := filepath.Join(i.Path, albumID, newName)
+
+	lock := getAlbumLock(albumID)
+	lock.Lock()
+	defer lock.Unlock()
+
+	if _, err := os.Stat(imagePath); os.IsNotExist(err) {
+		return nil, custom_errors.NewError(custom_errors.ErrNotFound, "image not found")
+	}
+
+	if _, err := os.Stat(newImagePath); err == nil {
+		return nil, custom_errors.NewError(custom_errors.ErrConflict, "image with the new name already exists")
+	} else if !os.IsNotExist(err) {
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to validate new image name")
+	}
+
+	if strings.EqualFold(imageID, newName) && imageID != newName {
+		return nil, custom_errors.NewError(custom_errors.ErrConflict, "renaming with case-difference only is not allowed")
+	}
+
+	err := os.Rename(imagePath, newImagePath)
+	if err != nil {
+		return nil, custom_errors.NewError(custom_errors.ErrInternalServer, "failed to rename image")
+	}
+
+	return &model.Image{
+		ID:   newName,
+		URL:  filepath.Join(i.ApiBasePath, albumID, newName),
+		Type: model.ExtensionsMap[(filepath.Ext(newName))],
+	}, nil
+}
+
 func (i *ImageRepository) Delete(albumID string, imageID string) error {
 	imagePath := filepath.Join(i.Path, albumID, imageID)
 	metaDataPath := filepath.Join(i.Path, albumID, "meta.json")

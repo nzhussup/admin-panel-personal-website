@@ -394,6 +394,59 @@ paths:
       summary: Serve an image file
       tags:
       - Image
+  /v1/album/{id}/{imageID}/rename:
+    patch:
+      description: Renames a specific image in an album to a new valid name (alphanumeric,
+        no path components)
+      parameters:
+      - description: Album ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Image ID
+        in: path
+        name: imageID
+        required: true
+        type: string
+      - description: New name for the image (without extension)
+        in: query
+        name: newName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Image renamed successfully
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.Image'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.ErrorDetails'
+        "404":
+          description: Image Not Found
+          schema:
+            $ref: '#/definitions/model.ErrorDetails'
+        "409":
+          description: Conflict - Duplicate image name
+          schema:
+            $ref: '#/definitions/model.ErrorDetails'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/model.ErrorDetails'
+      security:
+      - ApiKeyAuth: []
+      summary: Rename an image in an album
+      tags:
+      - Image
   /v1/album/{id}/upload:
     post:
       consumes:

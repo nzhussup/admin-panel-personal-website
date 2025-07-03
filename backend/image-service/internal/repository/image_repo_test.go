@@ -139,3 +139,97 @@ func TestDelete_ImageNotFound(t *testing.T) {
 	assert.Error(t, err)
 	assert.True(t, errors.Is(err, custom_errors.ErrNotFound))
 }
+
+func TestRename(t *testing.T) {
+	basePath := t.TempDir()
+	albumID := "album1"
+	albumPath := setupTestAlbum(t, basePath, albumID)
+
+	repo := &ImageRepository{
+		Path:        basePath,
+		ApiBasePath: "/api/images",
+	}
+
+	// Create initial image
+	originalName := "test.jpg"
+	originalPath := filepath.Join(albumPath, originalName)
+	err := os.WriteFile(originalPath, []byte("image data"), 0644)
+	assert.NoError(t, err)
+
+	// Create a conflicting image file
+	conflictName := "conflict.jpg"
+	conflictPath := filepath.Join(albumPath, conflictName)
+	err = os.WriteFile(conflictPath, []byte("conflict data"), 0644)
+	assert.NoError(t, err)
+
+	tests := []struct {
+		name         string
+		albumID      string
+		imageID      string
+		newName      string
+		expectError  bool
+		expectedBase error
+	}{
+		{
+			name:         "successful rename",
+			albumID:      albumID,
+			imageID:      originalName,
+			newName:      "renamed.jpg",
+			expectError:  false,
+			expectedBase: nil,
+		},
+		{
+			name:         "image not found",
+			albumID:      albumID,
+			imageID:      "missing.jpg",
+			newName:      "renamed.jpg",
+			expectError:  true,
+			expectedBase: custom_errors.ErrNotFound,
+		},
+		{
+			name:         "new name already exists",
+			albumID:      albumID,
+			imageID:      originalName,
+			newName:      conflictName,
+			expectError:  true,
+			expectedBase: custom_errors.ErrConflict,
+		},
+		{
+			name:         "case-only rename not allowed",
+			albumID:      albumID,
+			imageID:      originalName,
+			newName:      "TEST.jpg",
+			expectError:  true,
+			expectedBase: custom_errors.ErrConflict,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Recreate original file if it was renamed in previous test
+			if tt.imageID == originalName {
+				_, err := os.Stat(originalPath)
+				if os.IsNotExist(err) {
+					_ = os.WriteFile(originalPath, []byte("image data"), 0644)
+				}
+			}
+
+			img, err := repo.Rename(tt.albumID, tt.imageID, tt.newName)
+
+			if tt.expectError {
+				assert.Error(t, err)
+				assert.True(t, errors.Is(err, tt.expectedBase), "expected base error: %v, got: %v", tt.expectedBase, err)
+				assert.Nil(t, img)
+			} else {
+				assert.NoError(t, err)
+				assert.NotNil(t, img)
+				assert.Equal(t, tt.newName, img.ID)
+
+				// Confirm file physically exists
+				newPath := filepath.Join(albumPath, tt.newName)
+				_, statErr := os.Stat(newPath)
+				assert.NoError(t, statErr)
+			}
+		})
+	}
+}

@@ -626,6 +626,90 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/v1/album/{id}/{imageID}/rename": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Renames a specific image in an album to a new valid name (alphanumeric, no path components)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Image"
+                ],
+                "summary": "Rename an image in an album",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Album ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Image ID",
+                        "name": "imageID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "New name for the image (without extension)",
+                        "name": "newName",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Image renamed successfully",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.Image"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorDetails"
+                        }
+                    },
+                    "404": {
+                        "description": "Image Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorDetails"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict - Duplicate image name",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorDetails"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/model.ErrorDetails"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

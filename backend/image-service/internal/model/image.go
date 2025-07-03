@@ -2,6 +2,13 @@ package model
 
 type ImageType string
 
+var ExtensionsMap = map[string]ImageType{
+	".jpeg": JPEG,
+	".jpg":  JPG,
+	".png":  PNG,
+	".heic": HEIC,
+}
+
 const (
 	JPEG ImageType = "image/jpeg"
 	JPG  ImageType = "image/jpg"
