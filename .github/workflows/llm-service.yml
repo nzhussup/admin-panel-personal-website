@@ -1,11 +1,11 @@
-name: Summarizer Service CI/CD for Build and Deploy
+name: LLM Service CI/CD for Build and Deploy
 
 on:
   push:
     branches:
       - "**"
     paths:
-      - "backend/summarizer-service/**"
+      - "backend/llm-service/**"
   workflow_dispatch:
 
 jobs:
@@ -13,8 +13,8 @@ jobs:
     if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/backend-cicd-template.yml
     with:
-      service_name: summarizer-service
-      service_path: backend/summarizer-service
+      service_name: llm-service
+      service_path: backend/llm-service
       lang: go
     secrets:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -27,6 +27,6 @@ jobs:
     if: github.ref != 'refs/heads/main'
     uses: ./.github/workflows/backend-cicd-template-feature.yml
     with:
-      service_name: summarizer-service
-      service_path: backend/summarizer-service
+      service_name: llm-service
+      service_path: backend/llm-service
       lang: go
