@@ -32,7 +32,7 @@ paths:
       summary: Health check endpoint
       tags:
       - health
-  /v1/summarizer:
+  /v1/llm/summarize:
     get:
       description: Retrieves structured personal data (e.g., work experience, education),
         generates a professional summary using a large language model (LLM), and returns

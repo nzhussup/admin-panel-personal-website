@@ -3,6 +3,7 @@ package routes
 import (
 	"api-gateway/internal/middleware"
 	"api-gateway/internal/proxy"
+	"log/slog"
 	"net/http"
 	"path/filepath"
 	"time"
@@ -23,6 +24,15 @@ func SetupRouter() *gin.Engine {
 	imageServiceURL := os.Getenv("IMAGE_SERVICE_URL")
 	llmServiceURL := os.Getenv("LLM_SERVICE_URL")
 	weddingServiceURL := os.Getenv("WEDDING_SERVICE_URL")
+
+	slog.Info("Setting up API Gateway routes",
+		slog.String("authServiceURL", authServiceURL),
+		slog.String("baseServiceURL", baseServiceURL),
+		slog.String("userServiceURL", userServiceURL),
+		slog.String("imageServiceURL", imageServiceURL),
+		slog.String("llmServiceURL", llmServiceURL),
+		slog.String("weddingServiceURL", weddingServiceURL),
+	)
 
 	httpClient := &http.Client{
 		Timeout: 10 * time.Second,

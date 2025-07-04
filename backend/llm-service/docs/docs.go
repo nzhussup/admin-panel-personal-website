@@ -54,7 +54,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/v1/summarizer": {
+        "/v1/llm/summarize": {
             "get": {
                 "description": "Retrieves structured personal data (e.g., work experience, education), generates a professional summary using a large language model (LLM), and returns it in the requested language.",
                 "produces": [
