@@ -11,6 +11,7 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+	"time"
 )
 
 const wrapper = "%w: %v"
@@ -100,6 +101,8 @@ func (s *Summarizer) backgroundSummarizeOthers(ctx context.Context, pd *model.Pe
 		if lang == s.lang {
 			continue // Skip current language, already processed
 		}
+
+		time.Sleep(3 * time.Second) // Add delay between goroutines, to avoid rate limitation issues
 
 		go func(lang string) {
 			// Create a new Summarizer instance with the other language
