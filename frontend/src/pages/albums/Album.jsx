@@ -17,14 +17,18 @@ import ErrorElement from "../misc/errors/Error";
 import NoInfoFoundElement from "../misc/errors/NoInfoFound";
 import FramedImageCard from "../../components/FramedImageCard";
 import ImageFormInput from "../../components/ImageFormInput";
+import FormInput from "../../components/FormInput";
 import config from "../../config/ConfigVariables";
+import { useGlobalAlert } from "../../context/GlobalAlertContext";
 
 const Album = () => {
   const { id } = useParams();
+  const { triggerAlert } = useGlobalAlert();
 
   const {
     items,
     saveItem,
+    renameItem,
     confirmDelete,
     handleDelete,
     isDeleteModalOpen,
@@ -32,6 +36,7 @@ const Album = () => {
     toggleSort,
     showLoading,
     error,
+    fetchItem,
   } = usePageData("album/" + id, true);
 
   const album = items && items[0];
@@ -64,6 +69,44 @@ const Album = () => {
     </PopUp>
   );
 
+  const imageForm = (
+    <PopUp
+      closePopup={closePopup}
+      title={isEditMode ? "Edit Image" : "Add Image"}
+      onSubmit={async () => {
+        try {
+          await renameItem(formData);
+          triggerAlert(
+            `Successfully changed id to ${formData.newId}`,
+            "success"
+          );
+          closePopup();
+        } catch (err) {
+          triggerAlert(err.message || "An unexpected error occurred", "danger");
+        } finally {
+          fetchItem();
+        }
+      }}
+    >
+      {formData.id}
+      <FormInput
+        value={formData.newId}
+        type='clearable_text'
+        onChange={(e) => setFormData({ ...formData, newId: e.target.value })}
+        required={true}
+      />
+    </PopUp>
+  );
+
+  const renderForm = () => {
+    if (showPopup) {
+      if (isEditMode) {
+        return imageForm;
+      }
+      return albumForm;
+    }
+  };
+
   const albumImagesSection = (
     <PageWrapper>
       <div className='row row-cols-2 row-cols-sm-2 row-cols-md-3 g-4'>
@@ -73,6 +116,9 @@ const Album = () => {
               imageUrl={`${config.apiBase}${image?.url || ""}`}
               alt={image?.alt}
               onDelete={() => confirmDelete(image.id)}
+              onEdit={() => {
+                openPopup(image);
+              }}
             />
           </div>
         ))}
@@ -103,7 +149,7 @@ const Album = () => {
         onConfirm={handleDelete}
       />
 
-      {showPopup && albumForm}
+      {renderForm()}
       {!error && !showPopup && <AddButton openPopup={openPopup} />}
     </>
   );

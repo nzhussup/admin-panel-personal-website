@@ -12,6 +12,7 @@ import AlbumsPreview from "../pages/albums/AlbumsPreview";
 import Album from "../pages/albums/Album";
 import Wedding from "../pages/Wedding";
 import CVGenerator from "../pages/CVGenerator";
+import LLMConfig from "../pages/LLMConfig";
 
 const routes = [
   {
@@ -75,8 +76,13 @@ const routes = [
     isProtected: false,
   },
   {
-    path: "cv-generator",
+    path: "/cv-generator",
     element: <CVGenerator />,
+    isProtected: true,
+  },
+  {
+    path: "llm",
+    element: <LLMConfig />,
     isProtected: true,
   },
   {

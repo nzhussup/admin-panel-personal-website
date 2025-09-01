@@ -17,12 +17,8 @@ public class BaseController<T extends Identifiable> {
 
     @GetMapping
     public ResponseEntity<List<T>> findAll() {
-        try {
-            List<T> entities = service.findAll();
-            return ResponseEntity.ok(entities);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+        List<T> entities = service.findAll();
+        return ResponseEntity.ok(entities);
     }
 
     @PostMapping

@@ -79,6 +79,35 @@ const saveImageData = async (endpoint, formData) => {
     throw error;
   }
 };
+
+const renameImage = async (endpoint, formdata) => {
+  const token = localStorage.getItem("token");
+  if (!formdata.id || !formdata.newId) {
+    throw new Error("Form data must include properties id and newId");
+  }
+
+  try {
+    const response = await axios.put(
+      `${config.apiUrl}/${endpoint}/${formdata.id}?newName=${formdata.newId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      const msg =
+        error.response.data?.message ||
+        `Failed to rename image (status ${error.response.status})`;
+      throw new Error(msg);
+    }
+    throw new Error("An unexpected error occurred while renaming image.");
+  }
+};
+
 const deleteData = async (endpoint, id) => {
   const token = localStorage.getItem("token");
 
@@ -119,4 +148,4 @@ const deleteData = async (endpoint, id) => {
 //   }
 // };
 
-export { fetchData, saveData, saveImageData, deleteData };
+export { fetchData, saveData, saveImageData, deleteData, renameImage };

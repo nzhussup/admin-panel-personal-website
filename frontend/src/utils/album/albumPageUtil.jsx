@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { fetchData, saveData, saveImageData, deleteData } from "./albumApiUtil";
+import {
+  fetchData,
+  saveData,
+  saveImageData,
+  deleteData,
+  renameImage,
+} from "./albumApiUtil";
 import config from "../../config/ConfigVariables";
 
 export const usePageData = (endpoint, isSingle, sortBy = "date") => {
@@ -100,6 +106,19 @@ export const usePageData = (endpoint, isSingle, sortBy = "date") => {
     setResponse(response);
   };
 
+  const renameItem = async (formData) => {
+    var response;
+    try {
+      response = await renameImage(endpoint, formData);
+    } catch (error) {
+      console.error("Error in renameItem:", error);
+      setError(error);
+      throw error;
+    }
+    setResponse(response);
+    return response;
+  };
+
   const confirmDelete = (itemId) => {
     setSelectedItemId(itemId);
     setDeleteModalOpen(true);
@@ -111,15 +130,16 @@ export const usePageData = (endpoint, isSingle, sortBy = "date") => {
         const response = await deleteData(endpoint, selectedItemId);
         setSelectedItemId(null);
         setDeleteModalOpen(false);
+        setResponse(response);
+      } catch (error) {
+        console.error("Error in handleDelete:", error);
+        setError(error);
+      } finally {
         if (isSingle) {
           fetchItem();
         } else {
           fetchItems();
         }
-        setResponse(response);
-      } catch (error) {
-        console.error("Error in handleDelete:", error);
-        setError(error);
       }
     }
   };
@@ -139,6 +159,7 @@ export const usePageData = (endpoint, isSingle, sortBy = "date") => {
   return {
     items,
     saveItem,
+    renameItem,
     confirmDelete,
     handleDelete,
     isDeleteModalOpen,
@@ -148,6 +169,7 @@ export const usePageData = (endpoint, isSingle, sortBy = "date") => {
     error,
     response,
     setResponse,
+    fetchItem,
   };
 };
 

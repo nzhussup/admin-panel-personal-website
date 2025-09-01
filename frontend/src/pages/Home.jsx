@@ -37,6 +37,11 @@ const Home = () => {
     navigate("/cv-generator");
   };
 
+  const handleNavigateLLMConfig = () => {
+    console.log("Navigating to LLM Config");
+    navigate("/llm");
+  };
+
   return (
     <>
       <Header text={"Welcome to the Admin Panel"} />
@@ -97,6 +102,15 @@ const Home = () => {
                 desc='Here you can generate your CV using the CV Generator'
                 buttontxt='Generate CV'
                 handleFunc={handleNavigateCVGenerator}
+              />
+            </div>
+
+            <div className='col'>
+              <Card
+                title='LLM Config'
+                desc='Here you can tune LLM specific configurations'
+                buttontxt='Configure LLM'
+                handleFunc={handleNavigateLLMConfig}
               />
             </div>
           </div>
