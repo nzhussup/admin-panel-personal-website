@@ -71,11 +71,6 @@ const routes = [
     isProtected: true,
   },
   {
-    path: "/wedding",
-    element: <Wedding />,
-    isProtected: false,
-  },
-  {
     path: "/cv-generator",
     element: <CVGenerator />,
     isProtected: true,

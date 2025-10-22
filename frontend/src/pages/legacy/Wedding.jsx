@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
-import Header from "../components/Header";
-import Card from "../components/Card";
-import { usePageData, useRenderPage } from "../utils/wedding/pageUtil";
-import PageSubHeader from "../components/PageSubHeader";
-import PageWrapper from "../utils/SmoothPage";
-import LoadingElement from "./misc/Loading";
-import ErrorElement from "./misc/errors/Error";
-import NoInfoFoundElement from "./misc/errors/NoInfoFound";
-import GlobalAlert from "../components/GlobalAlert";
+import Header from "../../components/Header";
+import Card from "../../components/Card";
+import { usePageData, useRenderPage } from "../../utils/wedding/pageUtil";
+import PageSubHeader from "../../components/PageSubHeader";
+import PageWrapper from "../../utils/SmoothPage";
+import LoadingElement from "../misc/Loading";
+import ErrorElement from "../misc/errors/Error";
+import NoInfoFoundElement from "../misc/errors/NoInfoFound";
+import GlobalAlert from "../../components/GlobalAlert";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import ExportButton from "../components/ExportButton";
+import ExportButton from "../../components/ExportButton";
 
 const Wedding = () => {
   const [alertVisible, setAlertVisible] = useState(false);

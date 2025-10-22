@@ -1,4 +1,3 @@
-import React from "react";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import Card from "../components/Card";
@@ -25,11 +24,6 @@ const Home = () => {
   const handleNavigateAlbums = () => {
     console.log("Navigating to photos");
     navigate("/albums");
-  };
-
-  const handleNavigateWedding = () => {
-    console.log("Navigating to wedding");
-    navigate("/wedding");
   };
 
   const handleNavigateCVGenerator = () => {
@@ -84,15 +78,6 @@ const Home = () => {
                 desc='Here you can manage your albums, add new albums and images, update and delete them.'
                 buttontxt='Manage Albums'
                 handleFunc={handleNavigateAlbums}
-              />
-            </div>
-
-            <div className='col'>
-              <Card
-                title='Wedding'
-                desc='Here you can see wedding related data'
-                buttontxt='Manage Wedding'
-                handleFunc={handleNavigateWedding}
               />
             </div>
 
