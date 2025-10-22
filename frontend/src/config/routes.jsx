@@ -10,7 +10,6 @@ import NotFound from "../pages/misc/errors/NotFound";
 import Users from "../pages/Users";
 import AlbumsPreview from "../pages/albums/AlbumsPreview";
 import Album from "../pages/albums/Album";
-import Wedding from "../pages/Wedding";
 import CVGenerator from "../pages/CVGenerator";
 // import LLMConfig from "../pages/LLMConfig";
 
