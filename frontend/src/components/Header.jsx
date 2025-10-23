@@ -60,8 +60,8 @@ const Header = ({ text }) => {
 
           {/* Buttons on the right */}
           <div className='col-12 col-md-4 d-flex justify-content-center justify-content-md-end align-items-center'>
-            {/* On mobile, stack components vertically */}
-            <div className='d-flex flex-column flex-md-row align-items-center w-100'>
+            {/* On mobile, stack components vertically; on md+ align to the right */}
+            <div className='d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-end'>
               {/* Dark Mode Toggle & Clear Cache Button */}
               <div className='d-flex justify-content-center align-items-center mb-3 mb-md-0 me-md-3'>
                 <label className='form-check form-switch me-2'>

@@ -13,10 +13,8 @@ const EditableAlbumCard = ({ album, onEdit, onDelete }) => {
   return (
     <div className='col'>
       <div
-        className={`d-flex flex-column h-100 rounded-4 border transition card-hover ${
-          isDarkMode
-            ? "bg-dark text-white border-light"
-            : "bg-white border-light"
+        className={`d-flex flex-column h-100 rounded-4 border transition card-hover frosted-card editable-album-card ${
+          isDarkMode ? "text-white border-light" : "border-light"
         }`}
         style={{
           backdropFilter: "blur(4px)",
@@ -89,8 +87,10 @@ const EditableAlbumCard = ({ album, onEdit, onDelete }) => {
             className='text-secondary small mb-2'
             style={{ opacity: 0.85, minHeight: "3em" }}
           >
-            {album.description || (
-              <span className='invisible'>No description</span>
+            {album.description ? (
+              album.description
+            ) : (
+              <span className='text-muted'>No description</span>
             )}
           </p>
           <p className='text-muted small mt-auto'>

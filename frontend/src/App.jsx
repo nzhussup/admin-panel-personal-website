@@ -5,12 +5,15 @@ import ProtectedRoute from "./components/routes/ProtectedRoute";
 import { DarkModeProvider, useDarkMode } from "./context/DarkModeContext";
 import { GlobalAlertProvider } from "./context/GlobalAlertContext";
 import GlobalAlert from "./components/GlobalAlert";
+import FloatingEmojis from "./components/FloatingEmojis";
+import "./App.css";
 
 function App() {
   return (
     <DarkModeProvider>
       <GlobalAlertProvider>
         <GlobalAlert />
+        <FloatingEmojis />
         <MainApp />
       </GlobalAlertProvider>
     </DarkModeProvider>

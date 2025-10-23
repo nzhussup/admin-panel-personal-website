@@ -18,12 +18,29 @@
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+/* Floating Emoji Animations */
+.floating-emoji {
+  will-change: transform;
+  animation: float-animation 20s ease-in-out infinite;
+  animation-delay: var(--delay);
+}
+
+@keyframes float-animation {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
   }
-  to {
-    transform: rotate(360deg);
+  25% {
+    transform: translate(var(--random-x1), var(--random-y1)) rotate(90deg)
+      scale(0.8);
+  }
+  50% {
+    transform: translate(var(--random-x2), var(--random-y2)) rotate(180deg)
+      scale(1.2);
+  }
+  75% {
+    transform: translate(var(--random-x3), var(--random-y3)) rotate(270deg)
+      scale(0.9);
   }
 }
 
@@ -39,4 +56,4 @@
 
 .read-the-docs {
   color: #888;
-} */
+}

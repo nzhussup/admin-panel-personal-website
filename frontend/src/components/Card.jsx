@@ -1,7 +1,7 @@
 const Card = ({ title, desc, img, buttontxt, handleFunc, children, style }) => {
   return (
     <div
-      className='card shadow-sm border-0 rounded-4 overflow-hidden card-hover transition'
+      className='card shadow-sm border-0 rounded-4 overflow-hidden card-hover transition frosted-card'
       onClick={handleFunc ? () => handleFunc() : null}
       style={{
         cursor: handleFunc ? "pointer" : "default",

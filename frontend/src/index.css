@@ -1,12 +1,24 @@
-
 body.dark-mode {
   background-color: #121212;
   color: #e0e0e0;
 }
 
+header {
+  background-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  /* Rounded edges and spacing from viewport so corners are visible */
+  border-radius: 12px;
+  margin: 12px;
+  overflow: hidden; /* ensures backdrop-filter respects border-radius on some browsers */
+}
+
 body.dark-mode header {
-  background-color: #1f1f1f; 
+  background-color: rgba(18, 18, 18, 0.3);
   color: #e0e0e0;
+  border-bottom: none; /* remove visible border in dark mode */
 }
 
 .form-switch .form-check-input:checked {
@@ -18,24 +30,17 @@ body.dark-mode header {
 }
 
 body.dark-mode .form-check-label {
-  color: #e0e0e0; 
-}
-
-body.dark-mode header {
-  background-color: #1f1f1f;
-  color: #e0e0e0; 
-  border-bottom: 1px solid #333; 
+  color: #e0e0e0;
 }
 
 body.dark-mode header .bi {
-  fill: #e0e0e0; 
+  fill: #e0e0e0;
 }
 
-
 body.dark-mode .btn {
-  background-color: #3a3a3a; 
-  color: #e0e0e0; 
-  border: 1px solid #555; 
+  background-color: #3a3a3a;
+  color: #e0e0e0;
+  border: 1px solid #555;
 }
 
 body.dark-mode .btn:hover {
@@ -57,7 +62,7 @@ body.dark-mode textarea:focus {
 }
 
 body.dark-mode a {
-  color: #bb86fc; 
+  color: #bb86fc;
   text-decoration: none;
 }
 
@@ -73,6 +78,41 @@ body.dark-mode .dropdown-menu {
 
 body.dark-mode .dropdown-item {
   color: #e0e0e0; /* Light text for dropdown items */
+}
+
+/* Make secondary/muted text readable in dark mode */
+body.dark-mode .text-secondary,
+body.dark-mode .text-muted {
+  color: #bdbdbd !important;
+  opacity: 0.95 !important;
+}
+
+/* Frosted glass cards */
+.frosted-card {
+  background-color: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+body.dark-mode .frosted-card {
+  background-color: rgba(20, 20, 20, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+/* Provide a subtle shadow and keep corners rounded */
+.frosted-card.card-hover {
+  border-radius: 16px;
+}
+
+/* Editable album card tweaks */
+.editable-album-card .fw-semibold {
+  color: inherit; /* ensure title inherits parent color */
+}
+
+.editable-album-card .text-secondary,
+.editable-album-card .text-muted {
+  color: rgba(255, 255, 255, 0.85); /* readable in dark mode */
 }
 
 body.dark-mode .dropdown-item:hover {
@@ -101,7 +141,7 @@ body.dark-mode .card-header {
 
 body.dark-mode .card-footer {
   background-color: #3a3a3a;
-  border-top: 1px solid #444; 
+  border-top: 1px solid #444;
 }
 
 /* Tables in dark mode */
@@ -125,12 +165,12 @@ body.dark-mode tr:hover {
 
 /* Dark mode: moon icon */
 body.dark-mode .bi-moon-stars {
-  color: #f8f9fa;  /* Light color for dark mode */
+  color: #f8f9fa; /* Light color for dark mode */
 }
 
 /* Light mode: brightness-high icon */
 body:not(.dark-mode) .bi-brightness-high {
-  color: #343a40;  /* Dark color for light mode */
+  color: #343a40; /* Dark color for light mode */
 }
 
 /* Dark Mode Styles */
