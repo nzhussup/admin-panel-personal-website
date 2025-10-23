@@ -87,19 +87,6 @@ body.dark-mode .text-muted {
   opacity: 0.95 !important;
 }
 
-/* Frosted glass cards */
-.frosted-card {
-  background-color: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-body.dark-mode .frosted-card {
-  background-color: rgba(20, 20, 20, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.03);
-}
-
 /* Provide a subtle shadow and keep corners rounded */
 .frosted-card.card-hover {
   border-radius: 16px;

@@ -1,8 +1,21 @@
 export const floatingEmojisConfig = {
   // List of emojis to use in the background
-  emojis: ["✨", "🌟", "💫", "⭐️", "🌠", "🚀", "🛸", "🪐", "🌍", "🌙"],
+  emojis: [
+    "✨",
+    "🌟",
+    "💫",
+    "⭐️",
+    "🌠",
+    "🚀",
+    "🛸",
+    "🪐",
+    "🌍",
+    "🌙",
+    "👨‍🚀",
+    "💻",
+  ],
   // Number of emoji instances to create
-  count: 50,
+  count: 100,
   // Animation duration range in seconds (min and max)
   durationRange: {
     min: 10,
