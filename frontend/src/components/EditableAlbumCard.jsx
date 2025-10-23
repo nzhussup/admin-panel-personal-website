@@ -83,20 +83,19 @@ const EditableAlbumCard = ({ album, onEdit, onDelete }) => {
         {/* Card content */}
         <div className='p-3 d-flex flex-column flex-grow-1'>
           <h5 className='fw-semibold mb-1' style={{ fontSize: "1.1rem" }}>
-            {album.title} {album.date ? `(${album.date})` : ""} ({album.type})
+            {album.title}
           </h5>
-
           <p
             className='text-secondary small mb-2'
             style={{ opacity: 0.85, minHeight: "3em" }}
           >
-            {album.desc || <span className='invisible'>No description</span>}
+            {album.description || (
+              <span className='invisible'>No description</span>
+            )}
           </p>
-
           <p className='text-muted small mt-auto'>
-            📸 image count: {album.image_count}
-          </p>
-
+            📸 {album.images_count} images
+          </p>{" "}
           {/* Buttons */}
           <div className='d-flex justify-content-end mt-3'>
             {onEdit && (
@@ -104,8 +103,9 @@ const EditableAlbumCard = ({ album, onEdit, onDelete }) => {
                 className='btn btn-sm btn-outline-secondary me-2'
                 onClick={(e) => {
                   e.stopPropagation();
-                  onEdit();
+                  onEdit(album);
                 }}
+                aria-label='Edit album'
               >
                 Edit
               </button>
@@ -115,8 +115,9 @@ const EditableAlbumCard = ({ album, onEdit, onDelete }) => {
                 className='btn btn-sm btn-outline-danger'
                 onClick={(e) => {
                   e.stopPropagation();
-                  onDelete();
+                  onDelete(album);
                 }}
+                aria-label='Delete album'
               >
                 Delete
               </button>

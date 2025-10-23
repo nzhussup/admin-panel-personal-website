@@ -21,6 +21,7 @@ const ClearCacheButton = ({ triggerAlertHandler }) => {
       onClick={handleClearCache}
       className='btn btn-outline-danger'
       disabled={isClearing}
+      data-testid='clear-cache-button'
     >
       {isClearing ? "Clearing Cache..." : "Clear Cache"}
     </button>

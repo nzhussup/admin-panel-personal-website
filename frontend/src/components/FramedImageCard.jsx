@@ -32,6 +32,7 @@ const FramedImageCard = ({ imageUrl, alt, onDelete, onEdit }) => {
   return (
     <>
       <div
+        data-testid='image-frame'
         className={`position-relative rounded-3 overflow-hidden image-frame ${
           isDarkMode ? "dark-mode" : ""
         }`}
@@ -65,6 +66,7 @@ const FramedImageCard = ({ imageUrl, alt, onDelete, onEdit }) => {
               e.stopPropagation();
               onDelete?.();
             }}
+            aria-label='Delete image'
             style={{
               position: "absolute",
               top: "8px",
@@ -92,6 +94,7 @@ const FramedImageCard = ({ imageUrl, alt, onDelete, onEdit }) => {
               e.stopPropagation();
               onEdit?.();
             }}
+            aria-label='Edit image'
             style={{
               position: "absolute",
               top: "8px",

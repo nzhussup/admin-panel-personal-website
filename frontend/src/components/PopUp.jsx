@@ -30,6 +30,7 @@ const PopUp = ({ closePopup, title, children, onSubmit }) => {
     <div
       className='popup-overlay'
       onClick={handleOverlayClick}
+      data-testid='popup-overlay'
       style={{
         position: "fixed",
         top: 0,
@@ -48,6 +49,7 @@ const PopUp = ({ closePopup, title, children, onSubmit }) => {
       <div
         ref={contentRef}
         className='popup-content'
+        data-testid='popup-content'
         style={{
           background: isDarkMode ? "#2a2a2a" : "white",
           color: isDarkMode ? "#e0e0e0" : "#000",
@@ -64,14 +66,6 @@ const PopUp = ({ closePopup, title, children, onSubmit }) => {
         <h5>{title}</h5>
         <form onSubmit={handleSubmit}>
           {children}
-
-          {isLoading && (
-            <div className='text-center my-3'>
-              <div className='spinner-border text-primary' role='status'>
-                <span className='visually-hidden'>Loading...</span>
-              </div>
-            </div>
-          )}
 
           <div className='d-flex justify-content-between mt-3'>
             <button
@@ -99,6 +93,17 @@ const PopUp = ({ closePopup, title, children, onSubmit }) => {
             </button>
           </div>
         </form>
+        {isLoading && (
+          <div className='text-center my-3'>
+            <div
+              data-testid='loading-spinner'
+              className='spinner-border text-primary'
+              role='status'
+            >
+              <span className='visually-hidden'>Loading...</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -70,6 +70,7 @@ const Header = ({ text }) => {
                     type='checkbox'
                     checked={isDarkMode}
                     onChange={toggleDarkMode}
+                    aria-label='Toggle dark mode'
                   />
                   <span className='form-check-label'>
                     {isDarkMode ? (

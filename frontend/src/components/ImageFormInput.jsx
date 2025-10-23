@@ -46,6 +46,7 @@ const ImageFormInput = ({
         multiple={multiple}
         onChange={handleFileInputChange}
         required={required}
+        aria-label='Choose files'
       />
       <label htmlFor='image-upload-input' className='btn btn-primary btn-sm'>
         Select Image{multiple && "s"}
@@ -76,6 +77,7 @@ const ImageFormInput = ({
               <button
                 type='button'
                 onClick={() => removeImagePreview(index)}
+                aria-label='Remove image'
                 style={{
                   position: "absolute",
                   top: "-6px",
