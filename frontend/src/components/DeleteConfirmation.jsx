@@ -8,7 +8,11 @@ const DeleteConfirmation = ({ isOpen, onClose, onConfirm }) => {
 
   return (
     <div
+      role='dialog'
+      aria-modal='true'
+      aria-labelledby='delete-confirmation-title'
       className='popup-overlay'
+      onClick={onClose}
       style={{
         position: "fixed",
         top: 0,
@@ -26,6 +30,7 @@ const DeleteConfirmation = ({ isOpen, onClose, onConfirm }) => {
     >
       <div
         className='popup-content'
+        onClick={(e) => e.stopPropagation()}
         style={{
           background: isDarkMode ? "#2a2a2a" : "white",
           color: isDarkMode ? "#e0e0e0" : "#000",
@@ -40,7 +45,7 @@ const DeleteConfirmation = ({ isOpen, onClose, onConfirm }) => {
         }}
       >
         <div>
-          <h5>Confirm Deletion</h5>
+          <h5 id='delete-confirmation-title'>Confirm Deletion</h5>
           <p>Are you sure you want to delete this item?</p>
         </div>
         <div className='d-flex justify-content-between mt-3'>
