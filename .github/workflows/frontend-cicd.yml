@@ -8,6 +8,27 @@ on:
       - "frontend/**"
 
 jobs:
+  test:
+    name: Run Frontend Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Install Dependencies
+        run: npm ci
+        working-directory: frontend
+
+      - name: Run Tests
+        run: npm test
+        working-directory: frontend
+
   build:
     name: Build Docker Image
     runs-on: ubuntu-latest
