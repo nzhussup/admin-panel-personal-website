@@ -148,7 +148,7 @@ func (s *Summarizer) doFullSummarization(ctx context.Context, pd *model.Personal
 	}
 
 	payload := map[string]interface{}{
-		"model": "deepseek/deepseek-chat-v3-0324:free",
+		"model": "tngtech/deepseek-r1t2-chimera:free",
 		"messages": []map[string]string{
 			{"role": "system", "content": systemPrompt},
 			{"role": "user", "content": userPrompt},
